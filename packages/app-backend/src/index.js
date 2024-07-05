@@ -74,7 +74,7 @@ function connect (Vue) {
     hook.off('flush')
     hook.on('flush', () => {
       if (hook.currentTab === 'components') {
-        flush()
+        debounceFlush()
       }
     })
 
@@ -298,6 +298,15 @@ function flush () {
   }
   bridge.send('flush', payload)
 }
+
+const debounce = function(func, timer) {
+  let debounceTimer = null;
+  return function() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(func, timer);
+  }
+}
+const debounceFlush = debounce(flush, 1000);
 
 /**
  * Iterate through an array of instances and flatten it into
