@@ -4,6 +4,7 @@ import Target from './Target.vue'
 import Other from './Other.vue'
 import Init from './Init.vue'
 import Counter from './Counter.vue'
+import Counter2_7 from './Comp2.7.vue'
 import RefTester from './RefTester.vue'
 import VuexObject from './VuexObject.vue'
 import NativeTypes from './NativeTypes.vue'
@@ -36,6 +37,7 @@ const app = new Vue({
   },
   render (h) {
     return h('div', null, [
+      h(Counter2_7),
       h(Counter),
       h(Target, { props: { msg: 'hi', ins: new MyClass() } }),
       h(Other),

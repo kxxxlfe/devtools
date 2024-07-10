@@ -1,6 +1,6 @@
 // This is the backend that is injected into the page that a Vue app lives in
 // when the Vue Devtools panel is activated.
-
+import { isRef } from 'vue'
 import { highlight, unHighlight, getInstanceOrVnodeRect } from './highlighter'
 import { initVuexBackend } from './vuex'
 import { initEventsBackend } from './events'
@@ -8,16 +8,7 @@ import { initRouterBackend } from './router'
 import { initPerfBackend } from './perf'
 import { findRelatedComponent } from './utils'
 import ComponentSelector from './component-selector'
-import {
-  stringify,
-  classify,
-  camelize,
-  set,
-  has,
-  parse,
-  getComponentName,
-  getCustomRefDetails
-} from '@utils/util'
+import { stringify, classify, camelize, set, has, parse, getComponentName, getCustomRefDetails } from '@utils/util'
 import SharedData, { init as initSharedData } from '@utils/shared-data'
 import { isBrowser, target } from '@utils/env'
 
@@ -26,8 +17,8 @@ const hook = target.__VUE_DEVTOOLS_GLOBAL_HOOK__
 const rootInstances = []
 const propModes = ['default', 'sync', 'once']
 
-export const instanceMap = target.__VUE_DEVTOOLS_INSTANCE_MAP__ = new Map()
-export const functionalVnodeMap = target.__VUE_DEVTOOLS_FUNCTIONAL_VNODE_MAP__ = new Map()
+export const instanceMap = (target.__VUE_DEVTOOLS_INSTANCE_MAP__ = new Map())
+export const functionalVnodeMap = (target.__VUE_DEVTOOLS_FUNCTIONAL_VNODE_MAP__ = new Map())
 
 const consoleBoundInstances = Array(5)
 let currentInspectedId
@@ -42,7 +33,7 @@ let functionalIds = new Map()
 // Some instances may be both on a component and on a child abstract/functional component
 const captureIds = new Map()
 
-export function initBackend (_bridge) {
+export function initBackend(_bridge) {
   bridge = _bridge
 
   if (hook.Vue) {
@@ -55,10 +46,10 @@ export function initBackend (_bridge) {
   initRightClick()
 }
 
-function connect (Vue) {
+function connect(Vue) {
   initSharedData({
     bridge,
-    Vue
+    Vue,
   }).then(() => {
     hook.currentTab = 'components'
     bridge.on('switch-tab', tab => {
@@ -74,7 +65,7 @@ function connect (Vue) {
     hook.off('flush')
     hook.on('flush', () => {
       if (hook.currentTab === 'components') {
-        flush()
+        debounceFlush()
       }
     })
 
@@ -182,7 +173,7 @@ function connect (Vue) {
   })
 }
 
-export function findInstanceOrVnode (id) {
+export function findInstanceOrVnode(id) {
   if (/:functional:/.test(id)) {
     const [refId] = id.split(':functional:')
     const map = functionalVnodeMap.get(refId)
@@ -195,12 +186,12 @@ export function findInstanceOrVnode (id) {
  * Scan the page for root level Vue instances.
  */
 
-function scan () {
+function scan() {
   rootInstances.length = 0
   let inFragment = false
   let currentFragment = null
 
-  function processInstance (instance) {
+  function processInstance(instance) {
     if (instance) {
       if (rootInstances.indexOf(instance.$root) === -1) {
         instance = instance.$root
@@ -229,7 +220,7 @@ function scan () {
   }
 
   if (isBrowser) {
-    walk(document, function (node) {
+    walk(document, function(node) {
       if (inFragment) {
         if (node === currentFragment._fragmentEnd) {
           inFragment = false
@@ -257,7 +248,7 @@ function scan () {
  * @param {Function} fn
  */
 
-function walk (node, fn) {
+function walk(node, fn) {
   if (node.childNodes) {
     for (let i = 0, l = node.childNodes.length; i < l; i++) {
       const child = node.childNodes[i]
@@ -281,7 +272,7 @@ function walk (node, fn) {
  * send it to the devtools.
  */
 
-function flush () {
+function flush() {
   let start
   functionalIds.clear()
   captureIds.clear()
@@ -291,13 +282,24 @@ function flush () {
   }
   const payload = stringify({
     inspectedInstance: getInstanceDetails(currentInspectedId),
-    instances: findQualifiedChildrenFromList(rootInstances)
+    instances: findQualifiedChildrenFromList(rootInstances),
   })
   if (process.env.NODE_ENV !== 'production') {
-    console.log(`[flush] serialized ${captureCount} instances${isBrowser ? `, took ${window.performance.now() - start}ms.` : ''}.`)
+    console.log(
+      `[flush] serialized ${captureCount} instances${isBrowser ? `, took ${window.performance.now() - start}ms.` : ''}.`
+    )
   }
   bridge.send('flush', payload)
 }
+
+const debounce = function(func, timer) {
+  let debounceTimer = null
+  return function() {
+    clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(func, timer)
+  }
+}
+const debounceFlush = debounce(flush, 350)
 
 /**
  * Iterate through an array of instances and flatten it into
@@ -309,12 +311,9 @@ function flush () {
  * @return {Array}
  */
 
-function findQualifiedChildrenFromList (instances) {
-  instances = instances
-    .filter(child => !child._isBeingDestroyed)
-  return !filter
-    ? instances.map(capture)
-    : Array.prototype.concat.apply([], instances.map(findQualifiedChildren))
+function findQualifiedChildrenFromList(instances) {
+  instances = instances.filter(child => !child._isBeingDestroyed)
+  return !filter ? instances.map(capture) : Array.prototype.concat.apply([], instances.map(findQualifiedChildren))
 }
 
 /**
@@ -326,17 +325,17 @@ function findQualifiedChildrenFromList (instances) {
  * @return {Vue|Array}
  */
 
-function findQualifiedChildren (instance) {
+function findQualifiedChildren(instance) {
   return isQualified(instance)
     ? capture(instance)
     : findQualifiedChildrenFromList(instance.$children).concat(
-      instance._vnode && instance._vnode.children
-        // Find functional components in recursively in non-functional vnodes.
-        ? flatten(instance._vnode.children.filter(child => !child.componentInstance).map(captureChild))
-          // Filter qualified children.
-          .filter(instance => isQualified(instance))
-        : []
-    )
+        instance._vnode && instance._vnode.children
+          ? // Find functional components in recursively in non-functional vnodes.
+            flatten(instance._vnode.children.filter(child => !child.componentInstance).map(captureChild))
+              // Filter qualified children.
+              .filter(instance => isQualified(instance))
+          : []
+      )
 }
 
 /**
@@ -346,12 +345,12 @@ function findQualifiedChildren (instance) {
  * @return {Boolean}
  */
 
-function isQualified (instance) {
+function isQualified(instance) {
   const name = classify(instance.name || getInstanceName(instance)).toLowerCase()
   return name.indexOf(filter) > -1
 }
 
-function flatten (items) {
+function flatten(items) {
   return items.reduce((acc, item) => {
     if (item instanceof Array) acc.push(...flatten(item))
     else if (item) acc.push(item)
@@ -360,7 +359,7 @@ function flatten (items) {
   }, [])
 }
 
-function captureChild (child) {
+function captureChild(child) {
   if (child.fnContext && !child.componentInstance) {
     return capture(child)
   } else if (child.componentInstance) {
@@ -377,7 +376,7 @@ function captureChild (child) {
  * @return {Object}
  */
 
-function capture (instance, index, list) {
+function capture(instance, index, list) {
   if (process.env.NODE_ENV !== 'production') {
     captureCount++
   }
@@ -403,17 +402,21 @@ function capture (instance, index, list) {
       functional: true,
       name: getInstanceName(instance),
       renderKey: getRenderKey(instance.key),
-      children: (instance.children ? instance.children.map(
-        child => child.fnContext
-          ? captureChild(child)
-          : child.componentInstance
-            ? capture(child.componentInstance)
-            : undefined
-      )
-        // router-view has both fnContext and componentInstance on vnode.
-        : instance.componentInstance ? [capture(instance.componentInstance)] : []).filter(Boolean),
+      children: (instance.children
+        ? instance.children.map(child =>
+            child.fnContext
+              ? captureChild(child)
+              : child.componentInstance
+              ? capture(child.componentInstance)
+              : undefined
+          )
+        : // router-view has both fnContext and componentInstance on vnode.
+        instance.componentInstance
+        ? [capture(instance.componentInstance)]
+        : []
+      ).filter(Boolean),
       inactive: false,
-      isFragment: false // TODO: Check what is it for.
+      isFragment: false, // TODO: Check what is it for.
     }
   }
   // instance._uid is not reliable in devtools as there
@@ -441,14 +444,11 @@ function capture (instance, index, list) {
     children: instance.$children
       .filter(child => !child._isBeingDestroyed)
       .map(capture)
-      .filter(Boolean)
+      .filter(Boolean),
   }
 
   if (instance._vnode && instance._vnode.children) {
-    ret.children = ret.children.concat(
-      flatten(instance._vnode.children.map(captureChild))
-        .filter(Boolean)
-    )
+    ret.children = ret.children.concat(flatten(instance._vnode.children.map(captureChild)).filter(Boolean))
   }
 
   // record screen position to ensure correct ordering
@@ -467,13 +467,9 @@ function capture (instance, index, list) {
     ret.isRouterView = true
     if (!instance._inactive && instance.$route) {
       const matched = instance.$route.matched
-      const depth = isRouterView2
-        ? instance.$vnode.data.routerViewDepth
-        : instance._routerView.depth
+      const depth = isRouterView2 ? instance.$vnode.data.routerViewDepth : instance._routerView.depth
       ret.matchedRouteSegment =
-        matched &&
-        matched[depth] &&
-        (isRouterView2 ? matched[depth].path : matched[depth].handler.path)
+        matched && matched[depth] && (isRouterView2 ? matched[depth].path : matched[depth].handler.path)
     }
   }
   return ret
@@ -485,20 +481,20 @@ function capture (instance, index, list) {
  * @param {Vue} instance
  */
 
-function mark (instance) {
+function mark(instance) {
   if (!instanceMap.has(instance.__VUE_DEVTOOLS_UID__)) {
     instanceMap.set(instance.__VUE_DEVTOOLS_UID__, instance)
-    instance.$on('hook:beforeDestroy', function () {
+    instance.$on('hook:beforeDestroy', function() {
       instanceMap.delete(instance.__VUE_DEVTOOLS_UID__)
     })
   }
 }
 
-function markFunctional (id, vnode) {
+function markFunctional(id, vnode) {
   const refId = vnode.fnContext.__VUE_DEVTOOLS_UID__
   if (!functionalVnodeMap.has(refId)) {
     functionalVnodeMap.set(refId, {})
-    vnode.fnContext.$on('hook:beforeDestroy', function () {
+    vnode.fnContext.$on('hook:beforeDestroy', function() {
       functionalVnodeMap.delete(refId)
     })
   }
@@ -512,7 +508,7 @@ function markFunctional (id, vnode) {
  * @param {Number} id
  */
 
-function getInstanceDetails (id) {
+function getInstanceDetails(id) {
   const instance = instanceMap.get(id)
   if (!instance) {
     const vnode = findInstanceOrVnode(id)
@@ -523,8 +519,11 @@ function getInstanceDetails (id) {
       id,
       name: getComponentName(vnode.fnOptions),
       file: vnode.fnOptions.__file || null,
-      state: processProps({ $options: vnode.fnOptions, ...(vnode.devtoolsMeta && vnode.devtoolsMeta.renderContext.props) }),
-      functional: true
+      state: processProps({
+        $options: vnode.fnOptions,
+        ...(vnode.devtoolsMeta && vnode.devtoolsMeta.renderContext.props),
+      }),
+      functional: true,
     }
 
     return data
@@ -532,7 +531,7 @@ function getInstanceDetails (id) {
     const data = {
       id: id,
       name: getInstanceName(instance),
-      state: getInstanceState(instance)
+      state: getInstanceState(instance),
     }
 
     let i
@@ -544,10 +543,11 @@ function getInstanceDetails (id) {
   }
 }
 
-function getInstanceState (instance) {
+function getInstanceState(instance) {
   return processProps(instance).concat(
     processState(instance),
     processRefs(instance),
+    processSetupState(instance),
     processComputed(instance),
     processInjected(instance),
     processRouteContext(instance),
@@ -558,7 +558,7 @@ function getInstanceState (instance) {
   )
 }
 
-export function getCustomInstanceDetails (instance) {
+export function getCustomInstanceDetails(instance) {
   const state = getInstanceState(instance)
   return {
     _custom: {
@@ -568,19 +568,19 @@ export function getCustomInstanceDetails (instance) {
       tooltip: 'Component instance',
       value: reduceStateList(state),
       fields: {
-        abstract: true
-      }
-    }
+        abstract: true,
+      },
+    },
   }
 }
 
-export function reduceStateList (list) {
+export function reduceStateList(list) {
   if (!list.length) {
     return undefined
   }
   return list.reduce((map, item) => {
     const key = item.type || 'data'
-    const obj = map[key] = map[key] || {}
+    const obj = (map[key] = map[key] || {})
     obj[item.key] = item.value
     return map
   }, {})
@@ -593,12 +593,10 @@ export function reduceStateList (list) {
  * @return {String}
  */
 
-export function getInstanceName (instance) {
+export function getInstanceName(instance) {
   const name = getComponentName(instance.$options || instance.fnOptions || {})
   if (name) return name
-  return instance.$root === instance
-    ? 'Root'
-    : 'Anonymous Component'
+  return instance.$root === instance ? 'Root' : 'Anonymous Component'
 }
 
 /**
@@ -610,7 +608,7 @@ export function getInstanceName (instance) {
  * @return {Array}
  */
 
-function processProps (instance) {
+function processProps(instance) {
   let props
   if (isLegacy && (props = instance._props)) {
     // 1.x
@@ -621,11 +619,13 @@ function processProps (instance) {
         type: 'props',
         key: prop.path,
         value: instance[prop.path],
-        meta: options ? {
-          type: options.type ? getPropType(options.type) : 'any',
-          required: !!options.required,
-          mode: propModes[prop.mode]
-        } : {}
+        meta: options
+          ? {
+              type: options.type ? getPropType(options.type) : 'any',
+              required: !!options.required,
+              mode: propModes[prop.mode],
+            }
+          : {},
       }
     })
   } else if ((props = instance.$options.props)) {
@@ -638,13 +638,15 @@ function processProps (instance) {
         type: 'props',
         key,
         value: instance[key],
-        meta: prop ? {
-          type: prop.type ? getPropType(prop.type) : 'any',
-          required: !!prop.required
-        } : {
-          type: 'invalid'
-        },
-        editable: SharedData.editableProps
+        meta: prop
+          ? {
+              type: prop.type ? getPropType(prop.type) : 'any',
+              required: !!prop.required,
+            }
+          : {
+              type: 'invalid',
+            },
+        editable: SharedData.editableProps,
       })
     }
     return propsData
@@ -653,12 +655,12 @@ function processProps (instance) {
   }
 }
 
-function processAttrs (instance) {
+function processAttrs(instance) {
   return Object.entries(instance.$attrs || {}).map(([key, value]) => {
     return {
       type: '$attrs',
       key,
-      value
+      value,
     }
   })
 }
@@ -670,11 +672,9 @@ function processAttrs (instance) {
  */
 
 const fnTypeRE = /^(?:function|class) (\w+)/
-function getPropType (type) {
+function getPropType(type) {
   const match = type.toString().match(fnTypeRE)
-  return typeof type === 'function'
-    ? (match && match[1]) || 'any'
-    : 'any'
+  return typeof type === 'function' ? (match && match[1]) || 'any' : 'any'
 }
 
 /**
@@ -686,22 +686,15 @@ function getPropType (type) {
  * @return {Array}
  */
 
-function processState (instance) {
-  const props = isLegacy
-    ? instance._props
-    : instance.$options.props
-  const getters =
-    instance.$options.vuex &&
-    instance.$options.vuex.getters
+function processState(instance) {
+  const props = isLegacy ? instance._props : instance.$options.props
+  const getters = instance.$options.vuex && instance.$options.vuex.getters
   return Object.keys(instance._data)
-    .filter(key => (
-      !(props && key in props) &&
-      !(getters && key in getters)
-    ))
+    .filter(key => !(props && key in props) && !(getters && key in getters))
     .map(key => ({
       key,
       value: instance._data[key],
-      editable: true
+      editable: true,
     }))
 }
 
@@ -712,10 +705,33 @@ function processState (instance) {
  * @return {Array}
  */
 
-function processRefs (instance) {
+function processRefs(instance) {
   return Object.keys(instance.$refs)
     .filter(key => instance.$refs[key])
     .map(key => getCustomRefDetails(instance, key, instance.$refs[key]))
+}
+
+/**
+ * Process refs
+ *
+ * @param {Vue} instance
+ * @return {Array}
+ */
+
+function processSetupState(instance) {
+  const states = []
+  Object.entries(instance._setupState || {}).forEach(([key, value]) => {
+    if (typeof value === 'function') {
+      return
+    }
+    states.push({
+      type: 'setup',
+      key,
+      value: isRef(value) ? value.value : value,
+    })
+  })
+
+  return states
 }
 
 /**
@@ -725,7 +741,7 @@ function processRefs (instance) {
  * @return {Array}
  */
 
-function processComputed (instance) {
+function processComputed(instance) {
   const computed = []
   const defs = instance.$options.computed || {}
   // use for...in here because if 'computed' is not defined
@@ -734,9 +750,7 @@ function processComputed (instance) {
   // properties from object's prototype
   for (const key in defs) {
     const def = defs[key]
-    const type = typeof def === 'function' && def.vuex
-      ? 'vuex bindings'
-      : 'computed'
+    const type = typeof def === 'function' && def.vuex ? 'vuex bindings' : 'computed'
     // use try ... catch here because some computed properties may
     // throw error during its evaluation
     let computedProp = null
@@ -744,13 +758,13 @@ function processComputed (instance) {
       computedProp = {
         type,
         key,
-        value: instance[key]
+        value: instance[key],
       }
     } catch (e) {
       computedProp = {
         type,
         key,
-        value: '(error during evaluation)'
+        value: '(error during evaluation)',
       }
     }
 
@@ -767,7 +781,7 @@ function processComputed (instance) {
  * @return {Array}
  */
 
-function processInjected (instance) {
+function processInjected(instance) {
   const injected = instance.$options.inject
 
   if (injected) {
@@ -775,7 +789,7 @@ function processInjected (instance) {
       return {
         key,
         type: 'injected',
-        value: instance[key]
+        value: instance[key],
       }
     })
   } else {
@@ -790,7 +804,7 @@ function processInjected (instance) {
  * @return {Array}
  */
 
-function processRouteContext (instance) {
+function processRouteContext(instance) {
   try {
     const route = instance.$route
     if (route) {
@@ -800,16 +814,18 @@ function processRouteContext (instance) {
       if (route.hash) value.hash = route.hash
       if (route.name) value.name = route.name
       if (route.meta) value.meta = route.meta
-      return [{
-        key: '$route',
-        value: {
-          _custom: {
-            type: 'router',
-            abstract: true,
-            value
-          }
-        }
-      }]
+      return [
+        {
+          key: '$route',
+          value: {
+            _custom: {
+              type: 'router',
+              abstract: true,
+              value,
+            },
+          },
+        },
+      ]
     }
   } catch (e) {
     // Invalid $router
@@ -824,16 +840,14 @@ function processRouteContext (instance) {
  * @return {Array}
  */
 
-function processVuexGetters (instance) {
-  const getters =
-    instance.$options.vuex &&
-    instance.$options.vuex.getters
+function processVuexGetters(instance) {
+  const getters = instance.$options.vuex && instance.$options.vuex.getters
   if (getters) {
     return Object.keys(getters).map(key => {
       return {
         type: 'vuex getters',
         key,
-        value: instance[key]
+        value: instance[key],
       }
     })
   } else {
@@ -848,14 +862,14 @@ function processVuexGetters (instance) {
  * @return {Array}
  */
 
-function processFirebaseBindings (instance) {
+function processFirebaseBindings(instance) {
   const refs = instance.$firebaseRefs
   if (refs) {
     return Object.keys(refs).map(key => {
       return {
         type: 'firebase bindings',
         key,
-        value: instance[key]
+        value: instance[key],
       }
     })
   } else {
@@ -870,14 +884,14 @@ function processFirebaseBindings (instance) {
  * @return {Array}
  */
 
-function processObservables (instance) {
+function processObservables(instance) {
   const obs = instance.$observables
   if (obs) {
     return Object.keys(obs).map(key => {
       return {
         type: 'observables',
         key,
-        value: instance[key]
+        value: instance[key],
       }
     })
   } else {
@@ -891,7 +905,7 @@ function processObservables (instance) {
  * @param {Vue} instance
  */
 
-function scrollIntoView (instance) {
+function scrollIntoView(instance) {
   const rect = getInstanceOrVnodeRect(instance)
   if (rect) {
     // TODO: Handle this for non-browser environments.
@@ -906,7 +920,7 @@ function scrollIntoView (instance) {
  * @param {Vue} instance
  */
 
-function bindToConsole (instance) {
+function bindToConsole(instance) {
   if (!instance) return
   if (!isBrowser) return
 
@@ -929,12 +943,12 @@ function bindToConsole (instance) {
  * Returns a devtools unique id for instance.
  * @param {Vue} instance
  */
-function getUniqueId (instance) {
+function getUniqueId(instance) {
   const rootVueId = instance.$root.__VUE_DEVTOOLS_ROOT_UID__
   return `${rootVueId}:${instance._uid}`
 }
 
-function getRenderKey (value) {
+function getRenderKey(value) {
   if (value == null) return
   const type = typeof value
   if (type === 'number') {
@@ -952,17 +966,17 @@ function getRenderKey (value) {
  * Display a toast message.
  * @param {any} message HTML content
  */
-export function toast (message, type = 'normal') {
+export function toast(message, type = 'normal') {
   const fn = target.__VUE_DEVTOOLS_TOAST__
   fn && fn(message, type)
 }
 
-export function inspectInstance (instance) {
+export function inspectInstance(instance) {
   const id = instance.__VUE_DEVTOOLS_UID__
   id && bridge.send('inspect-instance', id)
 }
 
-function setStateValue ({ id, path, value, newKey, remove }) {
+function setStateValue({ id, path, value, newKey, remove }) {
   const instance = instanceMap.get(id)
   if (instance) {
     try {
@@ -970,15 +984,15 @@ function setStateValue ({ id, path, value, newKey, remove }) {
       if (value) {
         parsedValue = parse(value, true)
       }
-      const api = isLegacy ? {
-        $set: hook.Vue.set,
-        $delete: hook.Vue.delete
-      } : instance
-      const data = has(instance._props, path, newKey)
-        ? instance._props
-        : instance._data
+      const api = isLegacy
+        ? {
+            $set: hook.Vue.set,
+            $delete: hook.Vue.delete,
+          }
+        : instance
+      const data = has(instance._props, path, newKey) ? instance._props : instance._data
       set(data, path, parsedValue, (obj, field, value) => {
-        (remove || newKey) && api.$delete(obj, field)
+        ;(remove || newKey) && api.$delete(obj, field)
         !remove && api.$set(obj, newKey || field, value)
       })
     } catch (e) {
@@ -987,7 +1001,7 @@ function setStateValue ({ id, path, value, newKey, remove }) {
   }
 }
 
-function initRightClick () {
+function initRightClick() {
   if (!isBrowser) return
   // Start recording context menu when Vue is detected
   // event if Vue devtools are not loaded yet

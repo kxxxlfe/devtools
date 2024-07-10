@@ -1,0 +1,37 @@
+// 需要在当前目录下创建settings.json复制文件内容过去才生效
+{
+  // 将prettier设置为默认格式化程序(在编辑器中有可能被其他Formatter占用，所以将prettier设置为默认Formatter)
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  // 保存时自动格式化 (根据根目录下‘.prettierrc文件配置项’)
+  "editor.formatOnSave": true,
+  // 为ESLint启用“保存时自动修复”，并且仍然具有格式和快速修复功能
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "never",
+    "source.fixAll.eslint": "never"
+  },
+  // Enable per-language
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "editor.tabSize": 4,
+  "search.exclude": {
+    "**/tmp": true
+  }
+}
