@@ -724,6 +724,10 @@ function processSetupState(instance) {
     if (typeof value === 'function') {
       return
     }
+    value = isRef(value) ? value.value : value
+    if (instance.$refs[key] && value === instance.$refs[key]) {
+      return
+    }
     states.push({
       type: 'setup',
       key,
