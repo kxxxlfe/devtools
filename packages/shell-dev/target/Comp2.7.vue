@@ -1,5 +1,5 @@
 <template>
-  <div class="comp-2_7">
+  <div class="comp-2_7" ref="rootEl">
     <h1>comp 2.7</h1>
     <button @click="handleAdd">add</button>
     <p>count: {{ count }}</p>
@@ -26,7 +26,8 @@ export default defineComponent({
     const handleAdd = function() {
       state.count++
     }
-    return { ...toRefs(state), computeCount, handleAdd }
+    const rootEl = ref(null)
+    return { ...toRefs(state), computeCount, handleAdd, rootEl }
   },
 })
 </script>

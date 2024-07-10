@@ -9,8 +9,8 @@
           toDisplayType(dataType, true),
           {
             'high-density': highDensity,
-            dim: dimAfter !== -1 && index >= dimAfter
-          }
+            dim: dimAfter !== -1 && index >= dimAfter,
+          },
         ]"
       >
         <div
@@ -18,17 +18,10 @@
           class="data-type selectable-item"
           @click="toggle(dataType, $event)"
         >
-          <span
-            :class="{ rotated: isExpanded(dataType) }"
-            class="arrow right"
-          />
+          <span :class="{ rotated: isExpanded(dataType) }" class="arrow right" />
           <span class="key">{{ toDisplayType(dataType) }}</span>
         </div>
-        <StateFields
-          v-show="isExpanded(dataType)"
-          :fields="state[dataType]"
-          :force-collapse="forceCollapse"
-        />
+        <StateFields v-show="isExpanded(dataType)" :fields="state[dataType]" :force-collapse="forceCollapse" />
       </div>
     </template>
   </div>
@@ -46,82 +39,74 @@ const keyOrder = {
   'register module': 1,
   'unregister module': 1,
   state: 2,
+  setup: 3,
   getters: 3,
   mutation: 1,
   'vuex bindings': 5,
   $refs: 6,
-  $attrs: 7
+  $attrs: 7,
 }
 
 export default {
   components: {
-    StateFields
+    StateFields,
   },
 
-  mixins: [
-    Defer()
-  ],
+  mixins: [Defer()],
 
   props: {
     state: {
       type: Object,
-      required: true
+      required: true,
     },
 
     dimAfter: {
       type: Number,
-      default: -1
-    }
+      default: -1,
+    },
   },
 
-  data () {
+  data() {
     return {
       expandedState: {},
-      forceCollapse: null
+      forceCollapse: null,
     }
   },
 
   computed: {
-    dataTypes () {
+    dataTypes() {
       return Object.keys(this.state).sort((a, b) => {
-        return (
-          (keyOrder[a] || (a.charCodeAt(0) + 999)) -
-          (keyOrder[b] || (b.charCodeAt(0) + 999))
-        )
+        return (keyOrder[a] || a.charCodeAt(0) + 999) - (keyOrder[b] || b.charCodeAt(0) + 999)
       })
     },
 
-    totalCount () {
+    totalCount() {
       return Object.keys(this.state).reduce((total, state) => total + state.length, 0)
     },
 
-    highDensity () {
+    highDensity() {
       const pref = this.$shared.displayDensity
       return (pref === 'auto' && this.totalCount > 12) || pref === 'high'
-    }
+    },
   },
 
   watch: {
-    state () {
+    state() {
       this.forceCollapse = null
-    }
+    },
   },
 
   methods: {
-    toDisplayType (dataType, asClass) {
-      return dataType === 'undefined'
-        ? 'data'
-        : asClass
-          ? dataType.replace(/\s/g, '-')
-          : dataType
+    toDisplayType(dataType, asClass) {
+      return dataType === 'undefined' ? 'data' : asClass ? dataType.replace(/\s/g, '-') : dataType
     },
 
-    isExpanded (dataType) {
+    isExpanded(dataType) {
       const value = this.expandedState[dataType]
       return typeof value === 'undefined' || value
     },
 
-    toggle (dataType, event = null) {
+    toggle(dataType, event = null) {
       if (event) {
         if (event.ctrlKey || event.metaKey) {
           return this.setExpandToAll(false)
@@ -132,13 +117,13 @@ export default {
       Vue.set(this.expandedState, dataType, !this.isExpanded(dataType))
     },
 
-    setExpandToAll (value) {
+    setExpandToAll(value) {
       this.dataTypes.forEach(key => {
         this.forceCollapse = value ? 'expand' : 'collapse'
         Vue.set(this.expandedState, key, value)
       })
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -193,5 +178,4 @@ export default {
     padding-top 0
     @media (max-height: $tall)
       margin-bottom 4px
-
 </style>
