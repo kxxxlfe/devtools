@@ -306,7 +306,7 @@ const debounce = function(func, timer) {
     debounceTimer = setTimeout(func, timer);
   }
 }
-const debounceFlush = debounce(flush, 1000);
+const debounceFlush = debounce(flush, 350);
 
 /**
  * Iterate through an array of instances and flatten it into

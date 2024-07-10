@@ -4,6 +4,6 @@
   "private": true,
   "dependencies": {
     "@vue-devtools/shared-utils": "^0.0.0",
-    "vue": "^2.6.10"
+    "vue": "^2.7.16"
   }
 }
