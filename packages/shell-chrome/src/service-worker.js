@@ -18,7 +18,7 @@ chrome.runtime.onConnect.addListener(port => {
   if (!ports[tab]) {
     ports[tab] = {
       devtools: null,
-      backend: null
+      backend: null,
     }
   }
   ports[tab][name] = port
@@ -28,25 +28,28 @@ chrome.runtime.onConnect.addListener(port => {
   }
 })
 
-function isNumeric (str) {
+function isNumeric(str) {
   return +str + '' === str
 }
 
-function installProxy (tabId) {
-  chrome.tabs.executeScript(tabId, {
-    file: '/build/proxy.js'
-  }, function (res) {
-    if (!res) {
-      ports[tabId].devtools.postMessage('proxy-fail')
-    } else {
-      console.log('injected proxy to tab ' + tabId)
-    }
-  })
+function installProxy(tabId) {
+  chrome.scripting
+    .executeScript({
+      target: { tabId: tabId },
+      files: ['/build/proxy.js'],
+    })
+    .then(res => {
+      if (!res) {
+        ports[tabId].devtools.postMessage('proxy-fail')
+      } else {
+        console.log('injected proxy to tab ' + tabId)
+      }
+    })
 }
 
-function doublePipe (id, one, two) {
+function doublePipe(id, one, two) {
   one.onMessage.addListener(lOne)
-  function lOne (message) {
+  function lOne(message) {
     if (message.event === 'log') {
       return console.log('tab ' + id, message.payload)
     }
@@ -54,14 +57,14 @@ function doublePipe (id, one, two) {
     two.postMessage(message)
   }
   two.onMessage.addListener(lTwo)
-  function lTwo (message) {
+  function lTwo(message) {
     if (message.event === 'log') {
       return console.log('tab ' + id, message.payload)
     }
     console.log('backend -> devtools', message)
     one.postMessage(message)
   }
-  function shutdown () {
+  function shutdown() {
     console.log('tab ' + id + ' disconnected.')
     one.onMessage.removeListener(lOne)
     two.onMessage.removeListener(lTwo)
@@ -80,17 +83,17 @@ chrome.runtime.onMessage.addListener((req, sender) => {
   if (sender.tab && req.vueDetected) {
     const suffix = req.nuxtDetected ? '.nuxt' : ''
 
-    chrome.browserAction.setIcon({
+    chrome.action.setIcon({
       tabId: sender.tab.id,
       path: {
         16: `icons/16${suffix}.png`,
         48: `icons/48${suffix}.png`,
-        128: `icons/128${suffix}.png`
-      }
+        128: `icons/128${suffix}.png`,
+      },
     })
-    chrome.browserAction.setPopup({
+    chrome.action.setPopup({
       tabId: sender.tab.id,
-      popup: req.devtoolsEnabled ? `popups/enabled${suffix}.html` : `popups/disabled${suffix}.html`
+      popup: req.devtoolsEnabled ? `popups/enabled${suffix}.html` : `popups/disabled${suffix}.html`,
     })
   }
 })
@@ -102,13 +105,13 @@ chrome.tabs.onActivated.addListener(({ tabId }) => {
   updateContextMenuItem()
 })
 
-function updateContextMenuItem () {
+function updateContextMenuItem() {
   chrome.contextMenus.removeAll(() => {
     if (ports[activeTabId]) {
       chrome.contextMenus.create({
         id: 'vue-inspect-instance',
         title: 'Inspect Vue component',
-        contexts: ['all']
+        contexts: ['all'],
       })
     }
   })
@@ -117,7 +120,7 @@ function updateContextMenuItem () {
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   chrome.runtime.sendMessage({
     vueContextMenu: {
-      id: info.menuItemId
-    }
+      id: info.menuItemId,
+    },
   })
 })
