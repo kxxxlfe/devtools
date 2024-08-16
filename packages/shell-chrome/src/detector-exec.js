@@ -51,6 +51,6 @@ function detect(win) {
 
 // inject the hook
 if (document instanceof HTMLDocument) {
-  detect()
+  detect(window)
   installToast()
 }
