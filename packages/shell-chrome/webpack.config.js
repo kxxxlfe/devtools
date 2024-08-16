@@ -11,6 +11,7 @@ module.exports = createConfig({
     proxy: './src/proxy.js',
     detector: './src/detector.js',
     'hook-exec': './src/hook-exec.js',
+    'detector-exec': './src/detector-exec.js',
   },
   output: {
     path: path.join(__dirname, 'build'),
