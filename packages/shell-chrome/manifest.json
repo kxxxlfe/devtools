@@ -1,5 +1,5 @@
 {
-  "name": "Vue2.7 devtools",
+  "name": "Vue2.7 devtools dev",
   "version": "5.3.4",
   "version_name": "5.3.4",
   "description": "base on vue.js devtools 5.3.4",
@@ -33,7 +33,7 @@
   ],
   "devtools_page": "devtools-background.html",
   "background": {
-    "service_worker": "build/background.js"
+    "service_worker": "build/service-worker.js"
   },
   "permissions": ["contextMenus", "storage", "scripting", "tabs"],
   "host_permissions": ["<all_urls>"],
