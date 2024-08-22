@@ -1,8 +1,8 @@
 {
-  "name": "Vue.js devtools",
-  "version": "5.3.4",
-  "version_name": "5.3.4",
-  "description": "Chrome and Firefox DevTools extension for debugging Vue.js applications.",
+  "name": "Vue2.7 devtools dev",
+  "version": "5.3.5",
+  "version_name": "5.3.5",
+  "description": "base on vue.js devtools 5.3.4",
   "manifest_version": 3,
   "icons": {
     "16": "icons/16.png",
@@ -33,9 +33,9 @@
   ],
   "devtools_page": "devtools-background.html",
   "background": {
-    "service_worker": "build/background.js"
+    "service_worker": "build/service-worker.js"
   },
-  "permissions": ["contextMenus", "storage", "scripting", "tabs"],
+  "permissions": ["contextMenus", "storage", "scripting", "tabs", "devtools"],
   "host_permissions": ["<all_urls>"],
   "content_scripts": [
     {

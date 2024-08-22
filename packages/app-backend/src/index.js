@@ -6,7 +6,7 @@ import { initVuexBackend } from './vuex'
 import { initEventsBackend } from './events'
 import { initRouterBackend } from './router'
 import { initPerfBackend } from './perf'
-import { findRelatedComponent } from './utils'
+import { findRelatedComponent, debounce } from './utils'
 import ComponentSelector from './component-selector'
 import { stringify, classify, camelize, set, has, parse, getComponentName, getCustomRefDetails } from '@utils/util'
 import SharedData, { init as initSharedData } from '@utils/shared-data'
@@ -292,13 +292,6 @@ function flush() {
   bridge.send('flush', payload)
 }
 
-const debounce = function(func, timer) {
-  let debounceTimer = null
-  return function() {
-    clearTimeout(debounceTimer)
-    debounceTimer = setTimeout(func, timer)
-  }
-}
 const debounceFlush = debounce(flush, 350)
 
 /**

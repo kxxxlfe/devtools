@@ -16,7 +16,7 @@ const internalSharedData = {
   logDetected: true,
   vuexNewBackend: false,
   vuexAutoload: false,
-  vuexGroupGettersByModule: true
+  vuexGroupGettersByModule: true,
 }
 
 const persisted = [
@@ -29,7 +29,7 @@ const persisted = [
   'vuexNewBackend',
   'vuexAutoload',
   'vuexGroupGettersByModule',
-  'timeFormat'
+  'timeFormat',
 ]
 
 // ---- INTERNALS ---- //
@@ -45,7 +45,7 @@ let vm
 let initRetryInterval
 let initRetryCount = 0
 
-export function init (params) {
+export function init(params) {
   return new Promise((resolve, reject) => {
     // Mandatory params
     bridge = params.bridge
@@ -107,7 +107,7 @@ export function init (params) {
 
     // Wrapper Vue instance
     vm = new Vue({
-      data: internalSharedData
+      data: internalSharedData,
     })
 
     // Update value from other shared data clients
@@ -117,12 +117,12 @@ export function init (params) {
   })
 }
 
-export function destroy () {
+export function destroy() {
   bridge.removeAllListeners('shared-data:set')
   vm.$destroy()
 }
 
-function setValue (key, value) {
+function setValue(key, value) {
   // Storage
   if (persist && persisted.includes(key)) {
     storage.set(`shared-data:${key}`, value)
@@ -132,14 +132,15 @@ function setValue (key, value) {
   return true
 }
 
-function sendValue (key, value) {
-  bridge && bridge.send('shared-data:set', {
-    key,
-    value
-  })
+function sendValue(key, value) {
+  bridge &&
+    bridge.send('shared-data:set', {
+      key,
+      value,
+    })
 }
 
-export function watch (...args) {
+export function watch(...args) {
   vm.$watch(...args)
 }
 
@@ -148,10 +149,10 @@ Object.keys(internalSharedData).forEach(key => {
   Object.defineProperty(proxy, key, {
     configurable: false,
     get: () => vm && vm.$data[key],
-    set: (value) => {
+    set: value => {
       sendValue(key, value)
       setValue(key, value)
-    }
+    },
   })
 })
 
