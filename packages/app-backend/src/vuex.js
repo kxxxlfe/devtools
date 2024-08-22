@@ -92,7 +92,6 @@ class VuexBackend {
    * Register a mutation record
    */
   onMutation({ type, payload }) {
-    console.log('vuex:mutation', { type, payload })
     if (!SharedData.recordVuex) return
 
     this.addMutation(type, payload)
