@@ -7,7 +7,7 @@ const internalSharedData = {
   theme: 'auto',
   displayDensity: 'low',
   timeFormat: 'default',
-  recordVuex: false,
+  recordVuex: true,
   cacheVuexSnapshotsEvery: 50,
   cacheVuexSnapshotsLimit: 10,
   snapshotLoading: false,
