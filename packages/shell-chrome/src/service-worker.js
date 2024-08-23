@@ -86,14 +86,14 @@ chrome.runtime.onMessage.addListener((req, sender) => {
     chrome.action.setIcon({
       tabId: sender.tab.id,
       path: {
-        16: `icons/16${suffix}.png`,
-        48: `icons/48${suffix}.png`,
-        128: `icons/128${suffix}.png`,
+        16: `../icons/16${suffix}.png`,
+        48: `../icons/48${suffix}.png`,
+        128: `../icons/128${suffix}.png`,
       },
     })
     chrome.action.setPopup({
       tabId: sender.tab.id,
-      popup: req.devtoolsEnabled ? `popups/enabled${suffix}.html` : `popups/disabled${suffix}.html`,
+      popup: req.devtoolsEnabled ? `../popups/enabled${suffix}.html` : `../popups/disabled${suffix}.html`,
     })
   }
 })
