@@ -7,6 +7,8 @@
   - vuex:mutation 截流: 页面 store 太多，数千个 store 中间状态导致页面崩溃
   - router:changed 开关不生效 fix，页面数据太多时会导致卡顿
 
+[详细说明](https://segmentfault.com/a/1190000045204638)
+
 # vue-devtools
 
 <p align="center"><img width="720px" src="https://raw.githubusercontent.com/vuejs/vue-devtools/dev/media/screenshot-shadow.png" alt="screenshot"></p>
