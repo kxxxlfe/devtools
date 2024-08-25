@@ -1,13 +1,13 @@
 # 基于`5.3.4`做了以下内容
 
+[详细说明](https://segmentfault.com/a/1190000045204638)
+
 - 支持`vue 2.7`的`setup`
 - 升级了`manifest v3`
 - 使用截流提升了性能
   - flush 截流：页面组件太多，频繁改动时 component 卡顿
   - vuex:mutation 截流: 页面 store 太多，数千个 store 中间状态导致页面崩溃
   - router:changed 开关不生效 fix，页面数据太多时会导致卡顿
-
-[详细说明](https://segmentfault.com/a/1190000045204638)
 
 使用步骤
 
