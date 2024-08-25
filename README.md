@@ -9,6 +9,12 @@
 
 [详细说明](https://segmentfault.com/a/1190000045204638)
 
+使用步骤
+
+1. yarn install
+2. npm run build
+3. 将 packages/shell-chrome 文件夹添加至 chrome
+
 # vue-devtools
 
 <p align="center"><img width="720px" src="https://raw.githubusercontent.com/vuejs/vue-devtools/dev/media/screenshot-shadow.png" alt="screenshot"></p>
