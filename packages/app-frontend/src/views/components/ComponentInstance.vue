@@ -2,17 +2,17 @@
   <div
     :class="{
       inactive: instance.inactive && !instance.parent.inactive,
-      selected
+      selected,
     }"
     class="instance"
   >
     <div
       ref="self"
       :class="{
-        selected
+        selected,
       }"
       :style="{
-        paddingLeft: depth * 15 + 'px'
+        paddingLeft: depth * 15 + 'px',
       }"
       class="self selectable-item"
       @click.stop="select"
@@ -23,26 +23,18 @@
       <!-- Component tag -->
       <span class="content">
         <!-- arrow wrapper for better hit box -->
-        <span
-          v-if="instance.children.length"
-          class="arrow-wrapper"
-          @click.stop="toggle"
-        >
-          <span
-            :class="{ rotated: expanded }"
-            class="arrow right"
-          />
+        <span v-if="instance.children.length" class="arrow-wrapper" @click.stop="toggle">
+          <span :class="{ rotated: expanded }" class="arrow right" />
         </span>
 
         <span class="angle-bracket">&lt;</span>
 
         <span class="item-name">{{ displayName }}</span>
 
-        <span
-          v-if="componentHasKey"
-          class="attr"
-        >
-          <span class="attr-title"> key</span>=<span class="attr-value">{{ instance.renderKey }}</span>
+        <span v-if="componentHasKey" class="attr">
+          <span class="attr-title">key</span>
+          =
+          <span class="attr-value">{{ instance.renderKey }}</span>
         </span>
 
         <span class="angle-bracket">&gt;</span>
@@ -54,48 +46,26 @@
       >
         = {{ instance.consoleId }}
       </span>
-      <span
-        v-if="instance.isRouterView"
-        class="info router-view"
-      >
+      <span v-if="instance.isRouterView" class="info router-view">
         router-view{{ instance.matchedRouteSegment ? ': ' + instance.matchedRouteSegment : null }}
       </span>
-      <span
-        v-if="instance.isFragment"
-        class="info fragment"
-      >
+      <span v-if="instance.isFragment" class="info fragment">
         fragment
       </span>
-      <span
-        v-if="instance.functional"
-        class="info functional"
-      >
+      <span v-if="instance.functional" class="info functional">
         functional
       </span>
-      <span
-        v-if="instance.inactive"
-        class="info inactive"
-      >
+      <span v-if="instance.inactive" class="info inactive">
         inactive
       </span>
 
       <span class="spacer" />
 
-      <VueIcon
-        v-tooltip="'Scroll into view'"
-        class="icon-button"
-        icon="visibility"
-        @click="scrollToInstance"
-      />
+      <VueIcon v-tooltip="'Scroll into view'" class="icon-button" icon="visibility" @click="scrollToInstance" />
     </div>
 
     <div v-if="expanded">
-      <component-instance
-        v-for="child in sortedChildren"
-        :key="child.id"
-        :instance="child"
-        :depth="depth + 1"
-      />
+      <component-instance v-for="child in sortedChildren" :key="child.id" :instance="child" :depth="depth + 1" />
     </div>
   </div>
 </template>
@@ -110,59 +80,52 @@ export default {
   props: {
     instance: {
       type: Object,
-      required: true
+      required: true,
     },
     depth: {
       type: Number,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
-    ...mapState('components', [
-      'expansionMap',
-      'inspectedInstance',
-      'inspectedInstanceId',
-      'scrollToExpanded'
-    ]),
+    ...mapState('components', ['expansionMap', 'inspectedInstance', 'inspectedInstanceId', 'scrollToExpanded']),
 
-    expanded () {
+    expanded() {
       return !!this.expansionMap[this.instance.id]
     },
 
-    selected () {
+    selected() {
       return this.instance.id === this.inspectedInstanceId
     },
 
-    sortedChildren () {
+    sortedChildren() {
       return this.instance.children.slice().sort((a, b) => {
-        return a.top === b.top
-          ? a.id - b.id
-          : a.top - b.top
+        return a.top === b.top ? a.id - b.id : a.top - b.top
       })
     },
 
-    displayName () {
+    displayName() {
       return getComponentDisplayName(this.instance.name, this.$shared.componentNameStyle)
     },
 
-    componentHasKey () {
+    componentHasKey() {
       return (this.instance.renderKey === 0 || !!this.instance.renderKey) && this.instance.renderKey !== UNDEFINED
-    }
+    },
   },
 
   watch: {
     scrollToExpanded: {
-      handler (value, oldValue) {
+      handler(value, oldValue) {
         if (value !== oldValue && value === this.instance.id) {
           this.scrollIntoView()
         }
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
 
-  created () {
+  created() {
     // expand root by default
     if (this.depth === 0) {
       this.expand()
@@ -171,52 +134,52 @@ export default {
 
   methods: {
     ...mapMutations('components', {
-      inspectInstance: 'INSPECT_INSTANCE'
+      inspectInstance: 'INSPECT_INSTANCE',
     }),
 
-    toggle (event) {
+    toggle(event) {
       this.toggleWithValue(!this.expanded, event.altKey)
     },
 
-    expand () {
+    expand() {
       this.toggleWithValue(true)
     },
 
-    collapse () {
+    collapse() {
       this.toggleWithValue(false)
     },
 
-    toggleWithValue (val, recursive = false) {
+    toggleWithValue(val, recursive = false) {
       this.$store.dispatch('components/toggleInstance', {
         instance: this.instance,
         expanded: val,
-        recursive
+        recursive,
       })
     },
 
-    select () {
+    select() {
       this.inspectInstance(this.instance)
       bridge.send('select-instance', this.instance.id)
     },
 
-    enter () {
+    enter() {
       bridge.send('enter-instance', this.instance.id)
     },
 
-    leave () {
+    leave() {
       bridge.send('leave-instance', this.instance.id)
     },
 
-    scrollToInstance () {
+    scrollToInstance() {
       bridge.send('scroll-to-instance', this.instance.id)
     },
 
-    scrollIntoView (center = true) {
+    scrollIntoView(center = true) {
       this.$nextTick(() => {
         scrollIntoView(this.$globalRefs.leftScroll, this.$refs.self, center)
       })
-    }
-  }
+    },
+  },
 }
 </script>
 

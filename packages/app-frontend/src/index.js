@@ -32,7 +32,7 @@ if (isChrome) {
     bridge.send('ERROR', {
       message: e.message,
       stack: e.stack,
-      component: vm.$options.name || vm.$options._componentTag || 'anonymous'
+      component: vm.$options.name || vm.$options._componentTag || 'anonymous',
     })
   }
 
@@ -48,18 +48,22 @@ if (isChrome) {
 }
 
 Vue.options.renderError = (h, e) => {
-  return h('pre', {
-    style: {
-      backgroundColor: 'red',
-      color: 'white',
-      fontSize: '12px',
-      padding: '10px'
-    }
-  }, e.stack)
+  return h(
+    'pre',
+    {
+      style: {
+        backgroundColor: 'red',
+        color: 'white',
+        fontSize: '12px',
+        padding: '10px',
+      },
+    },
+    e.stack
+  )
 }
 
 let app = new Vue({
-  render: (h) => h(AppConnecting)
+  render: h => h(AppConnecting),
 }).$mount('#app')
 
 /**
@@ -71,7 +75,7 @@ let app = new Vue({
  *        - onReload(reloadFn)
  */
 
-export function initDevTools (shell) {
+export function initDevTools(shell) {
   initStorage().then(() => {
     initApp(shell)
     shell.onReload(() => {
@@ -92,7 +96,7 @@ export function initDevTools (shell) {
  * @param {Object} shell
  */
 
-function initApp (shell) {
+function initApp(shell) {
   shell.connect(bridge => {
     window.bridge = bridge
 
@@ -100,14 +104,14 @@ function initApp (shell) {
       destroySharedData()
     } else {
       Object.defineProperty(Vue.prototype, '$shared', {
-        get: () => SharedData
+        get: () => SharedData,
       })
     }
 
     initSharedData({
       bridge,
       Vue,
-      persist: true
+      persist: true,
     }).then(() => {
       if (SharedData.logDetected) {
         bridge.send('log-detected-vue')
@@ -116,11 +120,9 @@ function initApp (shell) {
       const store = createStore()
 
       bridge.once('ready', version => {
-        store.commit(
-          'SHOW_MESSAGE',
-          'Ready. Detected Vue ' + version + '.'
-        )
+        store.commit('SHOW_MESSAGE', 'Ready. Detected Vue ' + version + '.')
         bridge.send('events:toggle-recording', store.state.events.enabled)
+        bridge.send('router:toggle-recording', store.state.router.enabled)
 
         if (isChrome) {
           chrome.runtime.sendMessage('vue-panel-load')
@@ -128,10 +130,7 @@ function initApp (shell) {
       })
 
       bridge.once('proxy-fail', () => {
-        store.commit(
-          'SHOW_MESSAGE',
-          'Proxy injection failed.'
-        )
+        store.commit('SHOW_MESSAGE', 'Proxy injection failed.')
       })
 
       bridge.on('flush', payload => {
@@ -162,7 +161,12 @@ function initApp (shell) {
         } else if (store.getters['vuex/absoluteInspectedIndex'] === index) {
           store.commit('vuex/UPDATE_INSPECTED_STATE', snapshot)
         } else {
-          console.log('vuex:inspected-state wrong index', index, 'expected:', store.getters['vuex/absoluteInspectedIndex'])
+          console.log(
+            'vuex:inspected-state wrong index',
+            index,
+            'expected:',
+            store.getters['vuex/absoluteInspectedIndex']
+          )
         }
 
         if (VuexResolve.travel) {
@@ -203,14 +207,16 @@ function initApp (shell) {
 
       bridge.on('inspect-instance', id => {
         ensurePaneShown(() => {
+          console.log('ensurePaneShown', id)
           bridge.send('select-instance', id)
           router.push({ name: 'components' })
           const instance = store.state.components.instancesMap[id]
-          instance && store.dispatch('components/toggleInstance', {
-            instance,
-            expanded: true,
-            parent: true
-          })
+          instance &&
+            store.dispatch('components/toggleInstance', {
+              instance,
+              expanded: true,
+              parent: true,
+            })
         })
       })
 
@@ -234,12 +240,12 @@ function initApp (shell) {
         store,
 
         data: {
-          isBeta
+          isBeta,
         },
 
         watch: {
           '$shared.theme': {
-            handler (value) {
+            handler(value) {
               if (value === 'dark' || value === 'high-contrast' || (value === 'auto' && chromeTheme === 'dark')) {
                 document.body.classList.add('vue-ui-dark-mode')
               } else {
@@ -251,21 +257,21 @@ function initApp (shell) {
                 document.body.classList.remove('vue-ui-high-contrast')
               }
             },
-            immediate: true
-          }
-        }
+            immediate: true,
+          },
+        },
       }).$mount('#app')
     })
   })
 }
 
-function getContextMenuInstance () {
+function getContextMenuInstance() {
   bridge.send('get-context-menu-target')
 }
 
 // Pane visibility management
 
-function ensurePaneShown (cb) {
+function ensurePaneShown(cb) {
   if (panelShown) {
     cb()
   } else {
@@ -273,7 +279,7 @@ function ensurePaneShown (cb) {
   }
 }
 
-function onPanelShown () {
+function onPanelShown() {
   panelShown = true
   if (pendingAction) {
     pendingAction()
@@ -281,6 +287,6 @@ function onPanelShown () {
   }
 }
 
-function onPanelHidden () {
+function onPanelHidden() {
   panelShown = false
 }
