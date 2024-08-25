@@ -5,6 +5,7 @@
 - 使用截流提升了性能
   - flush 截流：页面组件太多，频繁改动时 component 卡顿
   - vuex:mutation 截流: 页面 store 太多，数千个 store 中间状态导致页面崩溃
+  - router:changed 开关不生效 fix，页面数据太多时会导致卡顿
 
 # vue-devtools
 
