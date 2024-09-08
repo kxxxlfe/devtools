@@ -5,15 +5,17 @@ import Bridge from '@utils/bridge'
 
 let port
 let disconnected
+let reconnectFunc
 const createPort = function() {
   disconnected = false
   port = chrome.runtime.connect({
     name: '' + chrome.devtools.inspectedWindow.tabId,
   })
   port.onDisconnect.addListener((...args) => {
-    console.log('disconnected service-worker', args, chrome.runtime.lastError)
+    console.log('disconnected service-worker', args, Date().toString())
     disconnected = true
   })
+  window.port = port
 }
 window.createPort = createPort
 chrome.tabs.onActivated.addListener(function({ tabId }) {
@@ -23,6 +25,8 @@ chrome.tabs.onActivated.addListener(function({ tabId }) {
   // 聚焦重连
   if (port && disconnected) {
     createPort()
+    console.log('reconnect service-worker', Date().toString())
+    reconnectFunc && reconnectFunc()
   }
 })
 
@@ -65,6 +69,10 @@ initDevTools({
 
   onReload(reloadFn) {
     chrome.devtools.network.onNavigated.addListener(reloadFn)
+  },
+
+  onReConnect(func) {
+    reconnectFunc = func
   },
 })
 
