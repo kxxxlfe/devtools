@@ -3,22 +3,26 @@ import { EventEmitter } from 'events'
 const BATCH_DURATION = 100
 
 export default class Bridge extends EventEmitter {
-  constructor (wall) {
+  constructor(wall) {
     super()
     this.setMaxListeners(Infinity)
     this.wall = wall
-    wall.listen(messages => {
+    this.init()
+    this._batchingQueue = []
+    this._sendingQueue = []
+    this._receivingQueue = []
+    this._sending = false
+    this._time = null
+  }
+
+  init() {
+    this.wall.listen(messages => {
       if (Array.isArray(messages)) {
         messages.forEach(message => this._emit(message))
       } else {
         this._emit(messages)
       }
     })
-    this._batchingQueue = []
-    this._sendingQueue = []
-    this._receivingQueue = []
-    this._sending = false
-    this._time = null
   }
 
   /**
@@ -28,14 +32,14 @@ export default class Bridge extends EventEmitter {
    * @param {*} payload
    */
 
-  send (event, payload) {
+  send(event, payload) {
     if (Array.isArray(payload)) {
       const lastIndex = payload.length - 1
       payload.forEach((chunk, index) => {
         this._send({
           event,
           _chunk: chunk,
-          last: index === lastIndex
+          last: index === lastIndex,
         })
       })
       this._flush()
@@ -45,7 +49,7 @@ export default class Bridge extends EventEmitter {
     } else {
       this._batchingQueue.push({
         event,
-        payload
+        payload,
       })
 
       const now = Date.now()
@@ -63,18 +67,18 @@ export default class Bridge extends EventEmitter {
    * @param {String} message
    */
 
-  log (message) {
+  log(message) {
     this.send('log', message)
   }
 
-  _flush () {
+  _flush() {
     if (this._batchingQueue.length) this._send(this._batchingQueue)
     clearTimeout(this._timer)
     this._batchingQueue = []
     this._time = null
   }
 
-  _emit (message) {
+  _emit(message) {
     if (typeof message === 'string') {
       this.emit(message)
     } else if (message._chunk) {
@@ -88,12 +92,12 @@ export default class Bridge extends EventEmitter {
     }
   }
 
-  _send (messages) {
+  _send(messages) {
     this._sendingQueue.push(messages)
     this._nextSend()
   }
 
-  _nextSend () {
+  _nextSend() {
     if (!this._sendingQueue.length || this._sending) return
     this._sending = true
     const messages = this._sendingQueue.shift()

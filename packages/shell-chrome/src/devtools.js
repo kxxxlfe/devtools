@@ -6,6 +6,7 @@ import Bridge from '@utils/bridge'
 let port
 let disconnected
 let reconnectFunc
+let bridge
 const createPort = function() {
   disconnected = false
   port = chrome.runtime.connect({
@@ -16,17 +17,27 @@ const createPort = function() {
     disconnected = true
   })
   window.port = port
+  bridge && bridge.init()
 }
-window.createPort = createPort
-chrome.tabs.onActivated.addListener(function({ tabId }) {
-  if (tabId !== chrome.devtools.inspectedWindow.tabId) {
-    return
-  }
-  // 聚焦重连
-  if (port && disconnected) {
-    createPort()
-    console.log('reconnect service-worker', Date().toString())
-    reconnectFunc && reconnectFunc()
+
+// chrome.tabs.onActivated.addListener(function({ tabId }) {
+//   if (tabId !== chrome.devtools.inspectedWindow.tabId) {
+//     return
+//   }
+//   // 聚焦重连
+//   if (port && disconnected) {
+//     createPort()
+//     console.log('reconnect service-worker', Date().toString())
+//     reconnectFunc && reconnectFunc()
+//   }
+// })
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  if (message === 'vue-panel-shown') {
+    if (port && disconnected) {
+      createPort()
+      console.log('reconnect service-worker', Date().toString())
+      reconnectFunc && reconnectFunc()
+    }
   }
 })
 
@@ -43,7 +54,7 @@ initDevTools({
       // 2. connect to background to setup proxy
       createPort()
 
-      const bridge = new Bridge({
+      bridge = new Bridge({
         listen(fn) {
           port.onMessage.addListener(fn)
         },
