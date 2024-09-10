@@ -2,6 +2,8 @@
   "name": "@vue-devtools/app-backend",
   "version": "0.0.0",
   "private": true,
+  "main": "src/index.js",
+  "module": "src/index.js",
   "dependencies": {
     "@vue-devtools/shared-utils": "^0.0.0",
     "vue": "^2.7.16"
