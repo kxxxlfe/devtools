@@ -282,7 +282,7 @@ function flush() {
   }
   const payload = stringify({
     inspectedInstance: getInstanceDetails(currentInspectedId),
-    instances: findQualifiedChildrenFromList(rootInstances),
+    instances: findQualifiedChildrenFromList(rootInstances).filter(item => !!item),
   })
   if (process.env.NODE_ENV !== 'production') {
     console.log(
