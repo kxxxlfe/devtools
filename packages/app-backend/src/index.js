@@ -758,7 +758,7 @@ function processComputed(instance) {
   for (const key in defs) {
     const def = defs[key]
     // @Ref 计算属性不处理
-    if (instance.$refs[kebabize(key)] && def.cache === false && !Reflect.hasOwnProperty(def, 'set')) {
+    if (def.cache === false && !Reflect.hasOwnProperty(def, 'set')) {
       if (Object.keys(instance.$refs).find(keyName => kabasize(keyName) === kabasize(key))) {
         continue
       }
