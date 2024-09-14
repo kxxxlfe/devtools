@@ -759,7 +759,7 @@ function processComputed(instance) {
     const def = defs[key]
     // @Ref 计算属性不处理
     if (def.cache === false && !Reflect.hasOwnProperty(def, 'set')) {
-      if (Object.keys(instance.$refs).find(keyName => kabasize(keyName) === kabasize(key))) {
+      if (Object.values(instance.$refs).find(comp => comp === instance[key])) {
         continue
       }
     }
