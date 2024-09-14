@@ -8,7 +8,17 @@ import { initRouterBackend } from './router'
 import { initPerfBackend } from './perf'
 import { findRelatedComponent, debounce } from './utils'
 import ComponentSelector from './component-selector'
-import { stringify, classify, camelize, set, has, parse, getComponentName, getCustomRefDetails } from '@utils/util'
+import {
+  stringify,
+  classify,
+  camelize,
+  set,
+  has,
+  parse,
+  getComponentName,
+  getCustomRefDetails,
+  kebabize,
+} from '@utils/util'
 import SharedData, { init as initSharedData } from '@utils/shared-data'
 import { isBrowser, target } from '@utils/env'
 
@@ -747,6 +757,12 @@ function processComputed(instance) {
   // properties from object's prototype
   for (const key in defs) {
     const def = defs[key]
+    // @Ref 计算属性不处理
+    if (def.cache === false && !Reflect.hasOwnProperty(def, 'set')) {
+      if (Object.keys(instance.$refs).find(keyName => kabasize(keyName) === kabasize(key))) {
+        continue
+      }
+    }
     const type = typeof def === 'function' && def.vuex ? 'vuex bindings' : 'computed'
     // use try ... catch here because some computed properties may
     // throw error during its evaluation
