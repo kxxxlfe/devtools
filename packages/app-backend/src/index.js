@@ -758,8 +758,10 @@ function processComputed(instance) {
   for (const key in defs) {
     const def = defs[key]
     // @Ref 计算属性不处理
-    if (Object.values(instance.$refs).find(comp => comp === instance[key])) {
-      continue
+    if (def.cache === false && !Reflect.hasOwnProperty(def, 'set')) {
+      if (Object.values(instance.$refs).find(comp => comp === instance[key])) {
+        continue
+      }
     }
     const type = typeof def === 'function' && def.vuex ? 'vuex bindings' : 'computed'
     // use try ... catch here because some computed properties may
