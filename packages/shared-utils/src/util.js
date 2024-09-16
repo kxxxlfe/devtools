@@ -6,38 +6,41 @@ import { getCustomRouterDetails } from '@back/router'
 import SharedData from './shared-data'
 import { isChrome } from './env'
 
-function cached (fn) {
+function cached(fn) {
   const cache = Object.create(null)
-  return function cachedFn (str) {
+  return function cachedFn(str) {
     const hit = cache[str]
     return hit || (cache[str] = fn(str))
   }
 }
 
 const classifyRE = /(?:^|[-_/])(\w)/g
-export const classify = cached((str) => {
+export const classify = cached(str => {
   return str && str.replace(classifyRE, toUpper)
 })
 
 const camelizeRE = /-(\w)/g
-export const camelize = cached((str) => {
+export const camelize = cached(str => {
   return str.replace(camelizeRE, toUpper)
 })
 
 const kebabizeRE = /([a-z0-9])([A-Z])/g
-export const kebabize = cached((str) => {
-  return str && str
-    .replace(kebabizeRE, (_, lowerCaseCharacter, upperCaseLetter) => {
-      return `${lowerCaseCharacter}-${upperCaseLetter}`
-    })
-    .toLowerCase()
+export const kebabize = cached(str => {
+  return (
+    str &&
+    str
+      .replace(kebabizeRE, (_, lowerCaseCharacter, upperCaseLetter) => {
+        return `${lowerCaseCharacter}-${upperCaseLetter}`
+      })
+      .toLowerCase()
+  )
 })
 
-function toUpper (_, c) {
+function toUpper(_, c) {
   return c ? c.toUpperCase() : ''
 }
 
-export function getComponentDisplayName (originalName, style = 'class') {
+export function getComponentDisplayName(originalName, style = 'class') {
   switch (style) {
     case 'class':
       return classify(originalName)
@@ -49,13 +52,11 @@ export function getComponentDisplayName (originalName, style = 'class') {
   }
 }
 
-export function inDoc (node) {
+export function inDoc(node) {
   if (!node) return false
   const doc = node.ownerDocument.documentElement
   const parent = node.parentNode
-  return doc === node ||
-    doc === parent ||
-    !!(parent && parent.nodeType === 1 && (doc.contains(parent)))
+  return doc === node || doc === parent || !!(parent && parent.nodeType === 1 && doc.contains(parent))
 }
 
 /**
@@ -68,19 +69,19 @@ export const NEGATIVE_INFINITY = '__vue_devtool_negative_infinity__'
 export const NAN = '__vue_devtool_nan__'
 
 export const SPECIAL_TOKENS = {
-  'true': true,
-  'false': false,
-  'undefined': UNDEFINED,
-  'null': null,
+  true: true,
+  false: false,
+  undefined: UNDEFINED,
+  null: null,
   '-Infinity': NEGATIVE_INFINITY,
-  'Infinity': INFINITY,
-  'NaN': NAN
+  Infinity: INFINITY,
+  NaN: NAN,
 }
 
 export const MAX_STRING_SIZE = 10000
 export const MAX_ARRAY_SIZE = 5000
 
-export function specialTokenToString (value) {
+export function specialTokenToString(value) {
   if (value === null) {
     return 'null'
   } else if (value === UNDEFINED) {
@@ -103,7 +104,7 @@ export function specialTokenToString (value) {
  * (.i.e `{ _custom: { ... } }`)
  */
 class EncodeCache {
-  constructor () {
+  constructor() {
     this.map = new Map()
   }
 
@@ -112,7 +113,7 @@ class EncodeCache {
    * @param {*} data Input data
    * @param {*} factory Function used to create the unique result
    */
-  cache (data, factory) {
+  cache(data, factory) {
     const cached = this.map.get(data)
     if (cached) {
       return cached
@@ -123,20 +124,20 @@ class EncodeCache {
     }
   }
 
-  clear () {
+  clear() {
     this.map.clear()
   }
 }
 
 const encodeCache = new EncodeCache()
 
-export function stringify (data) {
+export function stringify(data) {
   // Create a fresh cache for each serialization
   encodeCache.clear()
   return CircularJSON.stringify(data, replacer)
 }
 
-function replacer (key) {
+function replacer(key) {
   const val = this[key]
   const type = typeof val
   if (Array.isArray(val)) {
@@ -145,13 +146,13 @@ function replacer (key) {
       return {
         _isArray: true,
         length: l,
-        items: val.slice(0, MAX_ARRAY_SIZE)
+        items: val.slice(0, MAX_ARRAY_SIZE),
       }
     }
     return val
   } else if (typeof val === 'string') {
     if (val.length > MAX_STRING_SIZE) {
-      return val.substr(0, MAX_STRING_SIZE) + `... (${(val.length)} total length)`
+      return val.substr(0, MAX_STRING_SIZE) + `... (${val.length} total length)`
     } else {
       return val
     }
@@ -195,12 +196,12 @@ function replacer (key) {
   return sanitize(val)
 }
 
-export function getCustomMapDetails (val) {
+export function getCustomMapDetails(val) {
   const list = []
-  val.forEach(
-    (value, key) => list.push({
+  val.forEach((value, key) =>
+    list.push({
       key,
-      value
+      value,
     })
   )
   return {
@@ -210,13 +211,13 @@ export function getCustomMapDetails (val) {
       value: list,
       readOnly: true,
       fields: {
-        abstract: true
-      }
-    }
+        abstract: true,
+      },
+    },
   }
 }
 
-export function reviveMap (val) {
+export function reviveMap(val) {
   const result = new Map()
   const list = val._custom.value
   for (let i = 0; i < list.length; i++) {
@@ -226,19 +227,19 @@ export function reviveMap (val) {
   return result
 }
 
-export function getCustomSetDetails (val) {
+export function getCustomSetDetails(val) {
   const list = Array.from(val)
   return {
     _custom: {
       type: 'set',
       display: `Set[${list.length}]`,
       value: list,
-      readOnly: true
-    }
+      readOnly: true,
+    },
   }
 }
 
-export function reviveSet (val) {
+export function reviveSet(val) {
   const result = new Set()
   const list = val._custom.value
   for (let i = 0; i < list.length; i++) {
@@ -250,14 +251,11 @@ export function reviveSet (val) {
 
 // Use a custom basename functions instead of the shimed version
 // because it doesn't work on Windows
-function basename (filename, ext) {
-  return path.basename(
-    filename.replace(/^[a-zA-Z]:/, '').replace(/\\/g, '/'),
-    ext
-  )
+function basename(filename, ext) {
+  return path.basename(filename.replace(/^[a-zA-Z]:/, '').replace(/\\/g, '/'), ext)
 }
 
-export function getComponentName (options) {
+export function getComponentName(options) {
   const name = options.name || options._componentTag
   if (name) {
     return name
@@ -268,7 +266,7 @@ export function getComponentName (options) {
   }
 }
 
-export function getCustomComponentDefinitionDetails (def) {
+export function getCustomComponentDefinitionDetails(def) {
   let display = getComponentName(def)
   if (display) {
     if (def.name && def.__file) {
@@ -282,14 +280,16 @@ export function getCustomComponentDefinitionDetails (def) {
       type: 'component-definition',
       display,
       tooltip: 'Component definition',
-      ...def.__file ? {
-        file: def.__file
-      } : {}
-    }
+      ...(def.__file
+        ? {
+            file: def.__file,
+          }
+        : {}),
+    },
   }
 }
 
-export function getCustomFunctionDetails (func) {
+export function getCustomFunctionDetails(func) {
   let string = ''
   let matches = null
   try {
@@ -300,21 +300,27 @@ export function getCustomFunctionDetails (func) {
   }
   // Trim any excess whitespace from the argument string
   const match = matches && matches[0]
-  const args = typeof match === 'string'
-    ? `(${match.substr(1, match.length - 2).split(',').map(a => a.trim()).join(', ')})` : '(?)'
+  const args =
+    typeof match === 'string'
+      ? `(${match
+          .substr(1, match.length - 2)
+          .split(',')
+          .map(a => a.trim())
+          .join(', ')})`
+      : '(?)'
   const name = typeof func.name === 'string' ? func.name : ''
   return {
     _custom: {
       type: 'function',
-      display: `<span>ƒ</span> ${escape(name)}${args}`
-    }
+      display: `<span>ƒ</span> ${escape(name)}${args}`,
+    },
   }
 }
 
-export function getCustomRefDetails (instance, key, ref) {
+export function getCustomRefDetails(instance, key, ref) {
   let value
   if (Array.isArray(ref)) {
-    value = ref.map((r) => getCustomRefDetails(instance, key, r)).map(data => data.value)
+    value = ref.map(r => getCustomRefDetails(instance, key, r)).map(data => data.value)
   } else {
     let name
     if (ref._isVue) {
@@ -325,32 +331,32 @@ export function getCustomRefDetails (instance, key, ref) {
 
     value = {
       _custom: {
-        display: `&lt;${name}` +
+        display:
+          `&lt;${name}` +
           (ref.id ? ` <span class="attr-title">id</span>="${ref.id}"` : '') +
-          (ref.className ? ` <span class="attr-title">class</span>="${ref.className}"` : '') + '&gt;',
+          (ref.className ? ` <span class="attr-title">class</span>="${ref.className}"` : '') +
+          '&gt;',
         uid: instance.__VUE_DEVTOOLS_UID__,
-        type: 'reference'
-      }
+        type: 'reference',
+      },
     }
   }
   return {
     type: '$refs',
     key: key,
     value,
-    editable: false
+    editable: false,
   }
 }
 
-export function parse (data, revive) {
-  return revive
-    ? CircularJSON.parse(data, reviver)
-    : CircularJSON.parse(data)
+export function parse(data, revive) {
+  return revive ? CircularJSON.parse(data, reviver) : CircularJSON.parse(data)
 }
 
 const specialTypeRE = /^\[native (\w+) (.*)\]$/
 const symbolRE = /^\[native Symbol Symbol\((.*)\)\]$/
 
-function reviver (key, val) {
+function reviver(key, val) {
   if (val === UNDEFINED) {
     return undefined
   } else if (val === INFINITY) {
@@ -387,12 +393,8 @@ function reviver (key, val) {
  * @return {*}
  */
 
-function sanitize (data) {
-  if (
-    !isPrimitive(data) &&
-    !Array.isArray(data) &&
-    !isPlainObject(data)
-  ) {
+function sanitize(data) {
+  if (!isPrimitive(data) && !Array.isArray(data) && !isPlainObject(data)) {
     // handle types that will probably cause issues in
     // the structured clone
     return Object.prototype.toString.call(data)
@@ -401,20 +403,16 @@ function sanitize (data) {
   }
 }
 
-export function isPlainObject (obj) {
+export function isPlainObject(obj) {
   return Object.prototype.toString.call(obj) === '[object Object]'
 }
 
-function isPrimitive (data) {
+function isPrimitive(data) {
   if (data == null) {
     return true
   }
   const type = typeof data
-  return (
-    type === 'string' ||
-    type === 'number' ||
-    type === 'boolean'
-  )
+  return type === 'string' || type === 'number' || type === 'boolean'
 }
 
 /**
@@ -423,7 +421,7 @@ function isPrimitive (data) {
  * @param {string} searchTerm Search string
  * @returns {boolean} Search match
  */
-export function searchDeepInObject (obj, searchTerm) {
+export function searchDeepInObject(obj, searchTerm) {
   const seen = new Map()
   const result = internalSearchObject(obj, searchTerm.toLowerCase(), seen, 0)
   seen.clear()
@@ -440,7 +438,7 @@ const SEARCH_MAX_DEPTH = 10
  * @param {number} depth Deep search depth level, which is capped to prevent performance issues
  * @returns {boolean} Search match
  */
-function internalSearchObject (obj, searchTerm, seen, depth) {
+function internalSearchObject(obj, searchTerm, seen, depth) {
   if (depth > SEARCH_MAX_DEPTH) {
     return false
   }
@@ -466,7 +464,7 @@ function internalSearchObject (obj, searchTerm, seen, depth) {
  * @param {number} depth Deep search depth level, which is capped to prevent performance issues
  * @returns {boolean} Search match
  */
-function internalSearchArray (array, searchTerm, seen, depth) {
+function internalSearchArray(array, searchTerm, seen, depth) {
   if (depth > SEARCH_MAX_DEPTH) {
     return false
   }
@@ -491,14 +489,14 @@ function internalSearchArray (array, searchTerm, seen, depth) {
  * @param {number} depth Deep search depth level, which is capped to prevent performance issues
  * @returns {boolean} Search match
  */
-function internalSearchCheck (searchTerm, key, value, seen, depth) {
+function internalSearchCheck(searchTerm, key, value, seen, depth) {
   let match = false
   let result
   if (key === '_custom') {
     key = value.display
     value = value.value
   }
-  (result = specialTokenToString(value)) && (value = result)
+  ;(result = specialTokenToString(value)) && (value = result)
   if (key && compare(key, searchTerm)) {
     match = true
     seen.set(value, true)
@@ -525,19 +523,22 @@ function internalSearchCheck (searchTerm, key, value, seen, depth) {
  * @param {string} searchTerm Search string
  * @returns {boolean} Search match
  */
-function compare (value, searchTerm) {
+function compare(value, searchTerm) {
   return ('' + value).toLowerCase().indexOf(searchTerm) !== -1
 }
 
-export function sortByKey (state) {
-  return state && state.slice().sort((a, b) => {
-    if (a.key < b.key) return -1
-    if (a.key > b.key) return 1
-    return 0
-  })
+export function sortByKey(state) {
+  return (
+    state &&
+    state.slice().sort((a, b) => {
+      if (a.key < b.key) return -1
+      if (a.key > b.key) return 1
+      return 0
+    })
+  )
 }
 
-export function set (object, path, value, cb = null) {
+export function set(object, path, value, cb = null) {
   const sections = Array.isArray(path) ? path : path.split('.')
   while (sections.length > 1) {
     object = object[sections.shift()]
@@ -550,7 +551,7 @@ export function set (object, path, value, cb = null) {
   }
 }
 
-export function get (object, path) {
+export function get(object, path) {
   const sections = Array.isArray(path) ? path : path.split('.')
   for (let i = 0; i < sections.length; i++) {
     object = object[sections[i]]
@@ -561,7 +562,7 @@ export function get (object, path) {
   return object
 }
 
-export function has (object, path, parent = false) {
+export function has(object, path, parent = false) {
   if (typeof object === 'undefined') {
     return false
   }
@@ -574,7 +575,7 @@ export function has (object, path, parent = false) {
   return object != null && object.hasOwnProperty(sections[0])
 }
 
-export function scrollIntoView (scrollParent, el, center = true) {
+export function scrollIntoView(scrollParent, el, center = true) {
   const parentTop = scrollParent.scrollTop
   const parentHeight = scrollParent.offsetHeight
   const elBounds = el.getBoundingClientRect()
@@ -590,12 +591,12 @@ export function scrollIntoView (scrollParent, el, center = true) {
   }
 }
 
-export function focusInput (el) {
+export function focusInput(el) {
   el.focus()
   el.setSelectionRange(0, el.value.length)
 }
 
-export function openInEditor (file) {
+export function openInEditor(file) {
   // Console display
   const fileName = file.replace(/\\/g, '\\\\')
   const src = `fetch('${SharedData.openInEditorHost}__open-in-editor?file=${encodeURI(file)}').then(response => {
@@ -624,18 +625,18 @@ const ESC = {
   '<': '&lt;',
   '>': '&gt;',
   '"': '&quot;',
-  '&': '&amp;'
+  '&': '&amp;',
 }
 
-export function escape (s) {
+export function escape(s) {
   return s.replace(/[<>"&]/g, escapeChar)
 }
 
-function escapeChar (a) {
+function escapeChar(a) {
   return ESC[a] || a
 }
 
-export function copyToClipboard (state) {
+export function copyToClipboard(state) {
   if (typeof document === 'undefined') return
   const dummyTextArea = document.createElement('textarea')
   dummyTextArea.textContent = stringify(state)
@@ -643,4 +644,8 @@ export function copyToClipboard (state) {
   dummyTextArea.select()
   document.execCommand('copy')
   document.body.removeChild(dummyTextArea)
+}
+
+export function debug(...args) {
+  if (process.env.NODE_ENV !== 'production') console.log(...args)
 }
