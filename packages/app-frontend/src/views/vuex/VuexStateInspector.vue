@@ -3,10 +3,7 @@
     <action-header slot="header">
       <div class="search">
         <VueIcon icon="search" />
-        <input
-          v-model.trim="filter"
-          placeholder="Filter inspected state"
-        >
+        <input v-model.trim="filter" placeholder="Filter inspected state" />
       </div>
       <VueTypeAhead
         :value="inspectedModule"
@@ -17,44 +14,27 @@
         restrict-choice
         @update="value => setInspectedModule(value)"
       />
-      <a
-        v-tooltip="'Export Vuex State'"
-        class="button export"
-        @click="copyStateToClipboard"
-      >
+      <a v-tooltip="'Export Vuex State'" class="button export" @click="copyStateToClipboard">
         <VueIcon icon="content_copy" />
         <span>Export</span>
         <transition name="slide-up">
-          <span
-            v-show="showStateCopiedMessage"
-            class="message"
-          >
+          <span v-show="showStateCopiedMessage" class="message">
             (Copied to clipboard!)
           </span>
         </transition>
       </a>
-      <a
-        v-tooltip="'Import Vuex State'"
-        class="button import"
-        @click="toggleImportStatePopup"
-      >
+      <a v-tooltip="'Import Vuex State'" class="button import" @click="toggleImportStatePopup">
         <VueIcon icon="content_paste" />
         <span>Import</span>
       </a>
       <transition name="slide-down">
-        <div
-          v-if="showImportStatePopup"
-          class="import-state"
-        >
+        <div v-if="showImportStatePopup" class="import-state">
           <textarea
             placeholder="Paste state object here to import it..."
             @input="importState"
             @keydown.esc.stop="closeImportStatePopup"
           />
-          <span
-            v-show="showBadJSONMessage"
-            class="message invalid-json"
-          >
+          <span v-show="showBadJSONMessage" class="message invalid-json">
             INVALID JSON!
           </span>
         </div>
@@ -64,50 +44,28 @@
       slot="scroll"
       class="vuex-state-inspector"
       :class="{
-        pointer: isOnlyMutationPayload
+        pointer: isOnlyMutationPayload,
       }"
       @click="isOnlyMutationPayload && loadState()"
     >
-      <state-inspector
-        :state="filteredState"
-        :dim-after="isOnlyMutationPayload ? 1 : -1"
-      />
+      <state-inspector :state="filteredState" :dim-after="isOnlyMutationPayload ? 1 : -1" />
     </div>
-    <div
-      v-if="$shared.snapshotLoading"
-      slot="footer"
-      class="state-info loading-vuex-state"
-    >
+    <div v-if="$shared.snapshotLoading" slot="footer" class="state-info loading-vuex-state">
       <div class="label">
         Loading state...
       </div>
 
       <VueLoadingIndicator />
     </div>
-    <div
-      v-else-if="isOnlyMutationPayload"
-      slot="footer"
-      class="state-info recording-vuex-state"
-    >
+    <div v-else-if="isOnlyMutationPayload" slot="footer" class="state-info recording-vuex-state">
       <div class="label">
-        <VueIcon
-          class="medium"
-          icon="cached"
-        />
+        <VueIcon class="medium" icon="cached" />
         <span>Recording state on-demand...</span>
-        <span
-          v-if="lastReceivedState"
-          class="note"
-        >displaying last received state</span>
+        <span v-if="lastReceivedState" class="note">displaying last received state</span>
       </div>
 
       <div>
-        <VueButton
-          data-id="load-vuex-state"
-          icon-left="arrow_forward"
-          class="accent flat"
-          @click="loadStateNow()"
-        >
+        <VueButton data-id="load-vuex-state" icon-left="arrow_forward" class="accent flat" @click="loadStateNow()">
           Load state
         </VueButton>
       </div>
@@ -120,7 +78,7 @@ import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 import StateInspector from '@front/components/StateInspector.vue'
 
-import { searchDeepInObject, sortByKey, stringify, parse } from '@utils/util'
+import { searchDeepInObject, sortByKey, parse, copyToClipboard } from '@utils/util'
 import debounce from 'lodash/debounce'
 import groupBy from 'lodash/groupBy'
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
@@ -130,55 +88,42 @@ export default {
   components: {
     ScrollPane,
     ActionHeader,
-    StateInspector
+    StateInspector,
   },
 
-  provide () {
+  provide() {
     return {
-      InspectorInjection: this.injection
+      InspectorInjection: this.injection,
     }
   },
 
-  data () {
+  data() {
     return {
       showStateCopiedMessage: false,
       showBadJSONMessage: false,
       showImportStatePopup: false,
       filter: '',
       injection: {
-        editable: false
-      }
+        editable: false,
+      },
     }
   },
 
   computed: {
-    ...mapState('vuex', [
-      'activeIndex',
-      'inspectedIndex',
-      'lastReceivedState',
-      'inspectedModule',
-      'history'
-    ]),
+    ...mapState('vuex', ['activeIndex', 'inspectedIndex', 'lastReceivedState', 'inspectedModule', 'history']),
 
-    ...mapGetters('vuex', [
-      'inspectedState',
-      'inspectedLastState',
-      'filteredHistory',
-      'inspectedEntry',
-      'modules'
-    ]),
+    ...mapGetters('vuex', ['inspectedState', 'inspectedLastState', 'filteredHistory', 'inspectedEntry', 'modules']),
 
-    filteredState () {
-      const inspectedState = this.isOnlyMutationPayload && this.inspectedState.mutation
-        ? this.inspectedLastState
-        : this.inspectedState
+    filteredState() {
+      const inspectedState =
+        this.isOnlyMutationPayload && this.inspectedState.mutation ? this.inspectedLastState : this.inspectedState
 
       const getProcessedState = (state, type) => {
         if (!Array.isArray(state)) {
           return Object.keys(state).map(key => ({
             key,
             editable: !this.isOnlyMutationPayload && type === 'state',
-            value: state[key]
+            value: state[key],
           }))
         } else {
           return state
@@ -186,59 +131,62 @@ export default {
       }
 
       const result = [].concat(
-        ...Object.keys(inspectedState).map(
-          type => {
-            const state = inspectedState[type]
-            let processedState
+        ...Object.keys(inspectedState).map(type => {
+          const state = inspectedState[type]
+          let processedState
 
-            if (type === 'mutation' && this.inspectedEntry) {
-              const { options } = this.inspectedEntry
-              if (options.registerModule || options.unregisterModule) {
-                processedState = getProcessedState(state.payload, type)
-                type = options.registerModule ? 'register module' : 'unregister module'
-              }
+          if (type === 'mutation' && this.inspectedEntry) {
+            const { options } = this.inspectedEntry
+            if (options.registerModule || options.unregisterModule) {
+              processedState = getProcessedState(state.payload, type)
+              type = options.registerModule ? 'register module' : 'unregister module'
             }
-
-            if (!processedState) {
-              processedState = getProcessedState(state, type)
-            }
-
-            return processedState.map(
-              item => ({
-                type,
-                ...item
-              })
-            )
           }
-        )
+
+          if (!processedState) {
+            processedState = getProcessedState(state, type)
+          }
+
+          return processedState.map(item => ({
+            type,
+            ...item,
+          }))
+        })
       )
 
-      return groupBy(sortByKey(result.filter(
-        el => searchDeepInObject({
-          [el.key]: el.value
-        }, this.filter)
-      )), 'type')
+      return groupBy(
+        sortByKey(
+          result.filter(el =>
+            searchDeepInObject(
+              {
+                [el.key]: el.value,
+              },
+              this.filter
+            )
+          )
+        ),
+        'type'
+      )
     },
 
-    isOnlyMutationPayload () {
-      return (Object.keys(this.inspectedState).length === 1 && !!this.inspectedState.mutation) ||
+    isOnlyMutationPayload() {
+      return (
+        (Object.keys(this.inspectedState).length === 1 && !!this.inspectedState.mutation) ||
         Object.keys(this.inspectedState).length < 1
+      )
     },
 
-    isActive () {
+    isActive() {
       return this.activeIndex === this.inspectedIndex
     },
 
-    moduleSuggestions () {
-      return [
-        { value: null, label: '(Root)' },
-        ...this.modules.map(m => ({ value: m }))
-      ]
-    }
+    moduleSuggestions() {
+      return [{ value: null, label: '(Root)' }, ...this.modules.map(m => ({ value: m }))]
+    },
   },
 
   watch: {
-    showImportStatePopup (val) {
+    showImportStatePopup(val) {
       if (val) {
         this.$nextTick(() => {
           this.$el.querySelector('textarea').focus()
@@ -247,18 +195,18 @@ export default {
     },
 
     isActive: {
-      handler (value) {
+      handler(value) {
         this.injection.editable = value
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
 
-  created () {
+  created() {
     this.loadStateDebounce = 300
   },
 
-  mounted () {
+  mounted() {
     bridge.on('vuex:mutation', this.onMutation)
     if (this.isOnlyMutationPayload && this.$shared.vuexAutoload) {
       this.loadState()
@@ -267,21 +215,19 @@ export default {
     bridge.on('vuex:init', this.onVuexInit)
   },
 
-  destroyed () {
+  destroyed() {
     bridge.off('vuex:mutation', this.onMutation)
     bridge.off('vuex:init', this.onVuexInit)
   },
 
   methods: {
     ...mapMutations('vuex', {
-      setInspectedModule: 'INSPECTED_MODULE'
+      setInspectedModule: 'INSPECTED_MODULE',
     }),
 
-    ...mapActions('vuex', [
-      'inspect'
-    ]),
+    ...mapActions('vuex', ['inspect']),
 
-    copyStateToClipboard () {
+    copyStateToClipboard() {
       copyToClipboard(this.inspectedState.state)
       this.showStateCopiedMessage = true
       window.setTimeout(() => {
@@ -289,7 +235,7 @@ export default {
       }, 2000)
     },
 
-    toggleImportStatePopup () {
+    toggleImportStatePopup() {
       if (this.showImportStatePopup) {
         this.closeImportStatePopup()
       } else {
@@ -297,11 +243,11 @@ export default {
       }
     },
 
-    closeImportStatePopup () {
+    closeImportStatePopup() {
       this.showImportStatePopup = false
     },
 
-    importState: debounce(function (e) {
+    importState: debounce(function(e) {
       const importedStr = e.target.value
       if (importedStr.length === 0) {
         this.showBadJSONMessage = false
@@ -317,7 +263,7 @@ export default {
       }
     }, 250),
 
-    loadState () {
+    loadState() {
       // Debouncing
       clearTimeout(this.loadStateTimer)
       this.loadStateTimer = setTimeout(() => {
@@ -337,43 +283,37 @@ export default {
       }, 3000)
     },
 
-    loadStateNow () {
+    loadStateNow() {
       const history = this.filteredHistory
       this.inspect(history[history.length - 1])
     },
 
-    onMutation () {
+    onMutation() {
       if (this.$shared.vuexAutoload) {
         if (this.unwatchHistoryLength) this.unwatchHistoryLength()
         if (mutationBuffer.length) {
           // Wait for history to receive mutations batch
-          this.unwatchHistoryLength = this.$watch(() => this.history.length, (value, oldValue) => {
-            this.unwatchHistoryLength()
-            if (!mutationBuffer.length) {
-              this.loadState()
+          this.unwatchHistoryLength = this.$watch(
+            () => this.history.length,
+            (value, oldValue) => {
+              this.unwatchHistoryLength()
+              if (!mutationBuffer.length) {
+                this.loadState()
+              }
             }
-          })
+          )
         } else {
           this.loadState()
         }
       }
     },
 
-    onVuexInit () {
+    onVuexInit() {
       if (this.$shared.vuexAutoload) {
         this.loadState()
       }
-    }
-  }
-}
-
-function copyToClipboard (state) {
-  const dummyTextArea = document.createElement('textarea')
-  dummyTextArea.textContent = stringify(state)
-  document.body.appendChild(dummyTextArea)
-  dummyTextArea.select()
-  document.execCommand('copy')
-  document.body.removeChild(dummyTextArea)
+    },
+  },
 }
 </script>
 
