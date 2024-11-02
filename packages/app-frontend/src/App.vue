@@ -3,35 +3,21 @@
     id="app"
     class="app"
     :class="{
-      beta: isBeta
+      beta: isBeta,
     }"
   >
     <datalist id="special-tokens">
-      <option
-        v-for="(value, key) of specialTokens"
-        :key="key"
-        :value="key"
-      />
+      <option v-for="(value, key) of specialTokens" :key="key" :value="key" />
     </datalist>
     <div class="header">
-      <img
-        class="logo"
-        src="./assets/logo.png"
-        alt="Vue"
-      >
+      <img class="logo" src="./assets/logo.png" alt="Vue" />
       <span class="message-container">
         <transition name="slide-up">
-          <span
-            :key="message"
-            class="message"
-          >
+          <span :key="message" class="message">
             <span class="text">{{ message }}</span>
 
             <span class="badges">
-              <span
-                v-if="isBeta"
-                class="badge"
-              >
+              <span v-if="isBeta" class="badge">
                 beta devtools
               </span>
             </span>
@@ -40,15 +26,11 @@
       </span>
 
       <div class="actions">
-        <VueGroup
-          v-model="routeModel"
-          class="primary inline"
-          indicator
-        >
+        <VueGroup v-model="routeModel" class="primary inline" indicator>
           <VueGroupButton
             v-tooltip="$t('App.components.tooltip')"
             :class="{
-              'icon-button': !$responsive.wide
+              'icon-button': !$responsive.wide,
             }"
             value="components"
             icon-left="device_hub"
@@ -59,7 +41,7 @@
           <VueGroupButton
             v-tooltip="$t('App.vuex.tooltip')"
             :class="{
-              'icon-button': !$responsive.wide
+              'icon-button': !$responsive.wide,
             }"
             value="vuex"
             icon-left="restore"
@@ -71,7 +53,7 @@
             v-tooltip="$t('App.events.tooltip')"
             :tag="newEventCount > 0 ? newEventCount : null"
             :class="{
-              'icon-button': !$responsive.wide
+              'icon-button': !$responsive.wide,
             }"
             value="events"
             icon-left="grain"
@@ -89,22 +71,13 @@
             @select="routeModel = $event"
           >
             <template slot="header">
-              <VueIcon
-                icon="directions"
-                class="left-icon"
-              />
+              <VueIcon icon="directions" class="left-icon" />
               <span class="hide-below-wide">
                 Routing
               </span>
-              <VueIcon
-                icon="keyboard_arrow_down"
-                class="right-icon"
-              />
+              <VueIcon icon="keyboard_arrow_down" class="right-icon" />
             </template>
-            <template
-              slot="option"
-              slot-scope="{ option }"
-            >
+            <template slot="option" slot-scope="{ option }">
               <VueGroupButton
                 v-tooltip.left="!$responsive.wide && option.label"
                 :value="option.name"
@@ -120,7 +93,7 @@
           <VueGroupButton
             v-tooltip="$t('App.perf.tooltip')"
             :class="{
-              'icon-button': !$responsive.wide
+              'icon-button': !$responsive.wide,
             }"
             value="perf"
             icon-left="assessment"
@@ -132,7 +105,7 @@
             v-tooltip="$t('App.settings.tooltip')"
             :class="{
               'icon-button': !$responsive.wide,
-              info: hasNewSettings
+              info: hasNewSettings,
             }"
             :tag="hasNewSettings ? 'new' : null"
             value="settings"
@@ -149,7 +122,7 @@
           v-tooltip="$t('App.refresh.tooltip')"
           class="refresh-button flat"
           :class="{
-            'icon-button': !$responsive.wide
+            'icon-button': !$responsive.wide,
           }"
           icon-left="refresh"
           @click="refresh"
@@ -175,12 +148,12 @@ export default {
   name: 'App',
 
   components: {
-    GroupDropdown
+    GroupDropdown,
   },
 
   mixins: [
     Keyboard({
-      onKeyDown ({ key, code, modifiers }) {
+      onKeyDown({ key, code, modifiers }) {
         switch (modifiers) {
           case 'ctrl+alt':
             if (key === 'r' || code === 'KeyR') {
@@ -216,18 +189,18 @@ export default {
               return false
             }
         }
-      }
-    })
+      },
+    }),
   ],
 
-  data () {
+  data() {
     return {
       isRouterGroupOpen: false,
       routingTabs: [
         { name: 'router', label: 'History', icon: 'directions' },
-        { name: 'routes', label: 'Routes', icon: 'book' }
+        { name: 'routes', label: 'Routes', icon: 'book' },
       ],
-      settingsVersion: parseInt(get(SETTINGS_VERSION_ID))
+      settingsVersion: parseInt(get(SETTINGS_VERSION_ID)),
     }
   },
 
@@ -235,20 +208,22 @@ export default {
     ...mapState({
       message: state => state.message,
       newEventCount: state => state.events.newEventCount,
-      view: state => state.view
+      view: state => state.view,
     }),
 
     ...mapGetters('components', {
-      totalComponentCount: 'totalCount'
+      totalComponentCount: 'totalCount',
     }),
 
-    specialTokens () {
+    specialTokens() {
       return SPECIAL_TOKENS
     },
 
     routeModel: {
-      get () { return this.$route.matched[0].name },
-      set (value) {
+      get() {
+        return this.$route.matched[0].name
+      },
+      set(value) {
         this.$router.push({ name: value })
 
         this.$nextTick(() => {
@@ -257,37 +232,37 @@ export default {
             set(SETTINGS_VERSION_ID, SETTINGS_VERSION)
           }
         })
-      }
+      },
     },
 
-    hasNewSettings () {
+    hasNewSettings() {
       return this.settingsVersion !== SETTINGS_VERSION
-    }
+    },
   },
 
   watch: {
-    '$route.name' (tab) {
+    '$route.name'(tab) {
       bridge.send('switch-tab', tab)
       if (tab === 'events') {
         this.$store.commit('events/RESET_NEW_EVENT_COUNT')
       }
-    }
+    },
   },
 
-  mounted () {
+  mounted() {
     this.mediaQuery = window.matchMedia('(min-width: 685px)')
     this.switchView(this.mediaQuery)
     this.mediaQuery.addListener(this.switchView)
-    this.autoRefreshTimer = setInterval(this.shouldAutoRefresh, 1000)
+    // this.autoRefreshTimer = setInterval(this.shouldAutoRefresh, 1000)
   },
 
-  destroyed () {
+  destroyed() {
     this.mediaQuery.removeListener(this.switchView)
     clearInterval(this.autoRefreshTimer)
   },
 
   methods: {
-    refresh () {
+    refresh() {
       const refreshIcon = this.$refs.refresh.$el.querySelector('.vue-ui-icon')
       refreshIcon.style.animation = 'none'
 
@@ -297,24 +272,20 @@ export default {
       })
     },
 
-    shouldAutoRefresh () {
+    shouldAutoRefresh() {
       if (this.totalComponentCount === 0) {
         this.refresh()
       }
     },
 
-    switchView (mediaQueryEvent) {
-      this.$store.commit(
-        'SWITCH_VIEW',
-        mediaQueryEvent.matches ? 'vertical' : 'horizontal'
-      )
-    }
-  }
+    switchView(mediaQueryEvent) {
+      this.$store.commit('SWITCH_VIEW', mediaQueryEvent.matches ? 'vertical' : 'horizontal')
+    },
+  },
 }
 </script>
 
-<style lang="stylus" src="./style/global.styl">
-</style>
+<style lang="stylus" src="./style/global.styl"></style>
 
 <style lang="stylus" scoped>
 .app

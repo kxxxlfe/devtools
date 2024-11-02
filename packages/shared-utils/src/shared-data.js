@@ -1,4 +1,5 @@
 import * as storage from './storage'
+import { debug } from './util'
 
 // Initial state
 const internalSharedData = {
@@ -53,7 +54,7 @@ export function init(params) {
     persist = !!params.persist
 
     if (persist) {
-      if (process.env.NODE_ENV !== 'production') console.log('[shared data] Master init in progress...')
+      debug('[shared data] Master init in progress...')
       // Load persisted fields
       persisted.forEach(key => {
         const value = storage.get(`shared-data:${key}`)
@@ -69,7 +70,7 @@ export function init(params) {
         bridge.send('shared-data:load-complete')
       })
       bridge.on('shared-data:init-complete', () => {
-        if (process.env.NODE_ENV !== 'production') console.log('[shared data] Master init complete')
+        debug('[shared data] Master init complete')
         clearInterval(initRetryInterval)
         resolve()
       })
@@ -82,22 +83,22 @@ export function init(params) {
 
       initRetryCount = 0
       initRetryInterval = setInterval(() => {
-        if (process.env.NODE_ENV !== 'production') console.log('[shared data] Master init retrying...')
+        debug('[shared data] Master init retrying...')
         bridge.send('shared-data:master-init-waiting')
         initRetryCount++
         if (initRetryCount > 30) {
           clearInterval(initRetryInterval)
           console.error('[shared data] Master init failed')
         }
-      }, 2000)
+      }, 10000)
     } else {
-      if (process.env.NODE_ENV !== 'production') console.log('[shared data] Slave init in progress...')
+      debug('[shared data] Slave init in progress...')
       bridge.on('shared-data:master-init-waiting', () => {
-        if (process.env.NODE_ENV !== 'production') console.log('[shared data] Slave loading data...')
+        debug('[shared data] Slave loading data...')
         // Load all persisted shared data
         bridge.send('shared-data:load')
         bridge.once('shared-data:load-complete', () => {
-          if (process.env.NODE_ENV !== 'production') console.log('[shared data] Slave init complete')
+          debug('[shared data] Slave init complete')
           bridge.send('shared-data:init-complete')
           resolve()
         })
