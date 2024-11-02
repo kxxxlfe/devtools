@@ -5,14 +5,14 @@
       selected,
     }"
     class="instance"
+    :style="{
+      paddingLeft: 8 + 'px',
+    }"
   >
     <div
       ref="self"
       :class="{
         selected,
-      }"
-      :style="{
-        left: depth * 8 + 'px',
       }"
       class="self selectable-item"
       @click.stop="select"
@@ -71,10 +71,11 @@
 </template>
 
 <script>
+import { defineComponent, ref, watch, getCurrentInstance, computed } from 'vue'
 import { mapState, mapMutations } from 'vuex'
 import { getComponentDisplayName, scrollIntoView, UNDEFINED } from '@utils/util'
 
-export default {
+export default defineComponent({
   name: 'ComponentInstance',
 
   props: {
@@ -88,15 +89,24 @@ export default {
     },
   },
 
+  setup(props, { emit }) {
+    const self = ref(null)
+    const ctx = getCurrentInstance().proxy
+
+    const selected = computed(() => props.instance.id === ctx.inspectedInstanceId)
+    watch(() => selected.value, function(n) {
+      if (n) {
+        self.value.scrollIntoView({ inline: 'center' })
+      }
+    })
+    return { self, selected }
+  },
+
   computed: {
     ...mapState('components', ['expansionMap', 'inspectedInstance', 'inspectedInstanceId', 'scrollToExpanded']),
 
     expanded() {
       return !!this.expansionMap[this.instance.id]
-    },
-
-    selected() {
-      return this.instance.id === this.inspectedInstanceId
     },
 
     sortedChildren() {
@@ -176,11 +186,11 @@ export default {
 
     scrollIntoView(center = true) {
       this.$nextTick(() => {
-        scrollIntoView(this.$globalRefs.leftScroll, this.$refs.self, center)
+        scrollIntoView(this.$globalRefs.leftScroll, this.self, center)
       })
     },
   },
-}
+})
 </script>
 
 <style lang="stylus" scoped>
