@@ -12,7 +12,7 @@
         selected,
       }"
       :style="{
-        paddingLeft: depth * 15 + 'px',
+        left: depth * 8 + 'px',
       }"
       class="self selectable-item"
       @click.stop="select"
