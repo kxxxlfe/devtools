@@ -33,7 +33,7 @@ class WebBridge extends APIHandler {
 }
 
 export const bridge = new WebBridge()
-
+debugger
 bridge.on(`${Plat.web}/test`, function(info) {
   console.log(info)
   return { result: 'ok' }

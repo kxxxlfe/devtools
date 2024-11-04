@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'path-browserify'
 import * as CircularJSON from './transfer'
 import { instanceMap, getCustomInstanceDetails } from '@back'
 import { getCustomStoreDetails } from '@back/vuex'
@@ -252,6 +252,8 @@ export function reviveSet(val) {
 // Use a custom basename functions instead of the shimed version
 // because it doesn't work on Windows
 function basename(filename, ext) {
+  let fname = filename.split(/(\\|\/)/)
+  fname = fname[fname.length - 1]
   return path.basename(filename.replace(/^[a-zA-Z]:/, '').replace(/\\/g, '/'), ext)
 }
 

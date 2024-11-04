@@ -4,6 +4,8 @@
   "private": true,
   "sideEffects": false,
   "dependencies": {
-    "@vue-devtools/app-backend": "^0.0.0"
+    "@vue-devtools/app-backend": "^0.0.0",
+    "path-browserify": "1.0.1",
+    "events": "3.3.0"
   }
 }
