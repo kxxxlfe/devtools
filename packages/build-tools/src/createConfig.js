@@ -10,6 +10,7 @@ exports.createConfig = (config, target = { chrome: 52, firefox: 48 }) => {
     transforms: {
       forOf: false,
       modules: false,
+      asyncAwait: false,
     },
   }
 
@@ -26,12 +27,12 @@ exports.createConfig = (config, target = { chrome: 52, firefox: 48 }) => {
     },
     module: {
       rules: [
-        {
-          test: /\.js$/,
-          loader: 'buble-loader',
-          exclude: /node_modules|vue\/dist|vuex\/dist/,
-          options: bubleOptions,
-        },
+        // {
+        //   test: /\.js$/,
+        //   loader: 'buble-loader',
+        //   exclude: /node_modules|vue\/dist|vuex\/dist/,
+        //   options: bubleOptions,
+        // },
         {
           test: /\.vue$/,
           loader: 'vue-loader',

@@ -1,40 +1,40 @@
 /* 
   web环境：content <=> web
 */
-import { MsgDef, Plat, APIHandler, makeRequest, makeResponse } from './const'
+import { MsgDef, Plat, EventHandle, makeRequest, makeResponse } from './const'
 
-const callbacks = {}
+class WebBridge extends EventHandle {
+  callbacks = {}
+  plat = Plat.web
 
-// req/res 处理
-window.addEventListener(Plat.web, async function(evt) {
-  const { data: msgdata } = evt
-  const uuid = msgdata.uuid
+  constructor() {
+    super()
+    window.removeEventListener('message', this.onRequest)
+    window.addEventListener('message', this.onRequest)
+  }
 
-  if (msgdata.type === MsgDef.response) {
-    callbacks[uuid] && callbacks[uuid](request.data)
-  } else {
+  request(path, params) {
+    const msg = makeRequest({ plat: this.plat, path, params })
+
+    return makeWinPost(msg)
+  }
+  // 处理请求，负责返回
+  async onRequest(evt) {
+    const { data: msgdata } = evt
+    if (!msgdata.targetPlat?.startsWith(this.plat)) {
+      return
+    }
+    const uuid = msgdata.uuid
+
+    if (msgdata.type !== MsgDef.request) {
+      return
+    }
+
     const request = msgdata
     const { path, params } = request
-    const res = await bridge.trigger(path, params)
-    bridge.response(makeResponse({ data: res, request }))
-  }
-})
-
-class WebBridge extends APIHandler {
-  constructor() {
-    super({
-      send(msgdata) {
-        window.postMessage(Plat.content, msgdata)
-      },
-      callbacks,
-      plat: Plat.web,
-    })
+    const res = await this.trigger(path, params)
+    window.postMessage(makeResponse({ data: res, request }))
   }
 }
 
 export const bridge = new WebBridge()
-debugger
-bridge.on(`${Plat.web}/test`, function(info) {
-  console.log(info)
-  return { result: 'ok' }
-})

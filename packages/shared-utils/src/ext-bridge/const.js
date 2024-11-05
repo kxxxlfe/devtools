@@ -11,19 +11,9 @@ export const Plat = {
   background: 'kxext/background',
 }
 
-const callbacks = {}
-
-// 公共的 请求/返回 逻辑
-export class APIHandler {
+// 事件总线
+export class EventHandle {
   handlers = {}
-  callbacks = {}
-  plat = ''
-  send = (...args) => {}
-  constructor({ callbacks, send, plat }) {
-    this.callbacks = callbacks
-    this.send = send
-    this.plat = plat
-  }
   on(path, handler) {
     this.handlers[path] = handler
   }
@@ -36,20 +26,6 @@ export class APIHandler {
     const res = await handler(params)
 
     return res
-  }
-  request(path, params) {
-    const msg = makeRequest({ plat: this.plat, path, params })
-
-    return new Promise(resolve => {
-      callbacks[msg.uuid] = function(response) {
-        resolve(response)
-        delete callbacks[msg.uuid]
-      }
-      this.send(msg)
-    })
-  }
-  response(res) {
-    this.send(res)
   }
 }
 
@@ -76,7 +52,33 @@ export const makeResponse = function({ plat, data, error, request }) {
   }
 }
 export const isBridgeMessage = function(msgdata) {
-  return msgdata.uuid && [MsgDef.request, MsgDef.response].includes(msgdata.type)
+  return msgdata?.uuid && [MsgDef.request, MsgDef.response].includes(msgdata.type)
 }
 
-// 消息处理
+// 支持promise的window.postMessage
+let inited = false
+const callbacks = {}
+async function onResponseMessage(evt) {
+  const { data: msgdata } = evt
+  if (!msgdata.targetPlat?.startsWith(this.plat)) {
+    return
+  }
+  const uuid = msgdata.uuid
+
+  if (msgdata.type === MsgDef.response) {
+    callbacks[uuid] && callbacks[uuid](msgdata.data)
+  }
+}
+export const makeWinPost = function(msg) {
+  if (!inited) {
+    window.removeEventListener('message', onResponseMessage)
+    window.addEventListener('message', onResponseMessage)
+  }
+  return new Promise(resolve => {
+    callbacks[msg.uuid] = function(response) {
+      resolve(response)
+      delete callbacks[msg.uuid]
+    }
+    window.postMessage(msg)
+  })
+}

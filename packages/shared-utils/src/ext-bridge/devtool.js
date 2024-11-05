@@ -1,47 +1,44 @@
 /* 
   web环境：content <=> web
 */
-import { MsgDef, Plat, APIHandler, makeRequest, makeResponse, isBridgeMessage } from './const'
+import { MsgDef, Plat, APIHandler, makeRequest, makeResponse, isBridgeMessage, EventHandle } from './const'
 
-const callbacks = {}
+class DevBridge extends EventHandle {
+  callbacks = {}
+  plat = Plat.devtool
+  tabId = chrome.devtools.inspectedWindow.tabId
 
-// req/res 处理
-chrome.runtime.onMessage.addEventListener(async (msgdata, source) => {
-  if (!isBridgeMessage(msgdata)) {
-    return
-  }
-  if (msgdata.source === Plat.devtool) {
-    return
-  }
-  if (msgdata.type === MsgDef.request && !msgdata.path.startsWith(Plat.devtool)) {
-    return
+  constructor() {
+    super()
+    chrome.runtime.onMessage.removeListener(this.onRequest)
+    chrome.runtime.onMessage.addListener(this.onRequest)
   }
 
-  if (msgdata.type === MsgDef.response) {
-    callbacks[uuid] && callbacks[uuid](request.data)
-  } else {
+  request(path, params) {
+    const msg = makeRequest({ plat: this.plat, path, params })
+
+    return chrome.tabs.sendMessage(this.tabId, msg, {})
+  }
+  // 处理请求，负责返回
+  async onRequest(evt) {
+    const { data: msgdata } = evt
+    if (!isBridgeMessage(msgdata)) {
+      return
+    }
+    if (!msgdata.targetPlat?.startsWith(this.plat)) {
+      return
+    }
+    const uuid = msgdata.uuid
+
+    if (msgdata.type !== MsgDef.request) {
+      return
+    }
+
     const request = msgdata
     const { path, params } = request
-    const res = await bridge.trigger(path, params)
-    bridge.response(makeResponse({ data: res, request }))
-  }
-})
-
-class DevBridge extends APIHandler {
-  constructor() {
-    super({
-      send(msgdata) {
-        chrome.runtime.postMessage(msgdata)
-      },
-      callbacks,
-      plat: Plat.devtool,
-    })
+    const res = await this.trigger(path, params)
+    chrome.tabs.sendMessage(this.tabId, makeResponse({ data: res, request }))
   }
 }
 
 export const bridge = new DevBridge()
-
-window.test = async function() {
-  const res = await bridge.request(`${Plat.web}/test`, { aaa: 1 })
-  console.log(res)
-}
