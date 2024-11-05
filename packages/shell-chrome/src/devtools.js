@@ -3,38 +3,69 @@
 import { initDevTools } from '@front'
 import Bridge from '@utils/bridge'
 
-initDevTools({
+let port
+let disconnected
+let reconnectFunc
+let bridge
+const createPort = function() {
+  disconnected = false
+  port = chrome.runtime.connect({
+    name: '' + chrome.devtools.inspectedWindow.tabId,
+  })
+  port.onDisconnect.addListener((...args) => {
+    console.log('disconnected service-worker', args, Date().toString())
+    disconnected = true
+  })
+  window.port = port
+  bridge && bridge.init()
+}
 
+// chrome.tabs.onActivated.addListener(function({ tabId }) {
+//   if (tabId !== chrome.devtools.inspectedWindow.tabId) {
+//     return
+//   }
+//   // 聚焦重连
+//   if (port && disconnected) {
+//     createPort()
+//     console.log('reconnect service-worker', Date().toString())
+//     reconnectFunc && reconnectFunc()
+//   }
+// })
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  if (message === 'vue-panel-shown') {
+    if (port && disconnected) {
+      createPort()
+      console.log('reconnect service-worker', Date().toString())
+      reconnectFunc && reconnectFunc()
+    }
+  }
+})
+
+initDevTools({
   /**
    * Inject backend, connect to background, and send back the bridge.
    *
    * @param {Function} cb
    */
 
-  connect (cb) {
+  connect(cb) {
     // 1. inject backend code into page
     injectScript(chrome.runtime.getURL('build/backend.js'), () => {
       // 2. connect to background to setup proxy
-      const port = chrome.runtime.connect({
-        name: '' + chrome.devtools.inspectedWindow.tabId
-      })
-      let disconnected = false
-      port.onDisconnect.addListener(() => {
-        disconnected = true
-      })
+      createPort()
 
-      const bridge = new Bridge({
-        listen (fn) {
+      bridge = new Bridge({
+        listen(fn) {
           port.onMessage.addListener(fn)
         },
-        send (data) {
+        send(data) {
           if (!disconnected) {
             // if (process.env.NODE_ENV !== 'production') {
             //   console.log('[chrome] devtools -> backend', data)
             // }
             port.postMessage(data)
           }
-        }
+        },
       })
       // 3. send a proxy API to the panel
       cb(bridge)
@@ -47,9 +78,13 @@ initDevTools({
    * @param {Function} reloadFn
    */
 
-  onReload (reloadFn) {
+  onReload(reloadFn) {
     chrome.devtools.network.onNavigated.addListener(reloadFn)
-  }
+  },
+
+  onReConnect(func) {
+    reconnectFunc = func
+  },
 })
 
 /**
@@ -60,7 +95,7 @@ initDevTools({
  * @param {Function} cb
  */
 
-function injectScript (scriptName, cb) {
+function injectScript(scriptName, cb) {
   const src = `
     (function() {
       var script = document.constructor.prototype.createElement.call(document, 'script');
@@ -69,7 +104,7 @@ function injectScript (scriptName, cb) {
       script.parentNode.removeChild(script);
     })()
   `
-  chrome.devtools.inspectedWindow.eval(src, function (res, err) {
+  chrome.devtools.inspectedWindow.eval(src, function(res, err) {
     if (err) {
       console.log(err)
     }

@@ -65,6 +65,7 @@ Vue.options.renderError = (h, e) => {
 let app = new Vue({
   render: h => h(AppConnecting),
 }).$mount('#app')
+let store
 
 /**
  * Create the main devtools app. Expects to be called with a shell interface
@@ -86,6 +87,133 @@ export function initDevTools(shell) {
       bridge.removeAllListeners()
       initApp(shell)
     })
+    shell.onReConnect && shell.onReConnect(reconnectBridge)
+  })
+}
+
+const reconnectBridge = async function() {
+  const bridge = window.bridge
+
+  if (Vue.prototype.hasOwnProperty('$shared')) {
+    destroySharedData()
+  } else {
+    Object.defineProperty(Vue.prototype, '$shared', {
+      get: () => SharedData,
+    })
+  }
+
+  await initSharedData({
+    bridge,
+    Vue,
+    persist: true,
+  })
+
+  if (SharedData.logDetected) {
+    bridge.send('log-detected-vue')
+  }
+
+  bridge.once('ready', version => {
+    store.commit('SHOW_MESSAGE', 'Ready. Detected Vue ' + version + '.')
+    bridge.send('events:toggle-recording', store.state.events.enabled)
+    bridge.send('router:toggle-recording', store.state.router.enabled)
+
+    if (isChrome) {
+      chrome.runtime.sendMessage('vue-panel-load')
+    }
+  })
+
+  bridge.once('proxy-fail', () => {
+    store.commit('SHOW_MESSAGE', 'Proxy injection failed.')
+  })
+
+  bridge.on('flush', payload => {
+    store.commit('components/FLUSH', parse(payload))
+  })
+
+  bridge.on('instance-details', details => {
+    store.commit('components/RECEIVE_INSTANCE_DETAILS', parse(details))
+  })
+
+  bridge.on('toggle-instance', payload => {
+    store.commit('components/TOGGLE_INSTANCE', parse(payload))
+  })
+
+  bridge.on('vuex:init', () => {
+    store.commit('vuex/INIT')
+  })
+
+  bridge.on('vuex:mutation', payload => {
+    store.dispatch('vuex/receiveMutation', payload)
+  })
+
+  bridge.on('vuex:inspected-state', ({ index, snapshot }) => {
+    store.commit('vuex/RECEIVE_STATE', { index, snapshot })
+
+    if (index === -1) {
+      store.commit('vuex/UPDATE_BASE_STATE', snapshot)
+    } else if (store.getters['vuex/absoluteInspectedIndex'] === index) {
+      store.commit('vuex/UPDATE_INSPECTED_STATE', snapshot)
+    } else {
+      console.log('vuex:inspected-state wrong index', index, 'expected:', store.getters['vuex/absoluteInspectedIndex'])
+    }
+
+    if (VuexResolve.travel) {
+      VuexResolve.travel(snapshot)
+    }
+
+    requestAnimationFrame(() => {
+      SharedData.snapshotLoading = false
+    })
+  })
+
+  bridge.on('event:triggered', payload => {
+    store.commit('events/RECEIVE_EVENT', parse(payload))
+    if (router.currentRoute.name !== 'events') {
+      store.commit('events/INCREASE_NEW_EVENT_COUNT')
+    }
+  })
+
+  bridge.on('router:init', payload => {
+    store.commit('router/INIT', parse(payload))
+  })
+
+  bridge.on('router:changed', payload => {
+    store.commit('router/CHANGED', parse(payload))
+  })
+
+  bridge.on('routes:init', payload => {
+    store.commit('routes/INIT', parse(payload))
+  })
+
+  bridge.on('routes:changed', payload => {
+    store.commit('routes/CHANGED', parse(payload))
+  })
+
+  bridge.on('events:reset', () => {
+    store.commit('events/RESET')
+  })
+
+  bridge.on('inspect-instance', id => {
+    ensurePaneShown(() => {
+      console.log('ensurePaneShown', id)
+      bridge.send('select-instance', id)
+      router.push({ name: 'components' })
+      const instance = store.state.components.instancesMap[id]
+      instance &&
+        store.dispatch('components/toggleInstance', {
+          instance,
+          expanded: true,
+          parent: true,
+        })
+    })
+  })
+
+  bridge.on('perf:add-metric', data => {
+    store.commit('perf/ADD_METRIC', data)
+  })
+
+  bridge.on('perf:upsert-metric', ({ type, data }) => {
+    store.commit('perf/UPSERT_METRIC', { type, data })
   })
 }
 
@@ -97,171 +225,44 @@ export function initDevTools(shell) {
  */
 
 function initApp(shell) {
-  shell.connect(bridge => {
+  shell.connect(async bridge => {
     window.bridge = bridge
+    store = createStore()
+    await reconnectBridge()
 
-    if (Vue.prototype.hasOwnProperty('$shared')) {
-      destroySharedData()
-    } else {
-      Object.defineProperty(Vue.prototype, '$shared', {
-        get: () => SharedData,
-      })
+    initEnv(Vue)
+
+    if (app) {
+      app.$destroy()
     }
 
-    initSharedData({
-      bridge,
-      Vue,
-      persist: true,
-    }).then(() => {
-      if (SharedData.logDetected) {
-        bridge.send('log-detected-vue')
-      }
+    app = new Vue({
+      extends: App,
+      router,
+      store,
 
-      const store = createStore()
+      data: {
+        isBeta,
+      },
 
-      bridge.once('ready', version => {
-        store.commit('SHOW_MESSAGE', 'Ready. Detected Vue ' + version + '.')
-        bridge.send('events:toggle-recording', store.state.events.enabled)
-        bridge.send('router:toggle-recording', store.state.router.enabled)
-
-        if (isChrome) {
-          chrome.runtime.sendMessage('vue-panel-load')
-        }
-      })
-
-      bridge.once('proxy-fail', () => {
-        store.commit('SHOW_MESSAGE', 'Proxy injection failed.')
-      })
-
-      bridge.on('flush', payload => {
-        store.commit('components/FLUSH', parse(payload))
-      })
-
-      bridge.on('instance-details', details => {
-        store.commit('components/RECEIVE_INSTANCE_DETAILS', parse(details))
-      })
-
-      bridge.on('toggle-instance', payload => {
-        store.commit('components/TOGGLE_INSTANCE', parse(payload))
-      })
-
-      bridge.on('vuex:init', () => {
-        store.commit('vuex/INIT')
-      })
-
-      bridge.on('vuex:mutation', payload => {
-        store.dispatch('vuex/receiveMutation', payload)
-      })
-
-      bridge.on('vuex:inspected-state', ({ index, snapshot }) => {
-        store.commit('vuex/RECEIVE_STATE', { index, snapshot })
-
-        if (index === -1) {
-          store.commit('vuex/UPDATE_BASE_STATE', snapshot)
-        } else if (store.getters['vuex/absoluteInspectedIndex'] === index) {
-          store.commit('vuex/UPDATE_INSPECTED_STATE', snapshot)
-        } else {
-          console.log(
-            'vuex:inspected-state wrong index',
-            index,
-            'expected:',
-            store.getters['vuex/absoluteInspectedIndex']
-          )
-        }
-
-        if (VuexResolve.travel) {
-          VuexResolve.travel(snapshot)
-        }
-
-        requestAnimationFrame(() => {
-          SharedData.snapshotLoading = false
-        })
-      })
-
-      bridge.on('event:triggered', payload => {
-        store.commit('events/RECEIVE_EVENT', parse(payload))
-        if (router.currentRoute.name !== 'events') {
-          store.commit('events/INCREASE_NEW_EVENT_COUNT')
-        }
-      })
-
-      bridge.on('router:init', payload => {
-        store.commit('router/INIT', parse(payload))
-      })
-
-      bridge.on('router:changed', payload => {
-        store.commit('router/CHANGED', parse(payload))
-      })
-
-      bridge.on('routes:init', payload => {
-        store.commit('routes/INIT', parse(payload))
-      })
-
-      bridge.on('routes:changed', payload => {
-        store.commit('routes/CHANGED', parse(payload))
-      })
-
-      bridge.on('events:reset', () => {
-        store.commit('events/RESET')
-      })
-
-      bridge.on('inspect-instance', id => {
-        ensurePaneShown(() => {
-          console.log('ensurePaneShown', id)
-          bridge.send('select-instance', id)
-          router.push({ name: 'components' })
-          const instance = store.state.components.instancesMap[id]
-          instance &&
-            store.dispatch('components/toggleInstance', {
-              instance,
-              expanded: true,
-              parent: true,
-            })
-        })
-      })
-
-      bridge.on('perf:add-metric', data => {
-        store.commit('perf/ADD_METRIC', data)
-      })
-
-      bridge.on('perf:upsert-metric', ({ type, data }) => {
-        store.commit('perf/UPSERT_METRIC', { type, data })
-      })
-
-      initEnv(Vue)
-
-      if (app) {
-        app.$destroy()
-      }
-
-      app = new Vue({
-        extends: App,
-        router,
-        store,
-
-        data: {
-          isBeta,
-        },
-
-        watch: {
-          '$shared.theme': {
-            handler(value) {
-              if (value === 'dark' || value === 'high-contrast' || (value === 'auto' && chromeTheme === 'dark')) {
-                document.body.classList.add('vue-ui-dark-mode')
-              } else {
-                document.body.classList.remove('vue-ui-dark-mode')
-              }
-              if (value === 'high-contrast') {
-                document.body.classList.add('vue-ui-high-contrast')
-              } else {
-                document.body.classList.remove('vue-ui-high-contrast')
-              }
-            },
-            immediate: true,
+      watch: {
+        '$shared.theme': {
+          handler(value) {
+            if (value === 'dark' || value === 'high-contrast' || (value === 'auto' && chromeTheme === 'dark')) {
+              document.body.classList.add('vue-ui-dark-mode')
+            } else {
+              document.body.classList.remove('vue-ui-dark-mode')
+            }
+            if (value === 'high-contrast') {
+              document.body.classList.add('vue-ui-high-contrast')
+            } else {
+              document.body.classList.remove('vue-ui-high-contrast')
+            }
           },
+          immediate: true,
         },
-      }).$mount('#app')
-    })
+      },
+    }).$mount('#app')
   })
 }
 
