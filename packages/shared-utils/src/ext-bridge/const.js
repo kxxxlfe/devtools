@@ -1,5 +1,5 @@
 export const MsgDef = {
-  request: 'requiest',
+  request: 'request',
   response: 'response',
 }
 
@@ -34,6 +34,7 @@ export const makeRequest = function({ plat, path, params }) {
   return {
     type: MsgDef.request,
     source: plat,
+    target: Object.values(Plat).find(p => path.startsWith(p)),
     uuid: `${plat}_${Date.now()}`,
     params,
     path,
@@ -73,6 +74,7 @@ export const makeWinPost = function(msg) {
   if (!inited) {
     window.removeEventListener('message', onResponseMessage)
     window.addEventListener('message', onResponseMessage)
+    inited = true
   }
   return new Promise(resolve => {
     callbacks[msg.uuid] = function(response) {

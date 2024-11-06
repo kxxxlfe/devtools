@@ -1,7 +1,7 @@
 /* 
   web环境：content <=> web
 */
-import { MsgDef, Plat, EventHandle, makeRequest, makeResponse } from './const'
+import { MsgDef, Plat, EventHandle, makeRequest, makeResponse, makeWinPost } from './const'
 
 class WebBridge extends EventHandle {
   callbacks = {}
@@ -38,3 +38,12 @@ class WebBridge extends EventHandle {
 }
 
 export const bridge = new WebBridge()
+
+window.webBridge = bridge
+window.testBridge = function() {
+  bridge.request(`${Plat.devtool}/test`, { from: 'web' })
+}
+bridge.on(`${Plat.web}/test`, function(info) {
+  console.log(info)
+  return { result: 'ok' }
+})

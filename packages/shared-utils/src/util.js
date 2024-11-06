@@ -1,10 +1,15 @@
 import path from 'path-browserify'
 import * as CircularJSON from './transfer'
-import { instanceMap, getCustomInstanceDetails } from '@back'
+import { getCustomInstanceDetails } from '@back/process'
 import { getCustomStoreDetails } from '@back/vuex'
 import { getCustomRouterDetails } from '@back/router'
 import SharedData from './shared-data'
 import { isChrome } from './env'
+
+let instanceMap = new Map()
+export const setInstanceMap = function(inst) {
+  instanceMap = inst
+}
 
 function cached(fn) {
   const cache = Object.create(null)

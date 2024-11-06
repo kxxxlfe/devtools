@@ -1,12 +1,12 @@
 import { inDoc, getComponentName, getComponentDisplayName } from '@utils/util'
 import SharedData from '@utils/shared-data'
 import { isBrowser, target } from '@utils/env'
-import { getInstanceName } from './index'
+import { getInstanceName } from './process'
 
 let overlay
 let overlayContent
 
-function init () {
+function init() {
   if (overlay || !isBrowser) return
   overlay = document.createElement('div')
   overlay.style.backgroundColor = 'rgba(104, 182, 255, 0.35)'
@@ -33,7 +33,7 @@ function init () {
  * @param {Vue} instance
  */
 
-export function highlight (instance) {
+export function highlight(instance) {
   if (!instance) return
   const rect = getInstanceOrVnodeRect(instance)
 
@@ -65,7 +65,7 @@ export function highlight (instance) {
  * Remove highlight overlay.
  */
 
-export function unHighlight () {
+export function unHighlight() {
   if (overlay && overlay.parentNode) {
     document.body.removeChild(overlay)
   }
@@ -78,7 +78,7 @@ export function unHighlight () {
  * @return {Object}
  */
 
-export function getInstanceOrVnodeRect (instance) {
+export function getInstanceOrVnodeRect(instance) {
   const el = instance.$el || instance.elm
   if (!isBrowser) {
     // TODO: Find position from instance or a vnode (for functional components).
@@ -103,9 +103,9 @@ export function getInstanceOrVnodeRect (instance) {
  * @return {Object}
  */
 
-function getFragmentRect ({ _fragmentStart, _fragmentEnd }) {
+function getFragmentRect({ _fragmentStart, _fragmentEnd }) {
   let top, bottom, left, right
-  util().mapNodeRange(_fragmentStart, _fragmentEnd, function (node) {
+  util().mapNodeRange(_fragmentStart, _fragmentEnd, function(node) {
     let rect
     if (node.nodeType === 1 || node.getBoundingClientRect) {
       rect = node.getBoundingClientRect()
@@ -131,7 +131,7 @@ function getFragmentRect ({ _fragmentStart, _fragmentEnd }) {
     top,
     left,
     width: right - left,
-    height: bottom - top
+    height: bottom - top,
   }
 }
 
@@ -142,7 +142,7 @@ let range
  * @param {Text} node
  * @return {Rect}
  */
-function getTextRect (node) {
+function getTextRect(node) {
   if (!isBrowser) return
   if (!range) range = document.createRange()
 
@@ -157,7 +157,7 @@ function getTextRect (node) {
  * @param {Rect}
  */
 
-function showOverlay ({ width = 0, height = 0, top = 0, left = 0 }, content = []) {
+function showOverlay({ width = 0, height = 0, top = 0, left = 0 }, content = []) {
   if (!isBrowser) return
 
   overlay.style.width = ~~width + 'px'
@@ -175,6 +175,6 @@ function showOverlay ({ width = 0, height = 0, top = 0, left = 0 }, content = []
  * Get Vue's util
  */
 
-function util () {
+function util() {
   return target.__VUE_DEVTOOLS_GLOBAL_HOOK__.Vue.util
 }
