@@ -1,7 +1,7 @@
 /* 
   web环境：content <=> web
 */
-import { MsgDef, Plat, APIHandler, isBridgeMessage, makeWinPost } from './const'
+import { MsgDef, isBridgeMessage, makeWinPost } from './const'
 
 // req/res 处理
 window.addEventListener('message', async function(evt) {
@@ -11,13 +11,13 @@ window.addEventListener('message', async function(evt) {
   }
   const uuid = msgdata.uuid
 
-  const res = await chrome.runtime.postMessage(msgdata)
+  const res = await chrome.runtime.sendMessage(msgdata)
   if (msgdata.type === MsgDef.request) {
     window.postMessage(res)
   }
 })
 
-chrome.runtime.onMessage.addEventListener(async (msgdata, source) => {
+chrome.runtime.onMessage.addListener(async (msgdata, source) => {
   if (!isBridgeMessage(msgdata)) {
     return
   }

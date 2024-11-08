@@ -20,8 +20,7 @@ class DevBridge extends EventHandle {
     return chrome.tabs.sendMessage(this.tabId, msg, {})
   }
   // 处理请求，负责返回
-  async onRequest(evt) {
-    const { data: msgdata } = evt
+  async onRequest(msgdata, sender, sendResponse) {
     if (!isBridgeMessage(msgdata)) {
       return
     }
@@ -37,8 +36,18 @@ class DevBridge extends EventHandle {
     const request = msgdata
     const { path, params } = request
     const res = await this.trigger(path, params)
-    chrome.tabs.sendMessage(this.tabId, makeResponse({ data: res, request }))
+    sendResponse(makeResponse({ data: res, request }))
   }
 }
 
 export const bridge = new DevBridge()
+
+window.devtoolBridge = bridge
+window.test = async function () {
+  const res = await bridge.request(`${Plat.web}/test`, { aaa: 1 })
+  console.log(res)
+}
+bridge.on(`${Plat.devtool}/test`, function (info) {
+  console.log('web request: ', info)
+  return { result: 'ok' }
+})

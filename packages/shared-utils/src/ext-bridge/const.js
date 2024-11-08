@@ -30,7 +30,7 @@ export class EventHandle {
 }
 
 // 工具方法
-export const makeRequest = function({ plat, path, params }) {
+export const makeRequest = function ({ plat, path, params }) {
   return {
     type: MsgDef.request,
     source: plat,
@@ -40,7 +40,7 @@ export const makeRequest = function({ plat, path, params }) {
     path,
   }
 }
-export const makeResponse = function({ plat, data, error, request }) {
+export const makeResponse = function ({ plat, data, error, request }) {
   const { uuid, path } = request
   return {
     type: MsgDef.response,
@@ -52,7 +52,7 @@ export const makeResponse = function({ plat, data, error, request }) {
     data,
   }
 }
-export const isBridgeMessage = function(msgdata) {
+export const isBridgeMessage = function (msgdata) {
   return msgdata?.uuid && [MsgDef.request, MsgDef.response].includes(msgdata.type)
 }
 
@@ -70,14 +70,15 @@ async function onResponseMessage(evt) {
     callbacks[uuid] && callbacks[uuid](msgdata.data)
   }
 }
-export const makeWinPost = function(msg) {
+// 支持 promise 的 window.postMessage
+export const makeWinPost = function (msg) {
   if (!inited) {
     window.removeEventListener('message', onResponseMessage)
     window.addEventListener('message', onResponseMessage)
     inited = true
   }
   return new Promise(resolve => {
-    callbacks[msg.uuid] = function(response) {
+    callbacks[msg.uuid] = function (response) {
       resolve(response)
       delete callbacks[msg.uuid]
     }
