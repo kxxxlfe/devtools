@@ -41,47 +41,55 @@ export const makeRequest = function ({ plat, path, params }) {
   }
 }
 export const makeResponse = function ({ plat, data, error, request }) {
-  const { uuid, path } = request
+  const { uuid, path, source } = request
   return {
     type: MsgDef.response,
     reqPath: path,
     source: plat,
+    target: source,
     uuid,
-    ret: error ? 0 : -1,
-    errmsg: error || undefined,
-    data,
+    data: {
+      ret: error ? 0 : -1,
+      errmsg: error || undefined,
+      data,
+    },
   }
 }
 export const isBridgeMessage = function (msgdata) {
   return msgdata?.uuid && [MsgDef.request, MsgDef.response].includes(msgdata.type)
 }
 
-// 支持promise的window.postMessage
-let inited = false
-const callbacks = {}
-async function onResponseMessage(evt) {
-  const { data: msgdata } = evt
-  if (!msgdata.targetPlat?.startsWith(this.plat)) {
-    return
+// 支持promise的window.postMessage；监听了message，单例使用
+export class WinPost {
+  plat = ''
+  callbacks = {}
+  constructor({ plat }) {
+    this.plat = plat
+    this.onResponseMessage = this.onResponseMessage.bind(this)
+    window.addEventListener('message', this.onResponseMessage)
   }
-  const uuid = msgdata.uuid
-
-  if (msgdata.type === MsgDef.response) {
-    callbacks[uuid] && callbacks[uuid](msgdata.data)
-  }
-}
-// 支持 promise 的 window.postMessage
-export const makeWinPost = function (msg) {
-  if (!inited) {
-    window.removeEventListener('message', onResponseMessage)
-    window.addEventListener('message', onResponseMessage)
-    inited = true
-  }
-  return new Promise(resolve => {
-    callbacks[msg.uuid] = function (response) {
-      resolve(response)
-      delete callbacks[msg.uuid]
+  onResponseMessage(evt) {
+    const { data: msgdata } = evt
+    if (!isBridgeMessage(msgdata)) {
+      return
     }
-    window.postMessage(msg)
-  })
+    // 只处理外部过来的请求数据
+    if (msgdata.sender === this.plat) {
+      return
+    }
+    if (msgdata.type === MsgDef.response) {
+      this.callbacks[msgdata.uuid]?.(msgdata.data)
+    }
+  }
+  post(msg) {
+    msg.sender = this.plat
+    const callbacks = this.callbacks
+    return new Promise(resolve => {
+      callbacks[msg.uuid] = function (response) {
+        resolve(response)
+        delete callbacks[msg.uuid]
+      }
+      window.postMessage(msg)
+    })
+  }
 }

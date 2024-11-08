@@ -10,7 +10,7 @@ class DevBridge extends EventHandle {
 
   constructor() {
     super()
-    chrome.runtime.onMessage.removeListener(this.onRequest)
+    this.onRequest = this.onRequest.bind(this)
     chrome.runtime.onMessage.addListener(this.onRequest)
   }
 
@@ -24,7 +24,7 @@ class DevBridge extends EventHandle {
     if (!isBridgeMessage(msgdata)) {
       return
     }
-    if (!msgdata.targetPlat?.startsWith(this.plat)) {
+    if (!msgdata.target?.startsWith(this.plat)) {
       return
     }
     const uuid = msgdata.uuid
@@ -36,7 +36,7 @@ class DevBridge extends EventHandle {
     const request = msgdata
     const { path, params } = request
     const res = await this.trigger(path, params)
-    sendResponse(makeResponse({ data: res, request }))
+    sendResponse(makeResponse({ plat: this.plat, data: res, request }))
   }
 }
 
