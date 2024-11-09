@@ -22,7 +22,7 @@ class WebBridge extends EventHandle {
   }
   // 处理请求，负责返回
   async onRequest(evt) {
-    const { data: msgdata } = evt
+    const msgdata = win.parseMsg(evt.data)
     if (!isBridgeMessage(msgdata)) {
       return
     }
@@ -38,7 +38,7 @@ class WebBridge extends EventHandle {
     const request = msgdata
     const { path, params } = request
     const res = await this.trigger(path, params)
-    window.postMessage(makeResponse({ plat: this.plat, data: res, request }))
+    win.response({ request: evt.data, response: makeResponse({ plat: this.plat, data: res, request }) })
   }
 }
 
@@ -51,5 +51,5 @@ window.testBridge = async function () {
 }
 bridge.on(`${Plat.web}/test`, function (info) {
   console.log(info)
-  return { result: 'ok' }
+  return { result: 'web ok' }
 })

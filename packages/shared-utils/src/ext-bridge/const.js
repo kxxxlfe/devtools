@@ -69,27 +69,45 @@ export class WinPost {
     window.addEventListener('message', this.onResponseMessage)
   }
   onResponseMessage(evt) {
-    const { data: msgdata } = evt
-    if (!isBridgeMessage(msgdata)) {
+    const { data: winMsg } = evt
+    if (!winMsg.msgid || !winMsg.msg) {
       return
     }
     // 只处理外部过来的请求数据
-    if (msgdata.sender === this.plat) {
+    if (winMsg.sender === this.plat) {
       return
     }
-    if (msgdata.type === MsgDef.response) {
-      this.callbacks[msgdata.uuid]?.(msgdata.data)
+    if (winMsg.type !== MsgDef.response) {
+      return
     }
+    this.callbacks[winMsg.msgid]?.(winMsg.msg)
   }
   post(msg) {
-    msg.sender = this.plat
+    const winMsg = { msg, sender: this.plat, type: MsgDef.request, msgid: `winpost_${this.plat}_${Date.now()}` }
     const callbacks = this.callbacks
     return new Promise(resolve => {
-      callbacks[msg.uuid] = function (response) {
+      callbacks[winMsg.msgid] = function (response) {
         resolve(response)
-        delete callbacks[msg.uuid]
+        delete callbacks[winMsg.msgid]
       }
-      window.postMessage(msg)
+      window.postMessage(winMsg)
     })
+  }
+  response({ request, response }) {
+    window.postMessage({ msg: response, sender: this.plat, type: MsgDef.response, msgid: request.msgid })
+  }
+  parseMsg(winMsg) {
+    if (!winMsg?.msgid || !winMsg?.msg) {
+      return
+    }
+    // 只处理外部过来的请求数据
+    if (winMsg.sender === this.plat) {
+      return
+    }
+    if (winMsg.type !== MsgDef.request) {
+      return
+    }
+
+    return winMsg.msg
   }
 }

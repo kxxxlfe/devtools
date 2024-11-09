@@ -17,7 +17,10 @@ class DevBridge extends EventHandle {
   request(path, params) {
     const msg = makeRequest({ plat: this.plat, path, params })
 
-    return chrome.tabs.sendMessage(this.tabId, msg, {})
+    return chrome.tabs.sendMessage(this.tabId, msg, {}, function (res) {
+      res
+      debugger
+    })
   }
   // 处理请求，负责返回
   async onRequest(msgdata, sender, sendResponse) {
@@ -49,5 +52,5 @@ window.test = async function () {
 }
 bridge.on(`${Plat.devtool}/test`, function (info) {
   console.log('web request: ', info)
-  return { result: 'ok' }
+  return { result: 'devtool ok' }
 })
