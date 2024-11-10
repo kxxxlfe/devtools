@@ -2,21 +2,21 @@
 
 import { initDevTools } from '@front'
 import Bridge from '@utils/bridge'
+import '@utils/ext-bridge/devtool'
 
 initDevTools({
-
   /**
    * Inject backend, connect to background, and send back the bridge.
    *
    * @param {Function} cb
    */
 
-  connect (cb) {
+  connect(cb) {
     // 1. inject backend code into page
     injectScript(chrome.runtime.getURL('build/backend.js'), () => {
       // 2. connect to background to setup proxy
       const port = chrome.runtime.connect({
-        name: '' + chrome.devtools.inspectedWindow.tabId
+        name: '' + chrome.devtools.inspectedWindow.tabId,
       })
       let disconnected = false
       port.onDisconnect.addListener(() => {
@@ -24,17 +24,17 @@ initDevTools({
       })
 
       const bridge = new Bridge({
-        listen (fn) {
+        listen(fn) {
           port.onMessage.addListener(fn)
         },
-        send (data) {
+        send(data) {
           if (!disconnected) {
             // if (process.env.NODE_ENV !== 'production') {
             //   console.log('[chrome] devtools -> backend', data)
             // }
             port.postMessage(data)
           }
-        }
+        },
       })
       // 3. send a proxy API to the panel
       cb(bridge)
@@ -47,9 +47,9 @@ initDevTools({
    * @param {Function} reloadFn
    */
 
-  onReload (reloadFn) {
+  onReload(reloadFn) {
     chrome.devtools.network.onNavigated.addListener(reloadFn)
-  }
+  },
 })
 
 /**
@@ -60,7 +60,7 @@ initDevTools({
  * @param {Function} cb
  */
 
-function injectScript (scriptName, cb) {
+function injectScript(scriptName, cb) {
   const src = `
     (function() {
       var script = document.constructor.prototype.createElement.call(document, 'script');

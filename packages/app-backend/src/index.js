@@ -12,6 +12,7 @@ import { getInstanceState, getInstanceName } from './process'
 import { stringify, classify, camelize, set, has, parse, getComponentName, setInstanceMap, kebabize } from '@utils/util'
 import SharedData, { init as initSharedData } from '@utils/shared-data'
 import { isBrowser, target } from '@utils/env'
+import '@utils/ext-bridge/web'
 
 // hook should have been injected before this executes.
 const hook = target.__VUE_DEVTOOLS_GLOBAL_HOOK__
