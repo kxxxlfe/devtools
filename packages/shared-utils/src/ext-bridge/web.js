@@ -8,6 +8,7 @@ const win = new WinPost({ plat: Plat.web })
 class WebBridge extends EventHandle {
   callbacks = {}
   plat = Plat.web
+  Plat = Plat
 
   constructor() {
     super()

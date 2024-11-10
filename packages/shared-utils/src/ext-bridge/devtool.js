@@ -7,6 +7,7 @@ class DevBridge extends EventHandle {
   callbacks = {}
   plat = Plat.devtool
   tabId = chrome.devtools.inspectedWindow.tabId
+  Plat = Plat
 
   constructor() {
     super()

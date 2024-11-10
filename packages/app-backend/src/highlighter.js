@@ -58,6 +58,7 @@ export function highlight(instance) {
       content.push(pre, text, post)
     }
     showOverlay(rect, content)
+    overlay.setAttribute('vid', instance.__VUE_DEVTOOLS_UID__)
   }
 }
 
@@ -65,8 +66,16 @@ export function highlight(instance) {
  * Remove highlight overlay.
  */
 
-export function unHighlight() {
-  if (overlay && overlay.parentNode) {
+export function unHighlight(id) {
+  if (!overlay) {
+    return
+  }
+  if (id) {
+    if (overlay.getAttribute('vid') !== id) {
+      return
+    }
+  }
+  if (overlay.parentNode) {
     document.body.removeChild(overlay)
   }
 }
@@ -105,7 +114,7 @@ export function getInstanceOrVnodeRect(instance) {
 
 function getFragmentRect({ _fragmentStart, _fragmentEnd }) {
   let top, bottom, left, right
-  util().mapNodeRange(_fragmentStart, _fragmentEnd, function(node) {
+  util().mapNodeRange(_fragmentStart, _fragmentEnd, function (node) {
     let rect
     if (node.nodeType === 1 || node.getBoundingClientRect) {
       rect = node.getBoundingClientRect()
@@ -169,6 +178,7 @@ function showOverlay({ width = 0, height = 0, top = 0, left = 0 }, content = [])
   content.forEach(child => overlayContent.appendChild(child))
 
   document.body.appendChild(overlay)
+  console.log('overlay', width, height, left, top)
 }
 
 /**

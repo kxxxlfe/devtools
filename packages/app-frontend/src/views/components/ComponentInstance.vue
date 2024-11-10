@@ -49,15 +49,9 @@
       <span v-if="instance.isRouterView" class="info router-view">
         router-view{{ instance.matchedRouteSegment ? ': ' + instance.matchedRouteSegment : null }}
       </span>
-      <span v-if="instance.isFragment" class="info fragment">
-        fragment
-      </span>
-      <span v-if="instance.functional" class="info functional">
-        functional
-      </span>
-      <span v-if="instance.inactive" class="info inactive">
-        inactive
-      </span>
+      <span v-if="instance.isFragment" class="info fragment">fragment</span>
+      <span v-if="instance.functional" class="info functional">functional</span>
+      <span v-if="instance.inactive" class="info inactive">inactive</span>
 
       <span class="spacer" />
 
@@ -74,6 +68,8 @@
 import { defineComponent, ref, watch, getCurrentInstance, computed } from 'vue'
 import { mapState, mapMutations } from 'vuex'
 import { getComponentDisplayName, scrollIntoView, UNDEFINED } from '@utils/util'
+
+import { bridge as exBridge } from '@utils/ext-bridge/devtool'
 
 export default defineComponent({
   name: 'ComponentInstance',
@@ -94,11 +90,14 @@ export default defineComponent({
     const ctx = getCurrentInstance().proxy
 
     const selected = computed(() => props.instance.id === ctx.inspectedInstanceId)
-    watch(() => selected.value, function(n) {
-      if (n) {
-        self.value.scrollIntoView({ inline: 'center' })
+    watch(
+      () => selected.value,
+      function (n) {
+        if (n) {
+          self.value.scrollIntoView({ inline: 'center' })
+        }
       }
-    })
+    )
     return { self, selected }
   },
 
@@ -173,11 +172,13 @@ export default defineComponent({
     },
 
     enter() {
-      bridge.send('enter-instance', this.instance.id)
+      // bridge.send('enter-instance', this.instance.id)
+      exBridge.request(`${exBridge.Plat.web}/enter-instance`, this.instance.id)
     },
 
     leave() {
-      bridge.send('leave-instance', this.instance.id)
+      exBridge.request(`${exBridge.Plat.web}/leave-instance`, this.instance.id)
+      // bridge.send('leave-instance', this.instance.id)
     },
 
     scrollToInstance() {

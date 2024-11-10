@@ -12,7 +12,7 @@ import { getInstanceState, getInstanceName } from './process'
 import { stringify, classify, camelize, set, has, parse, getComponentName, setInstanceMap, kebabize } from '@utils/util'
 import SharedData, { init as initSharedData } from '@utils/shared-data'
 import { isBrowser, target } from '@utils/env'
-import '@utils/ext-bridge/web'
+import { bridge as exBridge } from '@utils/ext-bridge/web'
 
 // hook should have been injected before this executes.
 const hook = target.__VUE_DEVTOOLS_GLOBAL_HOOK__
@@ -95,12 +95,7 @@ function connect(Vue) {
 
     bridge.on('refresh', scan)
 
-    bridge.on('enter-instance', id => {
-      const instance = findInstanceOrVnode(id)
-      if (instance) highlight(instance)
-    })
-
-    bridge.on('leave-instance', unHighlight)
+    // bridge.on('leave-instance', unHighlight)
 
     // eslint-disable-next-line no-new
     new ComponentSelector(bridge, instanceMap)
@@ -222,7 +217,7 @@ function scan() {
   }
 
   if (isBrowser) {
-    walk(document, function(node) {
+    walk(document, function (node) {
       if (inFragment) {
         if (node === currentFragment._fragmentEnd) {
           inFragment = false
@@ -479,7 +474,7 @@ function capture(instance, index, list) {
 function mark(instance) {
   if (!instanceMap.has(instance.__VUE_DEVTOOLS_UID__)) {
     instanceMap.set(instance.__VUE_DEVTOOLS_UID__, instance)
-    instance.$on('hook:beforeDestroy', function() {
+    instance.$on('hook:beforeDestroy', function () {
       instanceMap.delete(instance.__VUE_DEVTOOLS_UID__)
     })
   }
@@ -489,7 +484,7 @@ function markFunctional(id, vnode) {
   const refId = vnode.fnContext.__VUE_DEVTOOLS_UID__
   if (!functionalVnodeMap.has(refId)) {
     functionalVnodeMap.set(refId, {})
-    vnode.fnContext.$on('hook:beforeDestroy', function() {
+    vnode.fnContext.$on('hook:beforeDestroy', function () {
       functionalVnodeMap.delete(refId)
     })
   }
@@ -659,3 +654,12 @@ function initRightClick() {
     window.__VUE_DEVTOOLS_CONTEXT_MENU_TARGET__ = null
   })
 }
+
+// exBridge
+exBridge.on(`${exBridge.Plat.web}/enter-instance`, id => {
+  const instance = findInstanceOrVnode(id)
+  if (instance) highlight(instance)
+})
+exBridge.on(`${exBridge.Plat.web}/leave-instance`, id => {
+  unHighlight(id)
+})
