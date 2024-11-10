@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "dev": "cross-env PORT=8100 npm run dev:shell",
-    "dev:shell": "cd packages/shell-dev && webpack-dev-server --inline --hot --no-info",
+    "dev:shell": "cd packages/shell-dev && webpack-dev-server",
     "dev:chrome": "cd packages/shell-chrome && webpack --watch",
     "dev:chrome:prod": "cd packages/shell-chrome && cross-env NODE_ENV=production webpack --watch --stats=errors-only",
     "lint": "eslint --ext=js,vue packages/app-backend/src packages/app-frontend/src packages/shared-utils/src packages/shell-chrome/src packages/shell-dev/src packages/shell-electron/src",

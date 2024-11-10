@@ -7,18 +7,23 @@ module.exports = createConfig({
     devtools: './src/devtools.js',
     backend: './src/backend.js',
     hook: './src/hook.js',
-    target: './target/index.js'
+    target: './target/index.js',
   },
   output: {
     path: path.join(__dirname, '/build'),
     publicPath: '/build/',
-    filename: '[name].js'
+    filename: '[name].js',
   },
-  devtool: '#cheap-module-source-map',
+  devtool: 'cheap-module-source-map',
   devServer: {
-    quiet: true,
-    before (app) {
-      app.use('/__open-in-editor', openInEditor())
-    }
-  }
+    hot: true,
+    setupMiddlewares(middlewares, ctx) {
+      if (!ctx) {
+        return
+      }
+      ctx.app.use('/__open-in-editor', openInEditor())
+
+      return middlewares
+    },
+  },
 })
