@@ -5,14 +5,14 @@
       selected,
     }"
     class="instance"
+    :style="{
+      paddingLeft: 8 + 'px',
+    }"
   >
     <div
       ref="self"
       :class="{
         selected,
-      }"
-      :style="{
-        paddingLeft: depth * 15 + 'px',
       }"
       class="self selectable-item"
       @click.stop="select"
@@ -49,15 +49,9 @@
       <span v-if="instance.isRouterView" class="info router-view">
         router-view{{ instance.matchedRouteSegment ? ': ' + instance.matchedRouteSegment : null }}
       </span>
-      <span v-if="instance.isFragment" class="info fragment">
-        fragment
-      </span>
-      <span v-if="instance.functional" class="info functional">
-        functional
-      </span>
-      <span v-if="instance.inactive" class="info inactive">
-        inactive
-      </span>
+      <span v-if="instance.isFragment" class="info fragment">fragment</span>
+      <span v-if="instance.functional" class="info functional">functional</span>
+      <span v-if="instance.inactive" class="info inactive">inactive</span>
 
       <span class="spacer" />
 
@@ -71,10 +65,13 @@
 </template>
 
 <script>
+import { defineComponent, ref, watch, getCurrentInstance, computed } from 'vue'
 import { mapState, mapMutations } from 'vuex'
 import { getComponentDisplayName, scrollIntoView, UNDEFINED } from '@utils/util'
 
-export default {
+import { bridge as exBridge } from '@utils/ext-bridge/devtool'
+
+export default defineComponent({
   name: 'ComponentInstance',
 
   props: {
@@ -88,15 +85,27 @@ export default {
     },
   },
 
+  setup(props, { emit }) {
+    const self = ref(null)
+    const ctx = getCurrentInstance().proxy
+
+    const selected = computed(() => props.instance.id === ctx.inspectedInstanceId)
+    watch(
+      () => selected.value,
+      function (n) {
+        if (n) {
+          self.value.scrollIntoView({ inline: 'center' })
+        }
+      }
+    )
+    return { self, selected }
+  },
+
   computed: {
     ...mapState('components', ['expansionMap', 'inspectedInstance', 'inspectedInstanceId', 'scrollToExpanded']),
 
     expanded() {
       return !!this.expansionMap[this.instance.id]
-    },
-
-    selected() {
-      return this.instance.id === this.inspectedInstanceId
     },
 
     sortedChildren() {
@@ -163,11 +172,13 @@ export default {
     },
 
     enter() {
-      bridge.send('enter-instance', this.instance.id)
+      // bridge.send('enter-instance', this.instance.id)
+      exBridge.request(`${exBridge.Plat.web}/enter-instance`, this.instance.id)
     },
 
     leave() {
-      bridge.send('leave-instance', this.instance.id)
+      exBridge.request(`${exBridge.Plat.web}/leave-instance`, this.instance.id)
+      // bridge.send('leave-instance', this.instance.id)
     },
 
     scrollToInstance() {
@@ -176,11 +187,11 @@ export default {
 
     scrollIntoView(center = true) {
       this.$nextTick(() => {
-        scrollIntoView(this.$globalRefs.leftScroll, this.$refs.self, center)
+        scrollIntoView(this.$globalRefs.leftScroll, this.self, center)
       })
     },
   },
-}
+})
 </script>
 
 <style lang="stylus" scoped>

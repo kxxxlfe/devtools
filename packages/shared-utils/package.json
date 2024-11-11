@@ -2,8 +2,12 @@
   "name": "@vue-devtools/shared-utils",
   "version": "0.0.0",
   "private": true,
-  "sideEffects": false,
+  "sideEffects": [
+    "src/ext-bridge/**"
+  ],
   "dependencies": {
-    "@vue-devtools/app-backend": "^0.0.0"
+    "@vue-devtools/app-backend": "^0.0.0",
+    "path-browserify": "1.0.1",
+    "events": "3.3.0"
   }
 }

@@ -1,5 +1,5 @@
 const webpack = require('webpack')
-const merge = require('webpack-merge')
+const { merge } = require('webpack-merge')
 const { VueLoaderPlugin } = require('vue-loader')
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 
@@ -9,8 +9,9 @@ exports.createConfig = (config, target = { chrome: 52, firefox: 48 }) => {
     objectAssign: 'Object.assign',
     transforms: {
       forOf: false,
-      modules: false
-    }
+      modules: false,
+      asyncAwait: false,
+    },
   }
 
   const baseConfig = {
@@ -20,35 +21,31 @@ exports.createConfig = (config, target = { chrome: 52, firefox: 48 }) => {
       alias: {
         '@front': '@vue-devtools/app-frontend/src',
         '@back': '@vue-devtools/app-backend/src',
-        '@utils': '@vue-devtools/shared-utils/src'
+        '@utils': '@vue-devtools/shared-utils/src',
       },
-      symlinks: false
+      symlinks: false,
     },
     module: {
       rules: [
-        {
-          test: /\.js$/,
-          loader: 'buble-loader',
-          exclude: /node_modules|vue\/dist|vuex\/dist/,
-          options: bubleOptions
-        },
+        // {
+        //   test: /\.js$/,
+        //   loader: 'buble-loader',
+        //   exclude: /node_modules|vue\/dist|vuex\/dist/,
+        //   options: bubleOptions,
+        // },
         {
           test: /\.vue$/,
           loader: 'vue-loader',
           options: {
             compilerOptions: {
-              preserveWhitespace: false
+              preserveWhitespace: false,
             },
-            transpileOptions: bubleOptions
-          }
+            transpileOptions: bubleOptions,
+          },
         },
         {
           test: /\.css$/,
-          use: [
-            'vue-style-loader',
-            'css-loader',
-            'postcss-loader'
-          ]
+          use: ['vue-style-loader', 'css-loader', 'postcss-loader'],
         },
         {
           test: /\.styl(us)?$/,
@@ -60,42 +57,47 @@ exports.createConfig = (config, target = { chrome: 52, firefox: 48 }) => {
             {
               loader: 'style-resources-loader',
               options: {
-                patterns: [
-                  require.resolve('@vue-devtools/app-frontend/src/style/imports.styl')
-                ]
-              }
-            }
-          ]
+                patterns: [require.resolve('@vue-devtools/app-frontend/src/style/imports.styl')],
+              },
+            },
+          ],
         },
         {
           test: /\.(png|woff2)$/,
-          loader: 'url-loader?limit=0'
-        }
-      ]
+          use: [
+            {
+              loader: 'url-loader',
+              options: {
+                limit: 0,
+              },
+            },
+          ],
+        },
+      ],
     },
     performance: {
-      hints: false
+      hints: false,
     },
     plugins: [
       new VueLoaderPlugin(),
       ...(process.env.VUE_DEVTOOL_TEST ? [] : [new FriendlyErrorsPlugin()]),
       new webpack.DefinePlugin({
-        'process.env.RELEASE_CHANNEL': JSON.stringify(process.env.RELEASE_CHANNEL || 'stable')
-      })
+        'process.env.RELEASE_CHANNEL': JSON.stringify(process.env.RELEASE_CHANNEL || 'stable'),
+      }),
     ],
     devServer: {
-      port: process.env.PORT
+      port: process.env.PORT,
     },
     stats: {
-      colors: true
-    }
+      colors: true,
+    },
   }
 
   if (process.env.NODE_ENV === 'production') {
     const UglifyPlugin = require('uglifyjs-webpack-plugin')
     baseConfig.plugins.push(
       new webpack.DefinePlugin({
-        'process.env.NODE_ENV': '"production"'
+        'process.env.NODE_ENV': '"production"',
       })
     )
     baseConfig.optimization = {
@@ -132,17 +134,17 @@ exports.createConfig = (config, target = { chrome: 52, firefox: 48 }) => {
               // required features to drop conditional branches
               conditionals: true,
               dead_code: true,
-              evaluate: true
+              evaluate: true,
             },
             mangle: {
-              safari10: true
-            }
+              safari10: true,
+            },
           },
           sourceMap: false,
           cache: true,
-          parallel: true
-        })
-      ]
+          parallel: true,
+        }),
+      ],
     }
   }
 

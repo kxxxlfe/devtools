@@ -4,15 +4,9 @@
       <slot name="header" />
     </div>
     <div class="scroll">
-      <slot
-        v-if="defer(2)"
-        name="scroll"
-      />
+      <slot v-if="defer(2)" name="scroll" />
     </div>
-    <div
-      v-if="$slots.footer"
-      class="footer"
-    >
+    <div v-if="$slots.footer" class="footer">
       <slot name="footer" />
     </div>
   </div>
@@ -22,9 +16,7 @@
 import Defer from '@front/mixins/defer'
 
 export default {
-  mixins: [
-    Defer()
-  ]
+  mixins: [Defer()],
 }
 </script>
 
@@ -35,6 +27,7 @@ export default {
   height 100%
 
 .scroll
+  display flex
   flex 1
   overflow auto
   &,

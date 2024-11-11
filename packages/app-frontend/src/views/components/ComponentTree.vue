@@ -1,20 +1,13 @@
 <template>
   <scroll-pane>
     <action-header slot="header">
-      <div
-        v-tooltip="$t('ComponentTree.filter.tooltip')"
-        class="search"
-      >
+      <div v-tooltip="$t('ComponentTree.filter.tooltip')" class="search">
         <VueIcon icon="search" />
-        <input
-          ref="filterInstances"
-          placeholder="Filter components"
-          @input="filterInstances"
-        >
+        <input ref="filterInstances" placeholder="Filter components" @input="filterInstances" />
       </div>
       <a
         v-tooltip="$t('ComponentTree.select.tooltip')"
-        :class="{active: selecting}"
+        :class="{ active: selecting }"
         class="button select-component"
         @click="setSelecting(!selecting)"
       >
@@ -26,7 +19,7 @@
       slot="scroll"
       class="tree"
       :class="{
-        'high-density': finalHighDensity
+        'high-density': finalHighDensity,
       }"
     >
       <component-instance
@@ -47,23 +40,18 @@ import ActionHeader from '@front/components/ActionHeader.vue'
 import ComponentInstance from './ComponentInstance.vue'
 
 import { classify, focusInput } from '@utils/util'
-import Keyboard, {
-  UP,
-  DOWN,
-  LEFT,
-  RIGHT
-} from '../../mixins/keyboard'
+import Keyboard, { UP, DOWN, LEFT, RIGHT } from '../../mixins/keyboard'
 
 export default {
   components: {
     ScrollPane,
     ActionHeader,
-    ComponentInstance
+    ComponentInstance,
   },
 
   mixins: [
     Keyboard({
-      onKeyDown ({ key, modifiers }) {
+      onKeyDown({ key, modifiers }) {
         switch (modifiers) {
           case 'ctrl':
             if (key === 'f') {
@@ -112,72 +100,68 @@ export default {
               this.setSelecting(!this.selecting)
             }
         }
-      }
-    })
+      },
+    }),
   ],
 
   props: {
     instances: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
 
-  data () {
+  data() {
     return {
       selecting: false,
-      highDensity: false
+      highDensity: false,
     }
   },
 
   computed: {
-    ...mapState('components', [
-      'expansionMap'
-    ]),
+    ...mapState('components', ['expansionMap']),
 
-    ...mapGetters('components', [
-      'totalCount'
-    ]),
+    ...mapGetters('components', ['totalCount']),
 
-    finalHighDensity () {
+    finalHighDensity() {
       if (this.$shared.displayDensity === 'auto') {
         return this.highDensity
       }
       return this.$shared.displayDensity === 'high'
-    }
+    },
   },
 
   watch: {
     expansionMap: {
       handler: 'updateAutoDensity',
       deep: true,
-      immediate: true
+      immediate: true,
     },
     totalCount: 'updateAutoDensity',
-    '$responsive.height': 'updateAutoDensity'
+    '$responsive.height': 'updateAutoDensity',
   },
 
-  mounted () {
+  mounted() {
     bridge.on('instance-selected', this.stopSelector)
     bridge.on('stop-component-selector', this.stopSelector)
   },
 
-  beforeDestroy () {
+  beforeDestroy() {
     this.setSelecting(false)
     bridge.off('instance-selected', this.stopSelector)
     bridge.off('stop-selector', this.stopSelector)
   },
 
   methods: {
-    stopSelector () {
+    stopSelector() {
       this.setSelecting(false)
     },
 
-    filterInstances (e) {
+    filterInstances(e) {
       bridge.send('filter-instances', classify(e.target.value))
     },
 
-    setSelecting (value) {
+    setSelecting(value) {
       if (this.selecting !== value) {
         this.selecting = value
 
@@ -189,7 +173,7 @@ export default {
       }
     },
 
-    updateAutoDensity () {
+    updateAutoDensity() {
       if (this.$shared.displayDensity === 'auto') {
         this.$nextTick(() => {
           const totalHeight = this.$isChrome ? this.$responsive.height : this.$root.$el.offsetHeight
@@ -199,36 +183,37 @@ export default {
           this.highDensity = treeHeight >= scrollHeight
         })
       }
-    }
-  }
+    },
+  },
 }
 
 const isComponentInstance = object => typeof object !== 'undefined' && typeof object.instance !== 'undefined'
 
-const getAllInstances = list => list.reduce((instances, i) => {
-  if (isComponentInstance(i)) {
-    instances.push(i)
-  }
-  instances = instances.concat(getAllInstances(i.$children))
-  return instances
-}, [])
+const getAllInstances = list =>
+  list.reduce((instances, i) => {
+    if (isComponentInstance(i)) {
+      instances.push(i)
+    }
+    instances = instances.concat(getAllInstances(i.$children))
+    return instances
+  }, [])
 
-function findCurrent (all, check) {
+function findCurrent(all, check) {
   for (let i = 0; i < all.length; i++) {
     if (check(all[i])) {
       return {
         current: all[i],
-        currentIndex: i
+        currentIndex: i,
       }
     }
   }
   return {
     current: null,
-    currentIndex: -1
+    currentIndex: -1,
   }
 }
 
-function findByIndex (all, index) {
+function findByIndex(all, index) {
   if (index < 0) {
     return all[0]
   } else if (index >= all.length) {
@@ -241,7 +226,7 @@ function findByIndex (all, index) {
 
 <style lang="stylus">
 .tree
-  padding 5px
+  padding 4px 0
 
 .select-component
   &.active

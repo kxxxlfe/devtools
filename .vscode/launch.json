@@ -1,0 +1,15 @@
+{
+  "configurations": [
+    {
+      "type": "node-terminal",
+      "name": "vue-devtools shell-dev",
+      "request": "launch",
+      "command": "npm run dev",
+      "autoAttachChildProcesses": true,
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PROJECT_PATH": "${workspaceFolder}"
+      }
+    }
+  ]
+}
