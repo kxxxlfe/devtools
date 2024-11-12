@@ -18,10 +18,7 @@ class DevBridge extends EventHandle {
   request(path, params) {
     const msg = makeRequest({ plat: this.plat, path, params })
 
-    return chrome.tabs.sendMessage(this.tabId, msg, {}, function (res) {
-      res
-      debugger
-    })
+    return chrome.tabs.sendMessage(this.tabId, msg, {})
   }
   // 处理请求，负责返回
   async onRequest(msgdata, sender, sendResponse) {
