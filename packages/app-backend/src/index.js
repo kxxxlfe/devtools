@@ -71,15 +71,6 @@ function connect(Vue) {
       }
     })
 
-    bridge.on('select-instance', id => {
-      currentInspectedId = id
-      const instance = findInstanceOrVnode(id)
-      if (!instance) return
-      if (!/:functional:/.test(id)) bindToConsole(instance)
-      flush()
-      bridge.send('instance-selected')
-    })
-
     bridge.on('scroll-to-instance', id => {
       const instance = findInstanceOrVnode(id)
       if (instance) {
@@ -108,10 +99,7 @@ function connect(Vue) {
       target.__VUE_DEVTOOLS_CONTEXT_MENU_HAS_TARGET__ = false
 
       if (instance) {
-        const id = instance.__VUE_DEVTOOLS_UID__
-        if (id) {
-          return bridge.send('inspect-instance', id)
-        }
+        inspectInstance(instance)
       }
 
       toast('No Vue component was found', 'warn')
@@ -607,7 +595,7 @@ export function toast(message, type = 'normal') {
 
 export function inspectInstance(instance) {
   const id = instance.__VUE_DEVTOOLS_UID__
-  id && bridge.send('inspect-instance', id)
+  id && exBridge.send(`${exBridge.Plat.devtool}/inspect-instance`, id)
 }
 
 function setStateValue({ id, path, value, newKey, remove }) {
@@ -662,4 +650,11 @@ exBridge.on(`${exBridge.Plat.web}/enter-instance`, id => {
 })
 exBridge.on(`${exBridge.Plat.web}/leave-instance`, id => {
   unHighlight(id)
+})
+exBridge.on(`${exBridge.Plat.web}/select-instance`, id => {
+  currentInspectedId = id
+  const instance = findInstanceOrVnode(id)
+  if (!instance) return
+  if (!/:functional:/.test(id)) bindToConsole(instance)
+  flush()
 })

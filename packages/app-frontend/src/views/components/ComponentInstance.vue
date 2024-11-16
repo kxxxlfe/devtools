@@ -70,6 +70,7 @@ import { mapState, mapMutations } from 'vuex'
 import { getComponentDisplayName, scrollIntoView, UNDEFINED } from '@utils/util'
 
 import { bridge as exBridge } from '@utils/ext-bridge/devtool'
+import { useComponent } from './useComponent'
 
 export default defineComponent({
   name: 'ComponentInstance',
@@ -98,7 +99,8 @@ export default defineComponent({
         }
       }
     )
-    return { self, selected }
+    const { selectInstance } = useComponent()
+    return { self, selected, selectInstance }
   },
 
   computed: {
@@ -168,7 +170,7 @@ export default defineComponent({
 
     select() {
       this.inspectInstance(this.instance)
-      bridge.send('select-instance', this.instance.id)
+      this.selectInstance(this.instance.id)
     },
 
     enter() {

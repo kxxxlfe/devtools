@@ -112,6 +112,7 @@ function initApp(shell) {
       }
 
       const store = createStore()
+      window.store = store
 
       bridge.once('ready', version => {
         store.commit('SHOW_MESSAGE', 'Ready. Detected Vue ' + version + '.')
@@ -199,22 +200,6 @@ function initApp(shell) {
         store.commit('events/RESET')
       })
 
-      bridge.on('inspect-instance', id => {
-        const { ensurePaneShown } = useDevPanelStatus()
-        ensurePaneShown(() => {
-          console.log('ensurePaneShown', id)
-          bridge.send('select-instance', id)
-          router.push({ name: 'components' })
-          const instance = store.state.components.instancesMap[id]
-          instance &&
-            store.dispatch('components/toggleInstance', {
-              instance,
-              expanded: true,
-              parent: true,
-            })
-        })
-      })
-
       bridge.on('perf:add-metric', data => {
         store.commit('perf/ADD_METRIC', data)
       })
@@ -263,18 +248,3 @@ function initApp(shell) {
 function getContextMenuInstance() {
   bridge.send('get-context-menu-target')
 }
-
-// 统一的inspectInstance
-// exBridge.on(`${exBridge.Plat.devtool}/inspect-instance`, id => {
-//   ensurePaneShown(() => {
-//     bridge.send('select-instance', id)
-//     router.push({ name: 'components' })
-//     const instance = store.state.components.instancesMap[id]
-//     instance &&
-//       store.dispatch('components/toggleInstance', {
-//         instance,
-//         expanded: true,
-//         parent: true,
-//       })
-//   })
-// })
