@@ -10,6 +10,7 @@ import { parse } from '@utils/util'
 import { isChrome, initEnv } from '@utils/env'
 import SharedData, { init as initSharedData, destroy as destroySharedData } from '@utils/shared-data'
 import { init as initStorage } from '@utils/storage'
+import { useDevPanelStatus } from './plugins/usePanelStatus'
 
 // register filters
 for (const key in filters) {
@@ -17,9 +18,6 @@ for (const key in filters) {
 }
 
 // UI
-
-let panelShown = !isChrome
-let pendingAction = null
 
 const chromeTheme = isChrome ? chrome.devtools.panels.themeName : undefined
 const isBeta = process.env.RELEASE_CHANNEL === 'beta'
@@ -37,11 +35,7 @@ if (isChrome) {
   }
 
   chrome.runtime.onMessage.addListener(request => {
-    if (request === 'vue-panel-shown') {
-      onPanelShown()
-    } else if (request === 'vue-panel-hidden') {
-      onPanelHidden()
-    } else if (request === 'vue-get-context-menu-target') {
+    if (request === 'vue-get-context-menu-target') {
       getContextMenuInstance()
     }
   })
@@ -206,6 +200,7 @@ function initApp(shell) {
       })
 
       bridge.on('inspect-instance', id => {
+        const { ensurePaneShown } = useDevPanelStatus()
         ensurePaneShown(() => {
           console.log('ensurePaneShown', id)
           bridge.send('select-instance', id)
@@ -269,24 +264,17 @@ function getContextMenuInstance() {
   bridge.send('get-context-menu-target')
 }
 
-// Pane visibility management
-
-function ensurePaneShown(cb) {
-  if (panelShown) {
-    cb()
-  } else {
-    pendingAction = cb
-  }
-}
-
-function onPanelShown() {
-  panelShown = true
-  if (pendingAction) {
-    pendingAction()
-    pendingAction = null
-  }
-}
-
-function onPanelHidden() {
-  panelShown = false
-}
+// 统一的inspectInstance
+// exBridge.on(`${exBridge.Plat.devtool}/inspect-instance`, id => {
+//   ensurePaneShown(() => {
+//     bridge.send('select-instance', id)
+//     router.push({ name: 'components' })
+//     const instance = store.state.components.instancesMap[id]
+//     instance &&
+//       store.dispatch('components/toggleInstance', {
+//         instance,
+//         expanded: true,
+//         parent: true,
+//       })
+//   })
+// })
