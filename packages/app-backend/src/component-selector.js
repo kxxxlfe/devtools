@@ -10,8 +10,8 @@ export default class ComponentSelector {
     self.instanceMap = instanceMap
     self.bindMethods()
 
-    bridge.on('start-component-selector', self.startSelecting)
-    bridge.on('stop-component-selector', self.stopSelecting)
+    exBridge.on(`${exBridge.Plat.web}/start-component-selector`, self.startSelecting)
+    exBridge.on(`${exBridge.Plat.web}/stop-component-selector`, self.stopSelecting)
   }
 
   /**

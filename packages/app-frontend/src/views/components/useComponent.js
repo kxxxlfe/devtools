@@ -26,9 +26,9 @@ function setSelecting(value) {
     isSelecting.value = value
 
     if (isSelecting.value) {
-      bridge.send('start-component-selector')
+      exBridge.request(`${exBridge.Plat.web}/start-component-selector`)
     } else {
-      bridge.send('stop-component-selector')
+      exBridge.request(`${exBridge.Plat.web}/stop-component-selector`)
     }
   }
 }
