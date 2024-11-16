@@ -32,12 +32,16 @@ function setSelecting(value) {
     }
   }
 }
-// 点击component树触发
-const selectInstance = async function (id) {
-  await exBridge.request(`${exBridge.Plat.web}/select-instance`, id)
-  setSelecting(false)
-}
 
 export const useComponent = function () {
-  return { isSelecting, setSelecting, selectInstance }
+  // 点击component树触发
+  const selectInstance = async function (id) {
+    await exBridge.request(`${exBridge.Plat.web}/select-instance`, id)
+    setSelecting(false)
+  }
+
+  const freshComponentData = function() {
+    exBridge.request(`${exBridge.Plat.web}/flush`)
+  }
+  return { isSelecting, setSelecting, selectInstance, freshComponentData }
 }

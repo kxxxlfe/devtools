@@ -143,12 +143,18 @@ import { get, set } from '@utils/storage'
 import Keyboard from '@front/mixins/keyboard'
 import GroupDropdown from '@front/components/GroupDropdown.vue'
 import { SETTINGS_VERSION_ID, SETTINGS_VERSION } from '@front/views/settings/SettingsTab.vue'
+import { useComponent } from './views/components/useComponent'
 
 export default {
   name: 'App',
 
   components: {
     GroupDropdown,
+  },
+
+  setup(props, { emit }) {
+    const { freshComponentData } = useComponent();
+    return { freshComponentData };
   },
 
   mixins: [
@@ -245,6 +251,9 @@ export default {
       bridge.send('switch-tab', tab)
       if (tab === 'events') {
         this.$store.commit('events/RESET_NEW_EVENT_COUNT')
+      }
+      if (tab === 'components') {
+        this.freshComponentData()
       }
     },
   },

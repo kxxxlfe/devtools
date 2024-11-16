@@ -56,9 +56,6 @@ function connect(Vue) {
     hook.currentTab = 'components'
     bridge.on('switch-tab', tab => {
       hook.currentTab = tab
-      if (tab === 'components') {
-        flush()
-      }
     })
 
     // the backend may get injected to the same page multiple times
@@ -277,7 +274,7 @@ function flush() {
   bridge.send('flush', payload)
 }
 
-const debounceFlush = debounce(flush, 350)
+const debounceFlush = debounce(flush, 200)
 
 /**
  * Iterate through an array of instances and flatten it into
@@ -657,4 +654,7 @@ exBridge.on(`${exBridge.Plat.web}/select-instance`, id => {
   if (!instance) return
   if (!/:functional:/.test(id)) bindToConsole(instance)
   flush()
+})
+exBridge.on(`${exBridge.Plat.web}/flush`, () => {
+  debounceFlush()
 })
