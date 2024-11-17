@@ -653,8 +653,13 @@ exBridge.on(`${exBridge.Plat.web}/select-instance`, id => {
   const instance = findInstanceOrVnode(id)
   if (!instance) return
   if (!/:functional:/.test(id)) bindToConsole(instance)
-  flush()
+  // flush()
 })
 exBridge.on(`${exBridge.Plat.web}/flush`, () => {
   debounceFlush()
+})
+// instance的fetch
+exBridge.on(`${exBridge.Plat.web}/fetch-instance`, id => {
+  const instStr = stringify(getInstanceDetails(id))
+  return instStr
 })

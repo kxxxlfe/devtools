@@ -90,7 +90,8 @@ export default defineComponent({
     const self = ref(null)
     const ctx = getCurrentInstance().proxy
 
-    const selected = computed(() => props.instance.id === ctx.inspectedInstanceId)
+    const { selectInstance, inspected } = useComponent()
+    const selected = computed(() => props.instance.id === inspected.id.value)
     watch(
       () => selected.value,
       function (n) {
@@ -99,12 +100,12 @@ export default defineComponent({
         }
       }
     )
-    const { selectInstance } = useComponent()
+
     return { self, selected, selectInstance }
   },
 
   computed: {
-    ...mapState('components', ['expansionMap', 'inspectedInstance', 'inspectedInstanceId', 'scrollToExpanded']),
+    ...mapState('components', ['expansionMap', 'scrollToExpanded']),
 
     expanded() {
       return !!this.expansionMap[this.instance.id]

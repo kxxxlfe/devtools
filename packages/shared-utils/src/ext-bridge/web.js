@@ -16,9 +16,15 @@ class WebBridge extends EventHandle {
     window.addEventListener('message', this.onRequest)
   }
 
-  request(path, params) {
+  // 无response
+  send(path, params) {
     const msg = makeRequest({ plat: this.plat, path, params })
 
+    return win.post(msg)
+  }
+  request(path, params) {
+    const msg = makeRequest({ plat: this.plat, path, params })
+    msg.needResponse = true
     return win.post(msg)
   }
   // 处理请求，负责返回

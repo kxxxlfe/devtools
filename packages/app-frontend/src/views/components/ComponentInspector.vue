@@ -1,9 +1,6 @@
 <template>
   <scroll-pane>
-    <action-header
-      v-show="hasTarget"
-      slot="header"
-    >
+    <action-header v-show="hasTarget" slot="header">
       <span class="title">
         <span class="title-bracket">&lt;</span>
         <span>{{ targetName }}</span>
@@ -11,21 +8,10 @@
       </span>
       <div class="search">
         <VueIcon icon="search" />
-        <input
-          v-model.trim="filter"
-          placeholder="Filter inspected data"
-        >
+        <input v-model.trim="filter" placeholder="Filter inspected data" />
       </div>
-      <VueLoadingIndicator
-        v-if="loading"
-        class="primary"
-      />
-      <a
-        v-if="$isChrome"
-        v-tooltip="'Inspect DOM'"
-        class="button inspect"
-        @click="inspectDOM"
-      >
+      <VueLoadingIndicator v-if="loading" class="primary" />
+      <a v-if="$isChrome" v-tooltip="'Inspect DOM'" class="button inspect" @click="inspectDOM">
         <VueIcon icon="code" />
         <span>Inspect DOM</span>
       </a>
@@ -40,26 +26,14 @@
       </a>
     </action-header>
     <template slot="scroll">
-      <section
-        v-if="!hasTarget"
-        class="notice"
-      >
+      <section v-if="!hasTarget" class="notice">
         <div>Select a component instance to inspect.</div>
       </section>
-      <div
-        v-else-if="!target.state || !target.state.length"
-        class="notice"
-      >
+      <div v-else-if="!target.state || !target.state.length" class="notice">
         <div>This instance has no reactive state.</div>
       </div>
-      <section
-        v-else
-        class="data"
-      >
-        <state-inspector
-          :state="filteredState"
-          class="component-state-inspector"
-        />
+      <section v-else class="data">
+        <state-inspector :state="filteredState" class="component-state-inspector" />
       </section>
     </template>
   </scroll-pane>
@@ -71,57 +45,62 @@ import ActionHeader from '@front/components/ActionHeader.vue'
 import StateInspector from '@front/components/StateInspector.vue'
 import { searchDeepInObject, sortByKey, openInEditor, getComponentDisplayName } from '@utils/util'
 import groupBy from 'lodash/groupBy'
+import { useComponent } from './useComponent'
 
 export default {
   components: {
     ScrollPane,
     ActionHeader,
-    StateInspector
+    StateInspector,
   },
 
-  props: {
-    target: {
-      type: Object,
-      required: true
-    },
-    loading: {
-      type: Boolean,
-      default: false
+  props: {},
+
+  setup(props, { emit }) {
+    const { inspectedInstance, inspected } = useComponent()
+    const hasTarget = function () {
+      return !!inspectedInstance.value?.id
     }
+
+    return { loading: inspected.loading, target: inspectedInstance, hasTarget }
   },
 
-  data () {
+  data() {
     return {
-      filter: ''
+      filter: '',
     }
   },
 
   computed: {
-    hasTarget () {
-      return this.target.id != null
-    },
-
-    targetName () {
+    targetName() {
       return getComponentDisplayName(this.target.name, this.$shared.componentNameStyle)
     },
 
-    filteredState () {
-      return groupBy(sortByKey(this.target.state.filter(el => {
-        return searchDeepInObject({
-          [el.key]: el.value
-        }, this.filter)
-      })), 'type')
+    filteredState() {
+      return groupBy(
+        sortByKey(
+          this.target.state.filter(el => {
+            return searchDeepInObject(
+              {
+                [el.key]: el.value,
+              },
+              this.filter
+            )
+          })
+        ),
+        'type'
+      )
     },
 
     // Checks if the file is actually a path (e.g. '/path/to/file.vue'), or
     // only the basename of a pre-compiled 3rd-party component (e.g. 'file.vue')
-    fileIsPath () {
+    fileIsPath() {
       return this.target.file && /[/\\]/.test(this.target.file)
-    }
+    },
   },
 
   methods: {
-    inspectDOM () {
+    inspectDOM() {
       if (!this.hasTarget) return
       if (this.$isChrome) {
         chrome.devtools.inspectedWindow.eval(
@@ -132,11 +111,11 @@ export default {
       }
     },
 
-    openInEditor () {
+    openInEditor() {
       const file = this.target.file
       openInEditor(file)
-    }
-  }
+    },
+  },
 }
 </script>
 
