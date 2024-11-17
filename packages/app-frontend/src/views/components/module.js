@@ -2,9 +2,6 @@ import Vue from 'vue'
 
 const state = {
   selected: null,
-  inspectedInstance: {},
-  inspectedInstanceId: null,
-  loading: false,
   instances: [],
   instancesMap: {},
   expansionMap: {},
@@ -41,8 +38,6 @@ const mutations = {
 
     // Mutations
     state.instances = Object.freeze(payload.instances)
-    state.inspectedInstance = Object.freeze(payload.inspectedInstance)
-    state.inspectedInstanceId = state.inspectedInstance ? state.inspectedInstance.id : null
     state.instancesMap = Object.freeze(map)
 
     if (process.env.NODE_ENV !== 'production') {
@@ -54,21 +49,6 @@ const mutations = {
         }
       })
     }
-
-    state.loading = false
-  },
-  INSPECT_INSTANCE (state, instance) {
-    state.inspectedInstanceId = instance.id
-    state.loading = true
-
-    if (process.env.NODE_ENV !== 'production') {
-      inspectTime = window.performance.now()
-    }
-  },
-  RECEIVE_INSTANCE_DETAILS (state, instance) {
-    state.inspectedInstance = Object.freeze(instance)
-    state.inspectedInstanceId = instance.id
-    state.scrollToExpanded = null
   },
   TOGGLE_INSTANCE (state, { id, expanded, scrollTo = null } = {}) {
     Vue.set(state.expansionMap, id, expanded)

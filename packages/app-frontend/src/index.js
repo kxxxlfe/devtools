@@ -132,10 +132,6 @@ function initApp(shell) {
         store.commit('components/FLUSH', parse(payload))
       })
 
-      bridge.on('instance-details', details => {
-        store.commit('components/RECEIVE_INSTANCE_DETAILS', parse(details))
-      })
-
       bridge.on('toggle-instance', payload => {
         store.commit('components/TOGGLE_INSTANCE', parse(payload))
       })

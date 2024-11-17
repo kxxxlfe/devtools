@@ -51,6 +51,8 @@ const selectInstance = async function (id) {
   await exBridge.request(`${exBridge.Plat.web}/select-instance`, id)
   setSelecting(false)
   inspected.loading.value = true
+
+  // 获取instance最新的state
   const msgdata = await exBridge.request(`${exBridge.Plat.web}/fetch-instance`, id)
   inspected.map[id] = parse(msgdata.data.data)
   inspected.id.value = id

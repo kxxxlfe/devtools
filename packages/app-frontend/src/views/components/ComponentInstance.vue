@@ -145,9 +145,6 @@ export default defineComponent({
   },
 
   methods: {
-    ...mapMutations('components', {
-      inspectInstance: 'INSPECT_INSTANCE',
-    }),
 
     toggle(event) {
       this.toggleWithValue(!this.expanded, event.altKey)
@@ -170,7 +167,6 @@ export default defineComponent({
     },
 
     select() {
-      this.inspectInstance(this.instance)
       this.selectInstance(this.instance.id)
     },
 
