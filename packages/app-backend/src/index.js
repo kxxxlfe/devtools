@@ -83,8 +83,6 @@ function connect(Vue) {
 
     bridge.on('refresh', scan)
 
-    // bridge.on('leave-instance', unHighlight)
-
     // eslint-disable-next-line no-new
     new ComponentSelector(bridge, instanceMap)
 
@@ -589,7 +587,7 @@ export function toast(message, type = 'normal') {
   fn && fn(message, type)
 }
 
-export function inspectInstance(instance) {
+function inspectInstance(instance) {
   const id = instance.__VUE_DEVTOOLS_UID__
   id && exBridge.send(`${exBridge.Plat.devtool}/inspect-instance`, id)
 }
@@ -653,7 +651,6 @@ exBridge.on(`${exBridge.Plat.web}/select-instance`, id => {
   const instance = findInstanceOrVnode(id)
   if (!instance) return
   if (!/:functional:/.test(id)) bindToConsole(instance)
-  // flush()
 })
 exBridge.on(`${exBridge.Plat.web}/flush`, () => {
   debounceFlush()
