@@ -17,12 +17,13 @@ class DevBridge extends EventHandle {
 
   send(path, params) {
     const msg = makeRequest({ plat: this.plat, path, params })
-
+    console.log(path, msg.uuid)
     return chrome.tabs.sendMessage(this.tabId, msg, {})
   }
   request(path, params) {
     const msg = makeRequest({ plat: this.plat, path, params })
     msg.needResponse = true
+    console.log(path, msg.uuid)
     return chrome.tabs.sendMessage(this.tabId, msg, {})
   }
   // 处理请求，负责返回
