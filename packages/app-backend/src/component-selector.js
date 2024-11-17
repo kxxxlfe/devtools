@@ -70,9 +70,9 @@ export default class ComponentSelector {
     this.cancelEvent(e)
 
     if (this.selectedInstance) {
-      exBridge.request(`${exBridge.Plat.devtool}/inspect-instance`, this.selectedInstance.__VUE_DEVTOOLS_UID__)
+      exBridge.send(`${exBridge.Plat.devtool}/inspect-instance`, this.selectedInstance.__VUE_DEVTOOLS_UID__)
     } else {
-      this.bridge.send('stop-component-selector')
+      exBridge.send(`${exBridge.Plat.devtool}/stop-component-selector`)
     }
 
     this.stopSelecting()

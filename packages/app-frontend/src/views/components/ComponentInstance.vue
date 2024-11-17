@@ -176,11 +176,11 @@ export default defineComponent({
 
     enter() {
       // bridge.send('enter-instance', this.instance.id)
-      exBridge.request(`${exBridge.Plat.web}/enter-instance`, this.instance.id)
+      exBridge.send(`${exBridge.Plat.web}/enter-instance`, this.instance.id)
     },
 
     leave() {
-      exBridge.request(`${exBridge.Plat.web}/leave-instance`, this.instance.id)
+      exBridge.send(`${exBridge.Plat.web}/leave-instance`, this.instance.id)
       // bridge.send('leave-instance', this.instance.id)
     },
 

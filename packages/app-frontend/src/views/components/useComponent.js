@@ -40,9 +40,9 @@ function setSelecting(value) {
     isSelecting.value = value
 
     if (isSelecting.value) {
-      exBridge.request(`${exBridge.Plat.web}/start-component-selector`)
+      exBridge.send(`${exBridge.Plat.web}/start-component-selector`)
     } else {
-      exBridge.request(`${exBridge.Plat.web}/stop-component-selector`)
+      exBridge.send(`${exBridge.Plat.web}/stop-component-selector`)
     }
   }
 }
@@ -59,7 +59,7 @@ const selectInstance = async function (id) {
 
 export const useComponent = function () {
   const freshComponentData = function () {
-    exBridge.request(`${exBridge.Plat.web}/flush`)
+    exBridge.send(`${exBridge.Plat.web}/flush`)
   }
 
   const inspectedInstance = computed(() => {
