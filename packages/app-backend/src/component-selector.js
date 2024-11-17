@@ -70,7 +70,7 @@ export default class ComponentSelector {
     this.cancelEvent(e)
 
     if (this.selectedInstance) {
-      exBridge.send(`${exBridge.Plat.devtool}/inspect-instance`, this.selectedInstance.__VUE_DEVTOOLS_UID__)
+      window.__VUE_DEVTOOLS_INSPECT__(this.selectedInstance);
     } else {
       exBridge.send(`${exBridge.Plat.devtool}/stop-component-selector`)
     }

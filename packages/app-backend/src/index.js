@@ -123,8 +123,6 @@ function connect(Vue) {
     // events
     initEventsBackend(Vue, bridge)
 
-    target.__VUE_DEVTOOLS_INSPECT__ = inspectInstance
-
     // User project devtools config
     if (target.hasOwnProperty('VUE_DEVTOOLS_CONFIG')) {
       const config = target.VUE_DEVTOOLS_CONFIG
@@ -263,7 +261,6 @@ function flush() {
     start = isBrowser ? window.performance.now() : 0
   }
   const payload = stringify({
-    inspectedInstance: getInstanceDetails(currentInspectedId),
     instances: findQualifiedChildrenFromList(rootInstances).filter(item => !!item),
   })
   if (process.env.NODE_ENV !== 'production') {
@@ -271,6 +268,8 @@ function flush() {
       `[flush] serialized ${captureCount} instances${isBrowser ? `, took ${window.performance.now() - start}ms.` : ''}.`
     )
   }
+
+  exBridge.send(`${exBridge.Plat.devtool}/update-instance`, stringify(getInstanceDetails(currentInspectedId)));
   bridge.send('flush', payload)
 }
 
@@ -594,6 +593,7 @@ export function inspectInstance(instance) {
   const id = instance.__VUE_DEVTOOLS_UID__
   id && exBridge.send(`${exBridge.Plat.devtool}/inspect-instance`, id)
 }
+target.__VUE_DEVTOOLS_INSPECT__ = inspectInstance
 
 function setStateValue({ id, path, value, newKey, remove }) {
   const instance = instanceMap.get(id)
