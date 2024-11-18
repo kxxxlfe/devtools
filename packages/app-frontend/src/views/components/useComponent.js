@@ -28,7 +28,7 @@ exBridge.on(`${exBridge.Plat.devtool}/inspect-instance`, id => {
 })
 exBridge.on(`${exBridge.Plat.devtool}/update-instance`, ({ id, instance }) => {
   ensurePaneShown(() => {
-    inspected.map[id] = instance
+    inspected.map[id] = parse(instance)
     inspected.id.value = id
   })
 })

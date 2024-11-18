@@ -144,20 +144,13 @@ export default {
     '$responsive.height': 'updateAutoDensity',
   },
 
-  mounted() {
-    bridge.on('stop-component-selector', this.stopSelector)
-  },
+  mounted() {},
 
   beforeDestroy() {
     this.setSelecting(false)
-    bridge.off('stop-selector', this.stopSelector)
   },
 
   methods: {
-    stopSelector() {
-      this.setSelecting(false)
-    },
-
     filterInstances(e) {
       bridge.send('filter-instances', classify(e.target.value))
     },

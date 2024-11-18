@@ -267,7 +267,10 @@ function flush() {
     )
   }
 
-  exBridge.send(`${exBridge.Plat.devtool}/update-instance`, stringify(getInstanceDetails(currentInspectedId)));
+  exBridge.send(`${exBridge.Plat.devtool}/update-instance`, {
+    id: currentInspectedId,
+    instance: stringify(getInstanceDetails(currentInspectedId)),
+  })
   bridge.send('flush', payload)
 }
 
