@@ -35,7 +35,7 @@ export const makeRequest = function ({ plat, path, params }) {
     type: MsgDef.request,
     source: plat,
     target: Object.values(Plat).find(p => path.startsWith(p)),
-    uuid: `${plat}_${Date.now()}`,
+    uuid: `${path}_${Date.now()}`,
     params,
     path,
   }
@@ -83,7 +83,12 @@ export class WinPost {
     this.callbacks[winMsg.msgid]?.(winMsg.msg)
   }
   post(msg) {
-    const winMsg = { msg, sender: this.plat, type: MsgDef.request, msgid: `winpost_${this.plat}_${Date.now()}` }
+    const winMsg = {
+      msg,
+      sender: this.plat,
+      type: MsgDef.request,
+      msgid: `winpost_${this.plat}_${msg.uuid}_${Date.now()}`,
+    }
     const callbacks = this.callbacks
     return new Promise(resolve => {
       callbacks[winMsg.msgid] = function (response) {

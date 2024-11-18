@@ -7,11 +7,11 @@
       </div>
       <a
         v-tooltip="$t('ComponentTree.select.tooltip')"
-        :class="{ active: selecting }"
+        :class="{ active: isSelecting }"
         class="button select-component"
-        @click="setSelecting(!selecting)"
+        @click="setSelecting(!isSelecting)"
       >
-        <VueIcon :icon="selecting ? 'gps_fixed' : 'gps_not_fixed'" />
+        <VueIcon :icon="isSelecting ? 'gps_fixed' : 'gps_not_fixed'" />
         <span>Select</span>
       </a>
     </action-header>
@@ -41,6 +41,7 @@ import ComponentInstance from './ComponentInstance.vue'
 
 import { classify, focusInput } from '@utils/util'
 import Keyboard, { UP, DOWN, LEFT, RIGHT } from '../../mixins/keyboard'
+import { useComponent } from './useComponent'
 
 export default {
   components: {
@@ -48,7 +49,10 @@ export default {
     ActionHeader,
     ComponentInstance,
   },
-
+  setup(props, { emit }) {
+    const { isSelecting, setSelecting } = useComponent()
+    return { isSelecting, setSelecting }
+  },
   mixins: [
     Keyboard({
       onKeyDown({ key, modifiers }) {
@@ -97,7 +101,7 @@ export default {
               }
               return false
             } else if (key === 's') {
-              this.setSelecting(!this.selecting)
+              this.setSelecting(!this.isSelecting)
             }
         }
       },
@@ -113,7 +117,6 @@ export default {
 
   data() {
     return {
-      selecting: false,
       highDensity: false,
     }
   },
@@ -141,36 +144,15 @@ export default {
     '$responsive.height': 'updateAutoDensity',
   },
 
-  mounted() {
-    bridge.on('instance-selected', this.stopSelector)
-    bridge.on('stop-component-selector', this.stopSelector)
-  },
+  mounted() {},
 
   beforeDestroy() {
     this.setSelecting(false)
-    bridge.off('instance-selected', this.stopSelector)
-    bridge.off('stop-selector', this.stopSelector)
   },
 
   methods: {
-    stopSelector() {
-      this.setSelecting(false)
-    },
-
     filterInstances(e) {
       bridge.send('filter-instances', classify(e.target.value))
-    },
-
-    setSelecting(value) {
-      if (this.selecting !== value) {
-        this.selecting = value
-
-        if (this.selecting) {
-          bridge.send('start-component-selector')
-        } else {
-          bridge.send('stop-component-selector')
-        }
-      }
     },
 
     updateAutoDensity() {

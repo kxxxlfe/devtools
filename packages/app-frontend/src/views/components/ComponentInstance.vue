@@ -70,6 +70,7 @@ import { mapState, mapMutations } from 'vuex'
 import { getComponentDisplayName, scrollIntoView, UNDEFINED } from '@utils/util'
 
 import { bridge as exBridge } from '@utils/ext-bridge/devtool'
+import { useComponent } from './useComponent'
 
 export default defineComponent({
   name: 'ComponentInstance',
@@ -89,7 +90,8 @@ export default defineComponent({
     const self = ref(null)
     const ctx = getCurrentInstance().proxy
 
-    const selected = computed(() => props.instance.id === ctx.inspectedInstanceId)
+    const { selectInstance, inspected } = useComponent()
+    const selected = computed(() => props.instance.id === inspected.id.value)
     watch(
       () => selected.value,
       function (n) {
@@ -98,11 +100,12 @@ export default defineComponent({
         }
       }
     )
-    return { self, selected }
+
+    return { self, selected, selectInstance }
   },
 
   computed: {
-    ...mapState('components', ['expansionMap', 'inspectedInstance', 'inspectedInstanceId', 'scrollToExpanded']),
+    ...mapState('components', ['expansionMap', 'scrollToExpanded']),
 
     expanded() {
       return !!this.expansionMap[this.instance.id]
@@ -142,9 +145,6 @@ export default defineComponent({
   },
 
   methods: {
-    ...mapMutations('components', {
-      inspectInstance: 'INSPECT_INSTANCE',
-    }),
 
     toggle(event) {
       this.toggleWithValue(!this.expanded, event.altKey)
@@ -167,17 +167,16 @@ export default defineComponent({
     },
 
     select() {
-      this.inspectInstance(this.instance)
-      bridge.send('select-instance', this.instance.id)
+      this.selectInstance(this.instance.id)
     },
 
     enter() {
       // bridge.send('enter-instance', this.instance.id)
-      exBridge.request(`${exBridge.Plat.web}/enter-instance`, this.instance.id)
+      exBridge.send(`${exBridge.Plat.web}/enter-instance`, this.instance.id)
     },
 
     leave() {
-      exBridge.request(`${exBridge.Plat.web}/leave-instance`, this.instance.id)
+      exBridge.send(`${exBridge.Plat.web}/leave-instance`, this.instance.id)
       // bridge.send('leave-instance', this.instance.id)
     },
 

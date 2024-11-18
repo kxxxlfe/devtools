@@ -1,22 +1,23 @@
 import { highlight, unHighlight } from './highlighter'
 import { findRelatedComponent } from './utils'
 import { isBrowser } from '@utils/env'
+import { bridge as exBridge } from '@utils/ext-bridge/web'
 
 export default class ComponentSelector {
-  constructor (bridge, instanceMap) {
+  constructor(bridge, instanceMap) {
     const self = this
     self.bridge = bridge
     self.instanceMap = instanceMap
     self.bindMethods()
 
-    bridge.on('start-component-selector', self.startSelecting)
-    bridge.on('stop-component-selector', self.stopSelecting)
+    exBridge.on(`${exBridge.Plat.web}/start-component-selector`, self.startSelecting)
+    exBridge.on(`${exBridge.Plat.web}/stop-component-selector`, self.stopSelecting)
   }
 
   /**
    * Adds event listeners for mouseover and mouseup
    */
-  startSelecting () {
+  startSelecting() {
     if (!isBrowser) return
     window.addEventListener('mouseover', this.elementMouseOver, true)
     window.addEventListener('click', this.elementClicked, true)
@@ -30,7 +31,7 @@ export default class ComponentSelector {
   /**
    * Removes event listeners
    */
-  stopSelecting () {
+  stopSelecting() {
     if (!isBrowser) return
     window.removeEventListener('mouseover', this.elementMouseOver, true)
     window.removeEventListener('click', this.elementClicked, true)
@@ -47,7 +48,7 @@ export default class ComponentSelector {
    * Highlights a component on element mouse over
    * @param {MouseEvent} e
    */
-  elementMouseOver (e) {
+  elementMouseOver(e) {
     this.cancelEvent(e)
 
     const el = e.target
@@ -65,13 +66,13 @@ export default class ComponentSelector {
    * Selects an instance in the component view
    * @param {MouseEvent} e
    */
-  elementClicked (e) {
+  elementClicked(e) {
     this.cancelEvent(e)
 
     if (this.selectedInstance) {
-      this.bridge.send('inspect-instance', this.selectedInstance.__VUE_DEVTOOLS_UID__)
+      window.__VUE_DEVTOOLS_INSPECT__(this.selectedInstance);
     } else {
-      this.bridge.send('stop-component-selector')
+      exBridge.send(`${exBridge.Plat.devtool}/stop-component-selector`)
     }
 
     this.stopSelecting()
@@ -81,7 +82,7 @@ export default class ComponentSelector {
    * Cancel a mouse event
    * @param {MouseEvent} e
    */
-  cancelEvent (e) {
+  cancelEvent(e) {
     e.stopImmediatePropagation()
     e.preventDefault()
   }
@@ -89,7 +90,7 @@ export default class ComponentSelector {
   /**
    * Bind class methods to the class scope to avoid rebind for event listeners
    */
-  bindMethods () {
+  bindMethods() {
     this.startSelecting = this.startSelecting.bind(this)
     this.stopSelecting = this.stopSelecting.bind(this)
     this.elementMouseOver = this.elementMouseOver.bind(this)

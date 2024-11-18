@@ -22,9 +22,6 @@ export function createStore () {
       SWITCH_VIEW (state, view) {
         state.view = view
       },
-      RECEIVE_INSTANCE_DETAILS (state, instance) {
-        state.message = 'Instance selected: ' + instance.name
-      }
     },
     modules: {
       components,

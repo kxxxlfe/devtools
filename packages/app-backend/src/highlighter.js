@@ -178,7 +178,7 @@ function showOverlay({ width = 0, height = 0, top = 0, left = 0 }, content = [])
   content.forEach(child => overlayContent.appendChild(child))
 
   document.body.appendChild(overlay)
-  console.log('overlay', width, height, left, top)
+  // console.log('overlay', width, height, left, top)
 }
 
 /**

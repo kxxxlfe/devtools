@@ -15,13 +15,14 @@ class DevBridge extends EventHandle {
     chrome.runtime.onMessage.addListener(this.onRequest)
   }
 
+  send(path, params) {
+    const msg = makeRequest({ plat: this.plat, path, params })
+    return chrome.tabs.sendMessage(this.tabId, msg, {})
+  }
   request(path, params) {
     const msg = makeRequest({ plat: this.plat, path, params })
-
-    return chrome.tabs.sendMessage(this.tabId, msg, {}, function (res) {
-      res
-      debugger
-    })
+    msg.needResponse = true
+    return chrome.tabs.sendMessage(this.tabId, msg, {})
   }
   // 处理请求，负责返回
   async onRequest(msgdata, sender, sendResponse) {

@@ -56,9 +56,6 @@ function connect(Vue) {
     hook.currentTab = 'components'
     bridge.on('switch-tab', tab => {
       hook.currentTab = tab
-      if (tab === 'components') {
-        flush()
-      }
     })
 
     // the backend may get injected to the same page multiple times
@@ -69,15 +66,6 @@ function connect(Vue) {
       if (hook.currentTab === 'components') {
         debounceFlush()
       }
-    })
-
-    bridge.on('select-instance', id => {
-      currentInspectedId = id
-      const instance = findInstanceOrVnode(id)
-      if (!instance) return
-      if (!/:functional:/.test(id)) bindToConsole(instance)
-      flush()
-      bridge.send('instance-selected')
     })
 
     bridge.on('scroll-to-instance', id => {
@@ -95,8 +83,6 @@ function connect(Vue) {
 
     bridge.on('refresh', scan)
 
-    // bridge.on('leave-instance', unHighlight)
-
     // eslint-disable-next-line no-new
     new ComponentSelector(bridge, instanceMap)
 
@@ -108,10 +94,7 @@ function connect(Vue) {
       target.__VUE_DEVTOOLS_CONTEXT_MENU_HAS_TARGET__ = false
 
       if (instance) {
-        const id = instance.__VUE_DEVTOOLS_UID__
-        if (id) {
-          return bridge.send('inspect-instance', id)
-        }
+        inspectInstance(instance)
       }
 
       toast('No Vue component was found', 'warn')
@@ -137,8 +120,6 @@ function connect(Vue) {
 
     // events
     initEventsBackend(Vue, bridge)
-
-    target.__VUE_DEVTOOLS_INSPECT__ = inspectInstance
 
     // User project devtools config
     if (target.hasOwnProperty('VUE_DEVTOOLS_CONFIG')) {
@@ -278,7 +259,6 @@ function flush() {
     start = isBrowser ? window.performance.now() : 0
   }
   const payload = stringify({
-    inspectedInstance: getInstanceDetails(currentInspectedId),
     instances: findQualifiedChildrenFromList(rootInstances).filter(item => !!item),
   })
   if (process.env.NODE_ENV !== 'production') {
@@ -286,10 +266,15 @@ function flush() {
       `[flush] serialized ${captureCount} instances${isBrowser ? `, took ${window.performance.now() - start}ms.` : ''}.`
     )
   }
+
+  exBridge.send(`${exBridge.Plat.devtool}/update-instance`, {
+    id: currentInspectedId,
+    instance: stringify(getInstanceDetails(currentInspectedId)),
+  })
   bridge.send('flush', payload)
 }
 
-const debounceFlush = debounce(flush, 350)
+const debounceFlush = debounce(flush, 200)
 
 /**
  * Iterate through an array of instances and flatten it into
@@ -605,10 +590,11 @@ export function toast(message, type = 'normal') {
   fn && fn(message, type)
 }
 
-export function inspectInstance(instance) {
+function inspectInstance(instance) {
   const id = instance.__VUE_DEVTOOLS_UID__
-  id && bridge.send('inspect-instance', id)
+  id && exBridge.send(`${exBridge.Plat.devtool}/inspect-instance`, id)
 }
+target.__VUE_DEVTOOLS_INSPECT__ = inspectInstance
 
 function setStateValue({ id, path, value, newKey, remove }) {
   const instance = instanceMap.get(id)
@@ -662,4 +648,18 @@ exBridge.on(`${exBridge.Plat.web}/enter-instance`, id => {
 })
 exBridge.on(`${exBridge.Plat.web}/leave-instance`, id => {
   unHighlight(id)
+})
+exBridge.on(`${exBridge.Plat.web}/select-instance`, id => {
+  currentInspectedId = id
+  const instance = findInstanceOrVnode(id)
+  if (!instance) return
+  if (!/:functional:/.test(id)) bindToConsole(instance)
+})
+exBridge.on(`${exBridge.Plat.web}/flush`, () => {
+  debounceFlush()
+})
+// instance的fetch
+exBridge.on(`${exBridge.Plat.web}/fetch-instance`, id => {
+  const instStr = stringify(getInstanceDetails(id))
+  return instStr
 })

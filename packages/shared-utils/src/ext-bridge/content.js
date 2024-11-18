@@ -14,10 +14,12 @@ window.addEventListener('message', async function (evt) {
   if (msgdata.type !== MsgDef.request) {
     return
   }
-  const uuid = msgdata.uuid
+  const handle = chrome.runtime.sendMessage(msgdata)
 
-  const res = await chrome.runtime.sendMessage(msgdata)
-  win.response({ request: evt.data, response: res })
+  if (msgdata.needResponse) {
+    const res = await handle
+    win.response({ request: evt.data, response: res })
+  }
 })
 
 // devtool请求转发web
@@ -29,10 +31,14 @@ chrome.runtime.onMessage.addListener((msgdata, source, sendResponse) => {
     return
   }
 
-  ;(async function () {
-    const res = await win.post(msgdata)
-    sendResponse(res)
-  })()
+  const handle = win.post(msgdata)
 
-  return true
+  if (msgdata.needResponse) {
+    ;(async function () {
+      const res = await handle
+      sendResponse(res)
+    })()
+
+    return true
+  }
 })
