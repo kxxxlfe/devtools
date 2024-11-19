@@ -78,7 +78,7 @@ function connect(Vue) {
 
     bridge.on('filter-instances', _filter => {
       filter = _filter.toLowerCase()
-      flush()
+      debounceFlush()
     })
 
     bridge.on('refresh', scan)
