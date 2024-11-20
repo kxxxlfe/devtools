@@ -115,11 +115,11 @@ export default defineComponent({
     }
 
     function enter() {
-      exBridge.send(`${exBridge.Plat.web}/enter-instance`, this.instance.id)
+      exBridge.send(`${exBridge.Plat.web}/enter-instance`, props.instance.id)
     }
 
     function leave() {
-      exBridge.send(`${exBridge.Plat.web}/leave-instance`, this.instance.id)
+      exBridge.send(`${exBridge.Plat.web}/leave-instance`, props.instance.id)
     }
 
     return { self, selected, select, enter, leave }
