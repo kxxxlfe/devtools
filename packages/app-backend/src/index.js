@@ -81,8 +81,6 @@ function connect(Vue) {
       debounceFlush()
     })
 
-    bridge.on('refresh', scan)
-
     // eslint-disable-next-line no-new
     new ComponentSelector(bridge, instanceMap)
 
@@ -663,3 +661,4 @@ exBridge.on(`${exBridge.Plat.web}/fetch-instance`, id => {
   const instStr = stringify(getInstanceDetails(id))
   return instStr
 })
+exBridge.on(`${exBridge.Plat.web}/refresh`, scan)

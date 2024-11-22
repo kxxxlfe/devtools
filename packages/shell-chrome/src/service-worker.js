@@ -105,7 +105,7 @@ chrome.tabs.onActivated.addListener(({ tabId }) => {
   updateContextMenuItem()
 })
 
-const updateContextMenuItem = () => {}
+let updateContextMenuItem = () => {}
 
 // 兼容electron
 if (chrome.contextMenus) {

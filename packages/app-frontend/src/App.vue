@@ -17,9 +17,7 @@
             <span class="text">{{ message }}</span>
 
             <span class="badges">
-              <span v-if="isBeta" class="badge">
-                beta devtools
-              </span>
+              <span v-if="isBeta" class="badge">beta devtools</span>
             </span>
           </span>
         </transition>
@@ -72,9 +70,7 @@
           >
             <template slot="header">
               <VueIcon icon="directions" class="left-icon" />
-              <span class="hide-below-wide">
-                Routing
-              </span>
+              <span class="hide-below-wide">Routing</span>
               <VueIcon icon="keyboard_arrow_down" class="right-icon" />
             </template>
             <template slot="option" slot-scope="{ option }">
@@ -82,7 +78,7 @@
                 v-tooltip.left="!$responsive.wide && option.label"
                 :value="option.name"
                 :icon-left="option.icon"
-                style="width: 100%;"
+                style="width: 100%"
                 class="router-tab flat big-tag"
                 @selected="isRouterGroupOpen = false"
               >
@@ -140,6 +136,7 @@
 import { mapState, mapGetters } from 'vuex'
 import { SPECIAL_TOKENS } from '@utils/util'
 import { get, set } from '@utils/storage'
+import { bridge as exBridge } from '@utils/ext-bridge/devtool'
 import Keyboard from '@front/mixins/keyboard'
 import GroupDropdown from '@front/components/GroupDropdown.vue'
 import { SETTINGS_VERSION_ID, SETTINGS_VERSION } from '@front/views/settings/SettingsTab.vue'
@@ -153,8 +150,8 @@ export default {
   },
 
   setup(props, { emit }) {
-    const { freshComponentData } = useComponent();
-    return { freshComponentData };
+    const { freshComponentData } = useComponent()
+    return { freshComponentData }
   },
 
   mixins: [
@@ -271,14 +268,13 @@ export default {
   },
 
   methods: {
-    refresh() {
+    async refresh() {
       const refreshIcon = this.$refs.refresh.$el.querySelector('.vue-ui-icon')
       refreshIcon.style.animation = 'none'
 
-      bridge.send('refresh')
-      bridge.once('flush', () => {
-        refreshIcon.style.animation = 'rotate 1s'
-      })
+      await exBridge.request(`${exBridge.Plat.web}/refresh`)
+
+      refreshIcon.style.animation = 'rotate 1s'
     },
 
     shouldAutoRefresh() {
