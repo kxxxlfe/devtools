@@ -1,17 +1,14 @@
 <template>
   <scroll-pane>
     <action-header slot="header">
-      <div
-        v-tooltip="$t('VuexHistory.filter.tooltip')"
-        class="search"
-      >
+      <div v-tooltip="$t('VuexHistory.filter.tooltip')" class="search">
         <VueIcon icon="search" />
         <input
           ref="filterMutations"
           v-model.trim="filter"
           :class="{ invalid: filterRegexInvalid }"
           placeholder="Filter mutations"
-        >
+        />
       </div>
       <a
         v-tooltip="$t('VuexHistory.commitAll.tooltip')"
@@ -28,10 +25,7 @@
         class="button reset"
         @click="revertAll"
       >
-        <VueIcon
-          class="small"
-          icon="do_not_disturb"
-        />
+        <VueIcon class="small" icon="do_not_disturb" />
         <span>Revert All</span>
       </a>
       <a
@@ -39,11 +33,7 @@
         class="button toggle-recording"
         @click="toggleRecording"
       >
-        <VueIcon
-          :class="{ enabled: $shared.recordVuex }"
-          class="small"
-          icon="lens"
-        />
+        <VueIcon :class="{ enabled: $shared.recordVuex }" class="small" icon="lens" />
         <span>{{ $shared.recordVuex ? 'Recording' : 'Paused' }}</span>
       </a>
     </action-header>
@@ -53,7 +43,7 @@
       :item-size="highDensity ? 22 : 34"
       class="history"
       :class="{
-        'high-density': highDensity
+        'high-density': highDensity,
       }"
     >
       <template slot-scope="{ item: entry, index, active }">
@@ -73,22 +63,13 @@
                 class="action action-time-travel"
                 @click.stop="timeTravelTo(null)"
               >
-                <VueIcon
-                  class="medium"
-                  icon="restore"
-                />
+                <VueIcon class="medium" icon="restore" />
                 <span>Time Travel</span>
               </a>
             </span>
           </span>
-          <span
-            v-if="activeIndex === -1"
-            class="label active"
-          >active</span>
-          <span
-            v-if="inspectedIndex === -1"
-            class="label inspected"
-          >inspected</span>
+          <span v-if="activeIndex === -1" class="label active">active</span>
+          <span v-if="inspectedIndex === -1" class="label inspected">inspected</span>
           <span class="time">
             {{ lastCommit | formatTime($shared.timeFormat) }}
           </span>
@@ -100,7 +81,7 @@
           :class="{
             inspected: isInspected(index, entry),
             active: isActive(index, entry),
-            special: isSpecial(entry)
+            special: isSpecial(entry),
           }"
           class="entry list-item"
           @click="inspect(entry)"
@@ -111,23 +92,23 @@
               <a
                 v-tooltip="'Commit This Mutation'"
                 class="action action-commit"
-                @click="commit(entry);$event.stopImmediatePropagation()"
+                @click="
+                  commit(entry)
+                  $event.stopImmediatePropagation()
+                "
               >
-                <VueIcon
-                  class="medium"
-                  icon="get_app"
-                />
+                <VueIcon class="medium" icon="get_app" />
                 <span>Commit</span>
               </a>
               <a
                 v-tooltip="'Revert This Mutation'"
                 class="action action-revert"
-                @click="revert(entry);$event.stopImmediatePropagation()"
+                @click="
+                  revert(entry)
+                  $event.stopImmediatePropagation()
+                "
               >
-                <VueIcon
-                  class="small"
-                  icon="do_not_disturb"
-                />
+                <VueIcon class="small" icon="do_not_disturb" />
                 <span>Revert</span>
               </a>
               <a
@@ -136,26 +117,14 @@
                 class="action action-time-travel"
                 @click="timeTravelTo(entry)"
               >
-                <VueIcon
-                  class="medium"
-                  icon="restore"
-                />
+                <VueIcon class="medium" icon="restore" />
                 <span>Time Travel</span>
               </a>
             </span>
           </span>
-          <span
-            v-if="isActive(index, entry)"
-            class="label active"
-          >active</span>
-          <span
-            v-if="isInspected(index, entry)"
-            class="label inspected"
-          >inspected</span>
-          <span
-            v-tooltip="entry.timestamp"
-            class="time"
-          >
+          <span v-if="isActive(index, entry)" class="label active">active</span>
+          <span v-if="isInspected(index, entry)" class="label inspected">inspected</span>
+          <span v-tooltip="entry.timestamp" class="time">
             {{ entry.timestamp | formatTime($shared.timeFormat) }}
           </span>
         </div>
@@ -168,13 +137,7 @@
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 
-import Keyboard, {
-  UP,
-  DOWN,
-  DEL,
-  BACKSPACE,
-  ENTER
-} from '@front/mixins/keyboard'
+import Keyboard, { UP, DOWN, DEL, BACKSPACE, ENTER } from '@front/mixins/keyboard'
 import EntryList from '@front/mixins/entry-list'
 import { mapState, mapGetters, mapActions } from 'vuex'
 import { focusInput } from '@utils/util'
@@ -182,11 +145,11 @@ import { focusInput } from '@utils/util'
 export default {
   components: {
     ActionHeader,
-    ScrollPane
+    ScrollPane,
   },
   mixins: [
     Keyboard({
-      onKeyDown ({ key, modifiers }) {
+      onKeyDown({ key, modifiers }) {
         switch (modifiers) {
           case 'ctrl':
             if (key === ENTER) {
@@ -211,11 +174,11 @@ export default {
               this.toggleRecording()
             }
         }
-      }
+      },
     }),
     EntryList({
-      indexOffset: 1
-    })
+      indexOffset: 1,
+    }),
   ],
 
   computed: {
@@ -226,56 +189,46 @@ export default {
       'inspectedIndex',
       'activeIndex',
       'filterRegex',
-      'filterRegexInvalid'
+      'filterRegexInvalid',
     ]),
 
-    ...mapGetters('vuex', [
-      'filteredHistory'
-    ]),
+    ...mapGetters('vuex', ['filteredHistory']),
 
     filter: {
-      get () {
+      get() {
         return this.$store.state.vuex.filter
       },
-      set (filter) {
+      set(filter) {
         this.$store.dispatch('vuex/updateFilter', filter)
         this.$store.dispatch('vuex/inspect', filter ? -1 : this.history.length - 1)
-      }
+      },
     },
 
-    highDensity () {
+    highDensity() {
       const pref = this.$shared.displayDensity
       return (pref === 'auto' && this.filteredHistory.length > 7) || pref === 'high'
-    }
+    },
   },
 
   methods: {
-    ...mapActions('vuex', [
-      'commitAll',
-      'revertAll',
-      'commit',
-      'revert',
-      'inspect',
-      'timeTravelTo',
-      'updateFilter'
-    ]),
+    ...mapActions('vuex', ['commitAll', 'revertAll', 'commit', 'revert', 'inspect', 'timeTravelTo', 'updateFilter']),
 
-    isActive (index, entry) {
+    isActive(index, entry) {
       return this.activeIndex === index - (this.filter ? 0 : 1)
     },
 
-    isInspected (index, entry) {
+    isInspected(index, entry) {
       return this.inspectedIndex === index - (this.filter ? 0 : 1)
     },
 
-    isSpecial (entry) {
+    isSpecial(entry) {
       return entry.options.registerModule || entry.options.unregisterModule
     },
 
-    toggleRecording () {
+    toggleRecording() {
       this.$shared.recordVuex = !this.$shared.recordVuex
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -284,6 +237,8 @@ $inspected_color = #af90d5
 
 .vue-recycle-scroller
   height 100%
+.history
+  width 100%
 
 .entry
   font-family Menlo, Consolas, monospace
