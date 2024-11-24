@@ -6,7 +6,7 @@ import { MsgDef, Plat, APIHandler, makeRequest, makeResponse, isBridgeMessage, E
 class DevBridge extends EventHandle {
   callbacks = {}
   plat = Plat.devtool
-  tabId = chrome.devtools.inspectedWindow.tabId
+  tabId = chrome.devtools?.inspectedWindow.tabId
   Plat = Plat
 
   constructor() {

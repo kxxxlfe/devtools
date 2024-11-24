@@ -105,22 +105,27 @@ chrome.tabs.onActivated.addListener(({ tabId }) => {
   updateContextMenuItem()
 })
 
-function updateContextMenuItem() {
-  chrome.contextMenus.removeAll(() => {
-    if (ports[activeTabId]) {
-      chrome.contextMenus.create({
-        id: 'vue-inspect-instance',
-        title: 'Inspect Vue component',
-        contexts: ['all'],
-      })
-    }
+let updateContextMenuItem = () => {}
+
+// 兼容electron
+if (chrome.contextMenus) {
+  updateContextMenuItem = function () {
+    chrome.contextMenus.removeAll(() => {
+      if (ports[activeTabId]) {
+        chrome.contextMenus.create({
+          id: 'vue-inspect-instance',
+          title: 'Inspect Vue component',
+          contexts: ['all'],
+        })
+      }
+    })
+  }
+
+  chrome.contextMenus?.onClicked.addListener((info, tab) => {
+    chrome.runtime.sendMessage({
+      vueContextMenu: {
+        id: info.menuItemId,
+      },
+    })
   })
 }
-
-chrome.contextMenus.onClicked.addListener((info, tab) => {
-  chrome.runtime.sendMessage({
-    vueContextMenu: {
-      id: info.menuItemId,
-    },
-  })
-})

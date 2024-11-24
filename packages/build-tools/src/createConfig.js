@@ -94,17 +94,18 @@ exports.createConfig = (config, target = { chrome: 52, firefox: 48 }) => {
   }
 
   if (process.env.NODE_ENV === 'production') {
-    const UglifyPlugin = require('uglifyjs-webpack-plugin')
+    const TerserPlugin = require('terser-webpack-plugin')
     baseConfig.plugins.push(
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': '"production"',
       })
     )
     baseConfig.optimization = {
+      minimize: true,
       minimizer: [
-        new UglifyPlugin({
+        new TerserPlugin({
           exclude: /backend/,
-          uglifyOptions: {
+          terserOptions: {
             compress: {
               // turn off flags with small gains to speed up minification
               arrows: false,
@@ -140,8 +141,6 @@ exports.createConfig = (config, target = { chrome: 52, firefox: 48 }) => {
               safari10: true,
             },
           },
-          sourceMap: false,
-          cache: true,
           parallel: true,
         }),
       ],

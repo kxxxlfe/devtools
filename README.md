@@ -4,17 +4,20 @@
 
 - 支持`vue 2.7`的`setup`
 - 升级了`manifest v3`
-- 使用截流提升了性能
+- 升级了`webpack@5`
+- 性能提升
   - flush 截流：页面组件太多，频繁改动时 component 卡顿
   - vuex:mutation 截流: 页面 store 太多，数千个 store 中间状态导致页面崩溃
   - router:changed 开关不生效 fix，页面数据太多时会导致卡顿
-- 解决 `@Ref` 语法计算属性导致的性能问题
+  - 解决 `@Ref` 语法计算属性导致的性能问题
+- 优化
+  - 新的通信机制，支持返回值
 
 使用步骤
 
 1. yarn install
 2. npm run build
-3. 将 packages/shell-chrome 文件夹添加至 chrome
+3. 将 packages/shell-chrome 文件夹添加至 chrome://extensions
 
 # vue-devtools
 

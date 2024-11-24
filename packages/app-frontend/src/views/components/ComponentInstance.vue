@@ -95,13 +95,34 @@ export default defineComponent({
     watch(
       () => selected.value,
       function (n) {
+        if (isClickInstance) {
+          return
+        }
         if (n) {
-          self.value.scrollIntoView({ inline: 'center' })
+          self.value.scrollIntoView({ inline: 'start', block: 'center' })
         }
       }
     )
 
-    return { self, selected, selectInstance }
+    let isClickInstance = false
+    function select() {
+      isClickInstance = true
+      selectInstance(props.instance.id)
+
+      setTimeout(() => {
+        isClickInstance = false
+      }, 3000)
+    }
+
+    function enter() {
+      exBridge.send(`${exBridge.Plat.web}/enter-instance`, props.instance.id)
+    }
+
+    function leave() {
+      exBridge.send(`${exBridge.Plat.web}/leave-instance`, props.instance.id)
+    }
+
+    return { self, selected, select, enter, leave }
   },
 
   computed: {
@@ -145,7 +166,6 @@ export default defineComponent({
   },
 
   methods: {
-
     toggle(event) {
       this.toggleWithValue(!this.expanded, event.altKey)
     },
@@ -164,20 +184,6 @@ export default defineComponent({
         expanded: val,
         recursive,
       })
-    },
-
-    select() {
-      this.selectInstance(this.instance.id)
-    },
-
-    enter() {
-      // bridge.send('enter-instance', this.instance.id)
-      exBridge.send(`${exBridge.Plat.web}/enter-instance`, this.instance.id)
-    },
-
-    leave() {
-      exBridge.send(`${exBridge.Plat.web}/leave-instance`, this.instance.id)
-      // bridge.send('leave-instance', this.instance.id)
     },
 
     scrollToInstance() {
