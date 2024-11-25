@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, computed, set } from 'vue'
 import { bridge as exBridge } from '@utils/ext-bridge/devtool'
 import { parse } from '@utils/util'
 import { useDevPanelStatus } from '../../plugins/usePanelStatus'
@@ -7,7 +7,7 @@ import router from '../../router'
 // 选中的组件数据
 const inspected = {
   id: ref(null),
-  map: {},
+  map: ref({}),
   loading: ref(false),
 }
 const { ensurePaneShown } = useDevPanelStatus()
@@ -28,7 +28,7 @@ exBridge.on(`${exBridge.Plat.devtool}/inspect-instance`, id => {
 })
 exBridge.on(`${exBridge.Plat.devtool}/update-instance`, ({ id, instance }) => {
   ensurePaneShown(() => {
-    inspected.map[id] = parse(instance)
+    set(inspected.map.value, id, parse(instance))
     inspected.id.value = id
   })
 })
@@ -54,7 +54,7 @@ const selectInstance = async function (id) {
 
   // 获取instance最新的state
   const msgdata = await exBridge.request(`${exBridge.Plat.web}/fetch-instance`, id)
-  inspected.map[id] = parse(msgdata.data.data)
+  set(inspected.map.value, id, parse(msgdata.data.data))
   inspected.id.value = id
   inspected.loading.value = false
 }
@@ -65,7 +65,7 @@ export const useComponent = function () {
   }
 
   const inspectedInstance = computed(() => {
-    return inspected.map[inspected.id.value] || {}
+    return inspected.map.value[inspected.id.value] || {}
   })
   return { isSelecting, setSelecting, selectInstance, freshComponentData, inspectedInstance, inspected }
 }
