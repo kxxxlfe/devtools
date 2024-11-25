@@ -1,22 +1,21 @@
 import Vue from 'vue'
 
 const state = {
-  selected: null,
   instances: [],
   instancesMap: {},
   expansionMap: {},
   events: [],
-  scrollToExpanded: null
+  scrollToExpanded: null,
 }
 
 const getters = {
-  totalCount: state => Object.keys(state.instancesMap).length
+  totalCount: state => Object.keys(state.instancesMap).length,
 }
 
 let inspectTime = null
 
 const mutations = {
-  FLUSH (state, payload) {
+  FLUSH(state, payload) {
     let start
     if (process.env.NODE_ENV !== 'production') {
       start = window.performance.now()
@@ -25,7 +24,7 @@ const mutations = {
     // Instance ID map
     // + add 'parent' properties
     const map = {}
-    function walk (instance) {
+    function walk(instance) {
       map[instance.id] = instance
       if (instance.children) {
         instance.children.forEach(child => {
@@ -50,28 +49,28 @@ const mutations = {
       })
     }
   },
-  TOGGLE_INSTANCE (state, { id, expanded, scrollTo = null } = {}) {
+  TOGGLE_INSTANCE(state, { id, expanded, scrollTo = null } = {}) {
     Vue.set(state.expansionMap, id, expanded)
     state.scrollToExpanded = scrollTo
-  }
+  },
 }
 
 const actions = {
-  toggleInstance ({ commit, dispatch, state }, { instance, expanded, recursive, parent = false } = {}) {
+  toggleInstance({ commit, dispatch, state }, { instance, expanded, recursive, parent = false } = {}) {
     const id = instance.id
 
     commit('TOGGLE_INSTANCE', {
       id,
       expanded,
-      scrollTo: parent ? id : null
+      scrollTo: parent ? id : null,
     })
 
     if (recursive) {
-      instance.children.forEach((child) => {
+      instance.children.forEach(child => {
         dispatch('toggleInstance', {
           instance: child,
           expanded,
-          recursive
+          recursive,
         })
       })
     }
@@ -84,11 +83,11 @@ const actions = {
         commit('TOGGLE_INSTANCE', {
           id: i.id,
           expanded: true,
-          scrollTo: id
+          scrollTo: id,
         })
       }
     }
-  }
+  },
 }
 
 export default {
@@ -96,5 +95,5 @@ export default {
   state,
   getters,
   mutations,
-  actions
+  actions,
 }
