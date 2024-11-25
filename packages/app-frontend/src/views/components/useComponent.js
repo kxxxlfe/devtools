@@ -32,6 +32,9 @@ exBridge.on(`${exBridge.Plat.devtool}/update-instance`, ({ id, instance }) => {
     inspected.id.value = id
   })
 })
+exBridge.on(`${exBridge.Plat.devtool}/flush`, payload => {
+  window.store.commit('components/FLUSH', parse(payload))
+})
 
 // 组件选中
 const isSelecting = ref(false) // 当前是否正在选择Component

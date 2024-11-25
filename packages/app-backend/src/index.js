@@ -269,7 +269,7 @@ function flush() {
     id: currentInspectedId,
     instance: stringify(getInstanceDetails(currentInspectedId)),
   })
-  bridge.send('flush', payload)
+  exBridge.send(`${exBridge.Plat.devtool}/flush`, payload)
 }
 
 const debounceFlush = debounce(flush, 200)
