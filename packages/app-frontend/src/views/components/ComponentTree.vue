@@ -42,6 +42,7 @@ import ComponentInstance from './ComponentInstance.vue'
 import { classify, focusInput } from '@utils/util'
 import Keyboard, { UP, DOWN, LEFT, RIGHT } from '../../mixins/keyboard'
 import { useComponent } from './useComponent'
+import { useComponentTree } from './module'
 
 export default {
   components: {
@@ -51,7 +52,8 @@ export default {
   },
   setup(props, { emit }) {
     const { isSelecting, setSelecting } = useComponent()
-    return { isSelecting, setSelecting }
+    const { expansionMap } = useComponentTree()
+    return { isSelecting, setSelecting, expansionMap }
   },
   mixins: [
     Keyboard({
@@ -122,8 +124,6 @@ export default {
   },
 
   computed: {
-    ...mapState('components', ['expansionMap']),
-
     ...mapGetters('components', ['totalCount']),
 
     finalHighDensity() {

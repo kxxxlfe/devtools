@@ -67,10 +67,12 @@
 <script>
 import { defineComponent, ref, watch, getCurrentInstance, computed } from 'vue'
 import { mapState, mapMutations } from 'vuex'
-import { getComponentDisplayName, scrollIntoView, UNDEFINED } from '@utils/util'
+import debounce from 'lodash/debounce'
+import { getComponentDisplayName, UNDEFINED } from '@utils/util'
 
 import { bridge as exBridge } from '@utils/ext-bridge/devtool'
 import { useComponent } from './useComponent'
+import { useComponentTree } from './module'
 
 export default defineComponent({
   name: 'ComponentInstance',
@@ -122,16 +124,37 @@ export default defineComponent({
       exBridge.send(`${exBridge.Plat.web}/leave-instance`, props.instance.id)
     }
 
-    return { self, selected, select, enter, leave }
+    const scrollIntoView = debounce(() => {
+      self.value.scrollIntoView({ inline: 'start', block: 'center' })
+    }, 0)
+
+    const { toggleInstance, scrollToExpanded, expansionMap } = useComponentTree()
+    function toggleWithValue(val, recursive = false) {
+      toggleInstance({
+        instance: props.instance,
+        expanded: val,
+        recursive,
+      })
+    }
+    // 修改了展开目标节点
+    watch(
+      () => scrollToExpanded.value,
+      function (value, oldValue) {
+        if (value !== oldValue && value === props.instance.id) {
+          scrollIntoView()
+        }
+      }
+    )
+
+    // 展开
+    const expanded = computed(() => {
+      return !!expansionMap.value[props.instance.id]
+    })
+
+    return { self, selected, select, enter, leave, scrollIntoView, toggleWithValue, expanded }
   },
 
   computed: {
-    ...mapState('components', ['expansionMap', 'scrollToExpanded']),
-
-    expanded() {
-      return !!this.expansionMap[this.instance.id]
-    },
-
     sortedChildren() {
       return this.instance.children.slice().sort((a, b) => {
         return a.top === b.top ? a.id - b.id : a.top - b.top
@@ -144,17 +167,6 @@ export default defineComponent({
 
     componentHasKey() {
       return (this.instance.renderKey === 0 || !!this.instance.renderKey) && this.instance.renderKey !== UNDEFINED
-    },
-  },
-
-  watch: {
-    scrollToExpanded: {
-      handler(value, oldValue) {
-        if (value !== oldValue && value === this.instance.id) {
-          this.scrollIntoView()
-        }
-      },
-      immediate: true,
     },
   },
 
@@ -178,22 +190,8 @@ export default defineComponent({
       this.toggleWithValue(false)
     },
 
-    toggleWithValue(val, recursive = false) {
-      this.$store.dispatch('components/toggleInstance', {
-        instance: this.instance,
-        expanded: val,
-        recursive,
-      })
-    },
-
     scrollToInstance() {
       bridge.send('scroll-to-instance', this.instance.id)
-    },
-
-    scrollIntoView(center = true) {
-      this.$nextTick(() => {
-        scrollIntoView(this.$globalRefs.leftScroll, this.self, center)
-      })
     },
   },
 })
