@@ -7,7 +7,7 @@ import SharedData from './shared-data'
 import { isChrome } from './env'
 
 let instanceMap = new Map()
-export const setInstanceMap = function(inst) {
+export const setInstanceMap = function (inst) {
   instanceMap = inst
 }
 
@@ -580,22 +580,6 @@ export function has(object, path, parent = false) {
     object = object[sections.shift()]
   }
   return object != null && object.hasOwnProperty(sections[0])
-}
-
-export function scrollIntoView(scrollParent, el, center = true) {
-  const parentTop = scrollParent.scrollTop
-  const parentHeight = scrollParent.offsetHeight
-  const elBounds = el.getBoundingClientRect()
-  const parentBounds = scrollParent.getBoundingClientRect()
-  const top = elBounds.top - parentBounds.top + scrollParent.scrollTop
-  const height = el.offsetHeight
-  if (center) {
-    scrollParent.scrollTop = top + (height - parentHeight) / 2
-  } else if (top < parentTop) {
-    scrollParent.scrollTop = top
-  } else if (top + height > parentTop + parentHeight) {
-    scrollParent.scrollTop = top - parentHeight + height
-  }
 }
 
 export function focusInput(el) {

@@ -3,6 +3,7 @@ import { bridge as exBridge } from '@utils/ext-bridge/devtool'
 import { parse } from '@utils/util'
 import { useDevPanelStatus } from '../../plugins/usePanelStatus'
 import router from '../../router'
+import { useComponentTree } from './module'
 
 // 选中的组件数据
 const inspected = {
@@ -11,6 +12,7 @@ const inspected = {
   loading: ref(false),
 }
 const { ensurePaneShown } = useDevPanelStatus()
+const { toggleInstance } = useComponentTree()
 
 // web点击dom触发，inspectInstance
 exBridge.on(`${exBridge.Plat.devtool}/inspect-instance`, id => {
@@ -19,7 +21,7 @@ exBridge.on(`${exBridge.Plat.devtool}/inspect-instance`, id => {
     router.push({ name: 'components' })
     const instance = window.store.state.components.instancesMap[id]
     instance &&
-      store.dispatch('components/toggleInstance', {
+      toggleInstance({
         instance,
         expanded: true,
         parent: true,

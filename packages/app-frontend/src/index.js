@@ -128,10 +128,6 @@ function initApp(shell) {
         store.commit('SHOW_MESSAGE', 'Proxy injection failed.')
       })
 
-      bridge.on('toggle-instance', payload => {
-        store.commit('components/TOGGLE_INSTANCE', parse(payload))
-      })
-
       bridge.on('vuex:init', () => {
         store.commit('vuex/INIT')
       })

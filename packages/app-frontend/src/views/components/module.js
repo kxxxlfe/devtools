@@ -1,11 +1,54 @@
-import Vue from 'vue'
+import Vue, { ref } from 'vue'
+
+// 树形相关use
+const scrollToExpanded = ref(null)
+const expansionMap = ref({})
+const updateExpand = function ({ id, expanded, scrollTo = null } = {}) {
+  Vue.set(expansionMap.value, id, expanded)
+  scrollToExpanded.value = scrollTo
+}
+
+export const useComponentTree = function () {
+  // 展开到某个节点
+  function toggleInstance({ instance, expanded, recursive, parent = false } = {}) {
+    const id = instance.id
+
+    updateExpand({
+      id,
+      expanded,
+      scrollTo: parent ? id : null,
+    })
+
+    if (recursive) {
+      instance.children.forEach(child => {
+        toggleInstance({
+          instance: child,
+          expanded,
+          recursive,
+        })
+      })
+    }
+
+    // Expand the parents
+    if (parent) {
+      let i = instance
+      while (i.parent) {
+        i = i.parent
+        updateExpand({
+          id: i.id,
+          expanded: true,
+          scrollTo: id,
+        })
+      }
+    }
+  }
+  return { expansionMap, scrollToExpanded, toggleInstance }
+}
 
 const state = {
   instances: [],
   instancesMap: {},
-  expansionMap: {},
   events: [],
-  scrollToExpanded: null,
 }
 
 const getters = {
@@ -49,46 +92,9 @@ const mutations = {
       })
     }
   },
-  TOGGLE_INSTANCE(state, { id, expanded, scrollTo = null } = {}) {
-    Vue.set(state.expansionMap, id, expanded)
-    state.scrollToExpanded = scrollTo
-  },
 }
 
-const actions = {
-  toggleInstance({ commit, dispatch, state }, { instance, expanded, recursive, parent = false } = {}) {
-    const id = instance.id
-
-    commit('TOGGLE_INSTANCE', {
-      id,
-      expanded,
-      scrollTo: parent ? id : null,
-    })
-
-    if (recursive) {
-      instance.children.forEach(child => {
-        dispatch('toggleInstance', {
-          instance: child,
-          expanded,
-          recursive,
-        })
-      })
-    }
-
-    // Expand the parents
-    if (parent) {
-      let i = instance
-      while (i.parent) {
-        i = i.parent
-        commit('TOGGLE_INSTANCE', {
-          id: i.id,
-          expanded: true,
-          scrollTo: id,
-        })
-      }
-    }
-  },
-}
+const actions = {}
 
 export default {
   namespaced: true,
