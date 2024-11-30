@@ -17,6 +17,9 @@ export class EventHandle {
   on(path, handler) {
     this.handlers[path] = handler
   }
+  off(path) {
+    this.handlers[path] = null
+  }
   async trigger(path, params) {
     const handler = this.handlers[path] // 1个接口只有1个处理
     if (!handler) {
