@@ -15,9 +15,10 @@
 
 使用步骤
 
-1. yarn install
-2. npm run build
-3. 将 packages/shell-chrome 文件夹添加至 chrome://extensions
+1. 下载 `zip` 文件
+2. 解压后 文件夹添加至 chrome://extensions
+
+开发步骤：详见 `Manual Installation`
 
 # vue-devtools
 
