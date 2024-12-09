@@ -10,7 +10,7 @@ exBridge.on(`${exBridge.Plat.devtool}/pinia/init`, function ({ storeList }) {
 })
 exBridge.on(`${exBridge.Plat.devtool}/pinia/updateState`, function ({ key, state }) {
   currStoreKey.value = key
-  inspectedState.value = state
+  inspectedState.value = parse(state) || {}
 })
 
 export const usePinia = function () {
