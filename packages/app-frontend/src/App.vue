@@ -45,7 +45,7 @@
             icon-left="memory"
             class="vuex-tab flat"
           >
-            Vuex
+            Pinia
           </VueGroupButton>
           <VueGroupButton
             v-tooltip="$t('App.vuex.tooltip')"
