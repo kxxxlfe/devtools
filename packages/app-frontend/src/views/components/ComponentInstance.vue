@@ -191,7 +191,7 @@ export default defineComponent({
     },
 
     scrollToInstance() {
-      bridge.send('scroll-to-instance', this.instance.id)
+      exBridge.send(`${exBridge.Plat.web}/scroll-to-instance`, this.instance.id)
     },
   },
 })

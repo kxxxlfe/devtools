@@ -69,14 +69,6 @@ function connect(Vue) {
       }
     })
 
-    bridge.on('scroll-to-instance', id => {
-      const instance = findInstanceOrVnode(id)
-      if (instance) {
-        scrollIntoView(instance)
-        highlight(instance)
-      }
-    })
-
     bridge.on('filter-instances', _filter => {
       filter = _filter.toLowerCase()
       debounceFlush()
@@ -518,20 +510,6 @@ function getInstanceDetails(id) {
 }
 
 /**
- * Sroll a node into view.
- *
- * @param {Vue} instance
- */
-
-function scrollIntoView(instance) {
-  const rect = getInstanceOrVnodeRect(instance)
-  if (rect) {
-    // TODO: Handle this for non-browser environments.
-    window.scrollBy(0, rect.top + (rect.height - window.innerHeight) / 2)
-  }
-}
-
-/**
  * Binds given instance in console as $vm0.
  * For compatibility reasons it also binds it as $vm.
  *
@@ -663,3 +641,24 @@ exBridge.on(`${exBridge.Plat.web}/fetch-instance`, id => {
   return instStr
 })
 exBridge.on(`${exBridge.Plat.web}/refresh`, scan)
+
+/**
+ * Sroll a node into view.
+ *
+ * @param {Vue} instance
+ */
+
+function scrollIntoView(instance) {
+  const rect = getInstanceOrVnodeRect(instance)
+  if (rect) {
+    // TODO: Handle this for non-browser environments.
+    window.scrollBy(0, rect.top + (rect.height - window.innerHeight) / 2)
+  }
+}
+exBridge.on(`${exBridge.Plat.web}/scroll-to-instance`, id => {
+  const instance = findInstanceOrVnode(id)
+  if (instance) {
+    scrollIntoView(instance)
+    highlight(instance)
+  }
+})
