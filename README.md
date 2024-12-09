@@ -18,7 +18,10 @@
 1. 下载 `zip` 文件
 2. 解压后 文件夹添加至 chrome://extensions
 
-开发步骤：详见 `Manual Installation`
+开发步骤
+
+- 详见 `Manual Installation`
+- icon 来源：https://fonts.google.com/icons?hl=zh-cn&icon.query=lens&icon.set=Material+Icons&icon.size=24&icon.color=%235f6368
 
 # vue-devtools
 

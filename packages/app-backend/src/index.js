@@ -6,6 +6,7 @@ import { initVuexBackend } from './vuex'
 import { initEventsBackend } from './events'
 import { initRouterBackend } from './router'
 import { initPerfBackend } from './perf'
+import { initPiniaBackend } from './pinia'
 import { findRelatedComponent, debounce } from './utils'
 import ComponentSelector from './component-selector'
 import { getInstanceState, getInstanceName } from './process'
@@ -136,6 +137,9 @@ function connect(Vue) {
     setTimeout(() => {
       scan()
 
+      // pinia
+      initPiniaBackend(Vue, rootInstances)
+
       // perf
       initPerfBackend(Vue, bridge, instanceMap)
     }, 0)
@@ -206,6 +210,7 @@ function scan() {
       target.__VUE_ROOT_INSTANCES__.map(processInstance)
     }
   }
+
   hook.emit('router:init')
   flush()
 }
