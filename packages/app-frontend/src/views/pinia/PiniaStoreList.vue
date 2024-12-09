@@ -24,7 +24,7 @@
           v-if="!entry.mutation"
           :class="{ inspected: isInspected(index, entry) }"
           class="entry list-item special"
-          @click="inspect(null)"
+          @click="inspect(entry, index)"
         >
           <span class="entry-info">
             <span class="mutation-type">{{ entry.name }}</span>
@@ -50,7 +50,7 @@ export default {
   },
 
   setup(props, { emit }) {
-    const { currStoreKey, stores } = usePinia()
+    const { currStoreKey, stores, selectStore } = usePinia()
 
     function isInspected(index, entry) {
       return entry === currStoreKey
@@ -75,7 +75,11 @@ export default {
       })
     })
 
-    return { currStoreKey, stores, isInspected, highDensity, recordPinia, toggleRecording, storeList }
+    function inspect(entry, index) {
+      selectStore(entry.name)
+    }
+
+    return { currStoreKey, stores, isInspected, highDensity, recordPinia, toggleRecording, storeList, inspect }
   },
 
   methods: {},
