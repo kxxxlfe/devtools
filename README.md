@@ -3,6 +3,7 @@
 [详细说明](https://segmentfault.com/a/1190000045204638)
 
 - 支持`vue 2.7`的`setup`
+- 支持`pinia`
 - 升级了`manifest v3`
 - 升级了`webpack@5`
 - 性能提升
