@@ -22,7 +22,7 @@
       <template slot-scope="{ item: entry, index, active }">
         <div
           v-if="!entry.mutation"
-          :class="{ inspected: isInspected(index, entry) }"
+          :class="{ active: isInspected(index, entry), disabled: !recordPinia }"
           class="entry list-item special"
           @click="inspect(entry, index)"
         >
@@ -53,7 +53,7 @@ export default {
     const { currStoreKey, stores, selectStore } = usePinia()
 
     function isInspected(index, entry) {
-      return entry === currStoreKey
+      return entry.name === currStoreKey.value
     }
 
     const highDensity = computed(() => {
@@ -64,7 +64,9 @@ export default {
     function toggleRecording() {
       SharedData.recordPinia = !SharedData.recordPinia
     }
-    const recordPinia = computed(() => SharedData.recordPinia)
+    const recordPinia = computed(() => {
+      return SharedData.recordPinia
+    })
 
     const storeList = computed(() => {
       return stores.value.map(item => {
@@ -76,6 +78,9 @@ export default {
     })
 
     function inspect(entry, index) {
+      if (!recordPinia.value) {
+        return
+      }
       selectStore(entry.name)
     }
 
@@ -193,4 +198,12 @@ $inspected_color = #af90d5
   &.inspected
     color #fff
     background-color $inspected_color
+</style>
+
+<style>
+.list-item {
+  &.disabled {
+    cursor: not-allowed;
+  }
+}
 </style>
