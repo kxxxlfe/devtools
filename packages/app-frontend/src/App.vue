@@ -37,6 +37,17 @@
             Components
           </VueGroupButton>
           <VueGroupButton
+            v-tooltip="'Switch to Pinia'"
+            :class="{
+              'icon-button': !$responsive.wide,
+            }"
+            value="pinia"
+            icon-left="memory"
+            class="vuex-tab flat"
+          >
+            Pinia
+          </VueGroupButton>
+          <VueGroupButton
             v-tooltip="$t('App.vuex.tooltip')"
             :class="{
               'icon-button': !$responsive.wide,

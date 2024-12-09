@@ -6,6 +6,7 @@ import { initVuexBackend } from './vuex'
 import { initEventsBackend } from './events'
 import { initRouterBackend } from './router'
 import { initPerfBackend } from './perf'
+import { initPiniaBackend } from './pinia'
 import { findRelatedComponent, debounce } from './utils'
 import ComponentSelector from './component-selector'
 import { getInstanceState, getInstanceName } from './process'
@@ -51,6 +52,7 @@ export function initBackend(_bridge) {
 function connect(Vue) {
   initSharedData({
     bridge,
+    exBridge,
     Vue,
   }).then(() => {
     hook.currentTab = 'components'
@@ -65,14 +67,6 @@ function connect(Vue) {
     hook.on('flush', () => {
       if (hook.currentTab === 'components') {
         debounceFlush()
-      }
-    })
-
-    bridge.on('scroll-to-instance', id => {
-      const instance = findInstanceOrVnode(id)
-      if (instance) {
-        scrollIntoView(instance)
-        highlight(instance)
       }
     })
 
@@ -142,6 +136,9 @@ function connect(Vue) {
 
     setTimeout(() => {
       scan()
+
+      // pinia
+      initPiniaBackend(Vue, rootInstances)
 
       // perf
       initPerfBackend(Vue, bridge, instanceMap)
@@ -213,6 +210,7 @@ function scan() {
       target.__VUE_ROOT_INSTANCES__.map(processInstance)
     }
   }
+
   hook.emit('router:init')
   flush()
 }
@@ -517,20 +515,6 @@ function getInstanceDetails(id) {
 }
 
 /**
- * Sroll a node into view.
- *
- * @param {Vue} instance
- */
-
-function scrollIntoView(instance) {
-  const rect = getInstanceOrVnodeRect(instance)
-  if (rect) {
-    // TODO: Handle this for non-browser environments.
-    window.scrollBy(0, rect.top + (rect.height - window.innerHeight) / 2)
-  }
-}
-
-/**
  * Binds given instance in console as $vm0.
  * For compatibility reasons it also binds it as $vm.
  *
@@ -662,3 +646,24 @@ exBridge.on(`${exBridge.Plat.web}/fetch-instance`, id => {
   return instStr
 })
 exBridge.on(`${exBridge.Plat.web}/refresh`, scan)
+
+/**
+ * Sroll a node into view.
+ *
+ * @param {Vue} instance
+ */
+
+function scrollIntoView(instance) {
+  const rect = getInstanceOrVnodeRect(instance)
+  if (rect) {
+    // TODO: Handle this for non-browser environments.
+    window.scrollBy(0, rect.top + (rect.height - window.innerHeight) / 2)
+  }
+}
+exBridge.on(`${exBridge.Plat.web}/scroll-to-instance`, id => {
+  const instance = findInstanceOrVnode(id)
+  if (instance) {
+    scrollIntoView(instance)
+    highlight(instance)
+  }
+})

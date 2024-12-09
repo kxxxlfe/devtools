@@ -3,6 +3,7 @@
 [详细说明](https://segmentfault.com/a/1190000045204638)
 
 - 支持`vue 2.7`的`setup`
+- 支持`pinia`
 - 升级了`manifest v3`
 - 升级了`webpack@5`
 - 性能提升
@@ -15,9 +16,13 @@
 
 使用步骤
 
-1. yarn install
-2. npm run build
-3. 将 packages/shell-chrome 文件夹添加至 chrome://extensions
+1. 下载 `zip` 文件
+2. 解压后 文件夹添加至 chrome://extensions
+
+开发步骤
+
+- 详见 `Manual Installation`
+- icon 来源：https://fonts.google.com/icons?hl=zh-cn&icon.query=lens&icon.set=Material+Icons&icon.size=24&icon.color=%235f6368
 
 # vue-devtools
 

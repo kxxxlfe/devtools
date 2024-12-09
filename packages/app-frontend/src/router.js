@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 
 import ComponentsTab from './views/components/ComponentsTab.vue'
 import VuexTab from './views/vuex/VuexTab.vue'
+import PiniaTab from './views/pinia/PiniaTab.vue'
 import EventsTab from './views/events/EventsTab.vue'
 import PerfTab from './views/perf/PerfTab.vue'
 import ComponentRenderStats from './views/perf/ComponentRenderStats.vue'
@@ -16,32 +17,37 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    redirect: { name: 'components' }
+    redirect: { name: 'components' },
   },
   {
     path: '/components',
     name: 'components',
-    component: ComponentsTab
+    component: ComponentsTab,
   },
   {
     path: '/vuex',
     name: 'vuex',
-    component: VuexTab
+    component: VuexTab,
+  },
+  {
+    path: '/pinia',
+    name: 'pinia',
+    component: PiniaTab,
   },
   {
     path: '/events',
     name: 'events',
-    component: EventsTab
+    component: EventsTab,
   },
   {
     path: '/router',
     name: 'router',
-    component: RouterTab
+    component: RouterTab,
   },
   {
     path: '/routes',
     name: 'routes',
-    component: RoutesTab
+    component: RoutesTab,
   },
   {
     path: '/perf',
@@ -51,28 +57,28 @@ const routes = [
       {
         path: 'fps',
         name: 'fps',
-        component: FramerateGraph
+        component: FramerateGraph,
       },
       {
         path: 'component-render',
         name: 'component-render',
-        component: ComponentRenderStats
-      }
-    ]
+        component: ComponentRenderStats,
+      },
+    ],
   },
   {
     path: '/settings',
     name: 'settings',
-    component: SettingsTab
+    component: SettingsTab,
   },
   {
     path: '*',
-    redirect: '/'
-  }
+    redirect: '/',
+  },
 ]
 
 const router = new VueRouter({
-  routes
+  routes,
 })
 
 export default router

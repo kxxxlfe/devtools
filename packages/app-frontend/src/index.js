@@ -10,7 +10,7 @@ import { parse } from '@utils/util'
 import { isChrome, initEnv } from '@utils/env'
 import SharedData, { init as initSharedData, destroy as destroySharedData } from '@utils/shared-data'
 import { init as initStorage } from '@utils/storage'
-import { useDevPanelStatus } from './plugins/usePanelStatus'
+import { bridge as exBridge } from '@utils/ext-bridge/devtool'
 
 // register filters
 for (const key in filters) {
@@ -104,6 +104,7 @@ function initApp(shell) {
 
     initSharedData({
       bridge,
+      exBridge,
       Vue,
       persist: true,
     }).then(() => {
