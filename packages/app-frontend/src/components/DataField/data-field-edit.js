@@ -170,14 +170,6 @@ export default {
         path: this.path,
         ...args,
       })
-      if (this.isStateField) {
-      } else {
-        bridge.send('set-instance-data', {
-          id: this.inspectedInstance.id,
-          path: this.path,
-          ...args,
-        })
-      }
     },
 
     transformSpecialTokens(str, display) {

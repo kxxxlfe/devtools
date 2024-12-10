@@ -33,7 +33,7 @@
         <div>This instance has no reactive state.</div>
       </div>
       <section v-else class="data">
-        <state-inspector :state="filteredState" class="component-state-inspector" />
+        <state-inspector :state="filteredState" class="component-state-inspector" @edit="editComponentData" />
       </section>
     </template>
   </scroll-pane>
@@ -62,7 +62,14 @@ export default {
       return !!inspectedInstance.value?.id
     }
 
-    return { loading: inspected.loading, target: inspectedInstance, hasTarget }
+    function editComponentData(args) {
+      exBridge.send(`${exBridge.Plat.web}/set-instance-data`, {
+        id: inspectedInstance.value.id,
+        ...args,
+      })
+    }
+
+    return { loading: inspected.loading, target: inspectedInstance, hasTarget, editComponentData }
   },
 
   data() {
