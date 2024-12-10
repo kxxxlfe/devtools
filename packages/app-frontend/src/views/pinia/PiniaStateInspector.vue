@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { computed } from 'vue'
+import { computed, provide } from 'vue'
 import isEmpty from 'lodash/isEmpty'
 
 import ScrollPane from '@front/components/ScrollPane.vue'
@@ -29,16 +29,13 @@ export default {
     StateInspector,
   },
 
-  provide() {
-    return {
-      InspectorInjection: {
-        editable: true,
-      },
-    }
-  },
-
   setup(props, { emit }) {
     const { inspectedState } = usePinia()
+
+    provide('InspectorInjection', {
+      editable: true,
+      onEdit() {},
+    })
 
     const piniaData = computed(() => {
       if (isEmpty(inspectedState.value)) {

@@ -13,14 +13,8 @@
       @mouseenter.native="onContextMenuMouseEnter"
       @mouseleave.native="onContextMenuMouseLeave"
     >
-      <span
-        v-show="isExpandableType"
-        :class="{ rotated: expanded }"
-        class="arrow right"
-      />
-      <span
-        v-if="editing && renamable"
-      >
+      <span v-show="isExpandableType" :class="{ rotated: expanded }" class="arrow right" />
+      <span v-if="editing && renamable">
         <input
           ref="keyInput"
           v-model="editedKey"
@@ -28,21 +22,12 @@
           :class="{ error: !keyValid }"
           @keydown.esc.capture.stop.prevent="cancelEdit()"
           @keydown.enter="submitEdit()"
-        >
+        />
       </span>
-      <span
-        v-else
-        :class="{ abstract: fieldOptions.abstract }"
-        class="key"
-      >{{ displayedKey }}</span><span
-        v-if="!fieldOptions.abstract"
-        class="colon"
-      >:</span>
+      <span v-else :class="{ abstract: fieldOptions.abstract }" class="key">{{ displayedKey }}</span>
+      <span v-if="!fieldOptions.abstract" class="colon">:</span>
 
-      <span
-        v-if="editing"
-        class="edit-overlay"
-      >
+      <span v-if="editing" class="edit-overlay">
         <input
           ref="editInput"
           v-model="editedValue"
@@ -51,14 +36,9 @@
           list="special-tokens"
           @keydown.esc.capture.stop.prevent="cancelEdit()"
           @keydown.enter="submitEdit()"
-        >
+        />
         <span class="actions">
-          <VueIcon
-            v-if="!editValid"
-            v-tooltip="editErrorMessage"
-            class="small-icon warning"
-            icon="warning"
-          />
+          <VueIcon v-if="!editValid" v-tooltip="editErrorMessage" class="small-icon warning" icon="warning" />
           <template v-else>
             <VueButton
               v-tooltip="$t('DataField.edit.cancel.tooltip')"
@@ -120,24 +100,15 @@
           />
 
           <!-- Context menu -->
-          <VueDropdown
-            :open.sync="contextMenuOpen"
-          >
-            <VueButton
-              slot="trigger"
-              icon-left="more_vert"
-              class="icon-button flat"
-            />
+          <VueDropdown :open.sync="contextMenuOpen">
+            <VueButton slot="trigger" icon-left="more_vert" class="icon-button flat" />
 
             <div
               class="context-menu-dropdown"
               @mouseenter="onContextMenuMouseEnter"
               @mouseleave="onContextMenuMouseLeave"
             >
-              <VueDropdownButton
-                icon-left="flip_to_front"
-                @click="copyToClipboard"
-              >
+              <VueDropdownButton icon-left="flip_to_front" @click="copyToClipboard">
                 {{ $t('DataField.contextMenu.copyValue') }}
               </VueDropdownButton>
             </div>
@@ -146,25 +117,15 @@
       </template>
 
       <template #popper>
-        <div
-          v-if="field.meta"
-          class="meta"
-        >
-          <div
-            v-for="(val, key) in field.meta"
-            :key="key"
-            class="meta-field"
-          >
+        <div v-if="field.meta" class="meta">
+          <div v-for="(val, key) in field.meta" :key="key" class="meta-field">
             <span class="key">{{ key }}</span>
             <span class="value">{{ val }}</span>
           </div>
         </div>
       </template>
     </VTooltip>
-    <div
-      v-if="expanded && isExpandableType"
-      class="children"
-    >
+    <div v-if="expanded && isExpandableType" class="children">
       <data-field
         v-for="subField in formattedSubFields"
         :key="subField.key"
@@ -206,17 +167,12 @@
 
 <script>
 import { mapState } from 'vuex'
-import {
-  isPlainObject,
-  sortByKey,
-  openInEditor,
-  copyToClipboard
-} from '@utils/util'
+import { isPlainObject, sortByKey, openInEditor, copyToClipboard } from '@utils/util'
 import { formattedValue, valueType } from '@front/filters'
 
-import DataFieldEdit from '@front/mixins/data-field-edit'
+import DataFieldEdit from './data-field-edit'
 
-function subFieldCount (value) {
+function subFieldCount(value) {
   if (Array.isArray(value)) {
     return value.length
   } else if (value && typeof value === 'object') {
@@ -229,79 +185,67 @@ function subFieldCount (value) {
 export default {
   name: 'DataField',
 
-  mixins: [
-    DataFieldEdit
-  ],
+  mixins: [DataFieldEdit],
 
   props: {
     field: {
       type: Object,
-      required: true
+      required: true,
     },
     depth: {
       type: Number,
-      required: true
+      required: true,
     },
     path: {
       type: String,
-      required: true
+      required: true,
     },
     forceCollapse: {
       type: String,
-      default: null
+      default: null,
     },
     isStateField: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
-  data () {
+  data() {
     const value = this.field.value && this.field.value._custom ? this.field.value._custom.value : this.field.value
     return {
       contextMenuOpen: false,
       limit: 20,
-      expanded: this.depth === 0 && this.field.key !== '$route' && (subFieldCount(value) < 6)
+      expanded: this.depth === 0 && this.field.key !== '$route' && subFieldCount(value) < 6,
     }
   },
 
   computed: {
-    ...mapState('components', [
-      'inspectedInstance'
-    ]),
+    ...mapState('components', ['inspectedInstance']),
 
-    depthMargin () {
+    depthMargin() {
       return (this.depth + 1) * 14 + 10
     },
 
-    valueType () {
+    valueType() {
       const value = this.field.value
       return valueType(value)
     },
 
-    rawValueType () {
+    rawValueType() {
       return typeof this.field.value
     },
 
-    isExpandableType () {
+    isExpandableType() {
       let value = this.field.value
       if (this.valueType === 'custom') {
         value = value._custom.value
       }
       const closed = this.fieldOptions.closed
       const closedDefined = typeof closed !== 'undefined'
-      return (!closedDefined &&
-        (
-          Array.isArray(value) ||
-          isPlainObject(value)
-        )) ||
-        (
-          closedDefined &&
-          !closed
-        )
+      return (!closedDefined && (Array.isArray(value) || isPlainObject(value))) || (closedDefined && !closed)
     },
 
-    formattedValue () {
+    formattedValue() {
       let value = this.field.value
       if (this.fieldOptions.abstract) {
         return ''
@@ -310,7 +254,7 @@ export default {
       }
     },
 
-    rawValue () {
+    rawValue() {
       let value = this.field.value
 
       // CustomValue API
@@ -327,20 +271,20 @@ export default {
       return { value, inherit }
     },
 
-    formattedSubFields () {
+    formattedSubFields() {
       let { value, inherit } = this.rawValue
 
       if (Array.isArray(value)) {
         return value.slice(0, this.limit).map((item, i) => ({
           key: i,
           value: item,
-          ...inherit
+          ...inherit,
         }))
       } else if (typeof value === 'object') {
         value = Object.keys(value).map(key => ({
           key,
           value: value[key],
-          ...inherit
+          ...inherit,
         }))
         if (this.valueType !== 'custom') {
           value = sortByKey(value)
@@ -350,12 +294,12 @@ export default {
       return value.slice(0, this.limit)
     },
 
-    subFieldCount () {
+    subFieldCount() {
       const { value } = this.rawValue
       return subFieldCount(value)
     },
 
-    valueTooltip () {
+    valueTooltip() {
       const type = this.valueType
       if (type === 'custom') {
         return this.field.value._custom.tooltip
@@ -366,7 +310,7 @@ export default {
       }
     },
 
-    fieldOptions () {
+    fieldOptions() {
       if (this.valueType === 'custom') {
         return Object.assign({}, this.field, this.field.value._custom)
       } else {
@@ -374,7 +318,7 @@ export default {
       }
     },
 
-    editErrorMessage () {
+    editErrorMessage() {
       if (!this.valueValid) {
         return 'Invalid value (must be valid JSON)'
       } else if (!this.keyValid) {
@@ -387,7 +331,7 @@ export default {
       return ''
     },
 
-    valueClass () {
+    valueClass() {
       const cssClass = [this.valueType, `raw-${this.rawValueType}`]
       if (this.valueType === 'custom') {
         const value = this.field.value
@@ -397,34 +341,34 @@ export default {
       return cssClass
     },
 
-    displayedKey () {
+    displayedKey() {
       let key = this.field.key
       if (typeof key === 'string') {
         key = key.replace('__vue__', '')
       }
       return key
-    }
+    },
   },
 
   watch: {
     forceCollapse: {
-      handler (value) {
+      handler(value) {
         if (value === 'expand' && this.depth < 4) {
           this.expanded = true
         } else if (value === 'collapse') {
           this.expanded = false
         }
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
 
   methods: {
-    copyToClipboard () {
+    copyToClipboard() {
       copyToClipboard(this.field.value)
     },
 
-    onClick (event) {
+    onClick(event) {
       // Cancel if target is interactive
       if (event.target.tagName === 'INPUT' || event.target.className.includes('button')) {
         return
@@ -448,7 +392,7 @@ export default {
       this.toggle()
     },
 
-    toggle () {
+    toggle() {
       if (this.isExpandableType) {
         this.expanded = !this.expanded
 
@@ -458,21 +402,21 @@ export default {
 
     hyphen: v => v.replace(/\s/g, '-'),
 
-    onContextMenuMouseEnter () {
+    onContextMenuMouseEnter() {
       clearTimeout(this.$_contextMenuTimer)
     },
 
-    onContextMenuMouseLeave () {
+    onContextMenuMouseLeave() {
       clearTimeout(this.$_contextMenuTimer)
       this.$_contextMenuTimer = setTimeout(() => {
         this.contextMenuOpen = false
       }, 4000)
     },
 
-    showMoreSubfields () {
+    showMoreSubfields() {
       this.limit += 20
-    }
-  }
+    },
+  },
 }
 </script>
 
