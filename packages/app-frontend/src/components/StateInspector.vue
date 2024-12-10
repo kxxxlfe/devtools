@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import Vue from 'vue'
+import Vue, { provide } from 'vue'
 import Defer from '@front/mixins/defer'
 import StateFields from './StateFields.vue'
 
@@ -64,6 +64,15 @@ export default {
       type: Number,
       default: -1,
     },
+  },
+
+  setup(props, { emit }) {
+    provide('when', {
+      onEdit(...args) {
+        emit('edit', ...args)
+      },
+    })
+    return {}
   },
 
   data() {

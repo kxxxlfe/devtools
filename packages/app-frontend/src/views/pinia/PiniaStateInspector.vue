@@ -34,7 +34,6 @@ export default {
 
     provide('InspectorInjection', {
       editable: true,
-      onEdit() {},
     })
 
     const piniaData = computed(() => {

@@ -18,9 +18,7 @@
         <VueIcon icon="content_copy" />
         <span>Export</span>
         <transition name="slide-up">
-          <span v-show="showStateCopiedMessage" class="message">
-            (Copied to clipboard!)
-          </span>
+          <span v-show="showStateCopiedMessage" class="message">(Copied to clipboard!)</span>
         </transition>
       </a>
       <a v-tooltip="'Import Vuex State'" class="button import" @click="toggleImportStatePopup">
@@ -34,9 +32,7 @@
             @input="importState"
             @keydown.esc.stop="closeImportStatePopup"
           />
-          <span v-show="showBadJSONMessage" class="message invalid-json">
-            INVALID JSON!
-          </span>
+          <span v-show="showBadJSONMessage" class="message invalid-json">INVALID JSON!</span>
         </div>
       </transition>
     </action-header>
@@ -48,12 +44,10 @@
       }"
       @click="isOnlyMutationPayload && loadState()"
     >
-      <state-inspector :state="filteredState" :dim-after="isOnlyMutationPayload ? 1 : -1" />
+      <state-inspector :state="filteredState" :dim-after="isOnlyMutationPayload ? 1 : -1" @edit="editVuex" />
     </div>
     <div v-if="$shared.snapshotLoading" slot="footer" class="state-info loading-vuex-state">
-      <div class="label">
-        Loading state...
-      </div>
+      <div class="label">Loading state...</div>
 
       <VueLoadingIndicator />
     </div>
@@ -74,6 +68,7 @@
 </template>
 
 <script>
+import { getCurrentInstance } from 'vue'
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 import StateInspector from '@front/components/StateInspector.vue'
@@ -95,6 +90,26 @@ export default {
     return {
       InspectorInjection: this.injection,
     }
+  },
+
+  setup(props, { emit }) {
+    const ctx = getCurrentInstance()?.proxy
+
+    function editVuex({ path, field, ...args }) {
+      const rootName = path.split('.')[0]
+      const rootState = ctx.filteredState.state?.find(item => item.key === rootName)
+
+      // 只有state可以修改
+      if (!rootState) {
+        return
+      }
+
+      ctx.$store.dispatch('vuex/editState', {
+        path,
+        args,
+      })
+    }
+    return { editVuex }
   },
 
   data() {
@@ -247,7 +262,7 @@ export default {
       this.showImportStatePopup = false
     },
 
-    importState: debounce(function(e) {
+    importState: debounce(function (e) {
       const importedStr = e.target.value
       if (importedStr.length === 0) {
         this.showBadJSONMessage = false
