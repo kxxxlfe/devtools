@@ -7,12 +7,15 @@
       </div>
     </action-header>
     <div slot="scroll" class="vuex-state-inspector" @click="loadState()">
-      <state-inspector :state="inspectedState" :dim-after="-1" />
+      <state-inspector :state="piniaData" :dim-after="-1" />
     </div>
   </scroll-pane>
 </template>
 
 <script>
+import { computed } from 'vue'
+import isEmpty from 'lodash/isEmpty'
+
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 import StateInspector from '@front/components/StateInspector.vue'
@@ -28,27 +31,48 @@ export default {
 
   provide() {
     return {
-      InspectorInjection: this.injection,
+      InspectorInjection: {
+        editable: true,
+      },
     }
   },
 
   setup(props, { emit }) {
     const { inspectedState } = usePinia()
-    return { inspectedState }
+
+    const piniaData = computed(() => {
+      if (isEmpty(inspectedState.value)) {
+        return {}
+      }
+      const obj2arr = obj => {
+        return Object.entries(obj || {}).map(([key, value]) => {
+          return {
+            key,
+            type: key,
+            value,
+          }
+        })
+      }
+      const { state, actions, computed: getter } = inspectedState.value
+
+      return {
+        state: obj2arr(state).map(item => {
+          item.editable = true
+          return item
+        }),
+        actions: obj2arr(actions),
+        computed: obj2arr(getter),
+      }
+    })
+
+    return { piniaData }
   },
 
   data() {
     return {
       filter: '',
-      injection: {
-        editable: false,
-      },
     }
   },
-
-  computed: {},
-
-  methods: {},
 }
 </script>
 
