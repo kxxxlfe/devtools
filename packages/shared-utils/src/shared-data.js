@@ -26,6 +26,7 @@ const persisted = [
   'theme',
   'displayDensity',
   'recordVuex',
+  'recordPinia',
   'editableProps',
   'logDetected',
   'vuexNewBackend',
