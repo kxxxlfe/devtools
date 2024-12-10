@@ -40,11 +40,13 @@
 </template>
 
 <script>
+import groupBy from 'lodash/groupBy'
+import { bridge as exBridge } from '@utils/ext-bridge/devtool'
+
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 import StateInspector from '@front/components/StateInspector.vue'
 import { searchDeepInObject, sortByKey, openInEditor, getComponentDisplayName } from '@utils/util'
-import groupBy from 'lodash/groupBy'
 import { useComponent } from './useComponent'
 
 export default {

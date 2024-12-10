@@ -640,26 +640,47 @@ exBridge.on(`${exBridge.Plat.web}/scroll-to-instance`, id => {
 
 function setStateValue({ id, path, value, newKey, remove }) {
   const instance = instanceMap.get(id)
-  if (instance) {
-    try {
-      let parsedValue
-      if (value) {
-        parsedValue = parse(value, true)
-      }
-      const api = isLegacy
-        ? {
-            $set: hook.Vue.set,
-            $delete: hook.Vue.delete,
-          }
-        : instance
-      const data = has(instance._props, path, newKey) ? instance._props : instance._data
-      set(data, path, parsedValue, (obj, field, value) => {
-        ;(remove || newKey) && api.$delete(obj, field)
-        !remove && api.$set(obj, newKey || field, value)
-      })
-    } catch (e) {
-      console.error(e)
+  if (!instance) {
+    return
+  }
+
+  try {
+    let parsedValue
+    if (value) {
+      parsedValue = parse(value, true)
     }
+    const api = isLegacy
+      ? {
+          $set: hook.Vue.set,
+          $delete: hook.Vue.delete,
+        }
+      : instance
+
+    let data
+    const paths = path.split('.')
+    if (instance._setupState[paths[0]]) {
+      data = instance._setupState[paths[0]]
+      if (paths.length === 1) {
+        data.value = parsedValue
+        return
+      }
+      data = data.value
+      path = paths.slice(1).join('.')
+    } else if (has(instance._props, path, newKey)) {
+      data = instance._props
+    } else {
+      data = instance._data
+    }
+    set(data, path, parsedValue, (obj, field, value) => {
+      if (remove || newKey) {
+        api.$delete(obj, field)
+      }
+      if (!remove) {
+        api.$set(obj, newKey || field, value)
+      }
+    })
+  } catch (e) {
+    console.error(e)
   }
 }
 exBridge.on(`${exBridge.Plat.web}/set-instance-data`, args => {

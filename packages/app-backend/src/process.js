@@ -1,5 +1,5 @@
 // 循环引用了，这里放纯工具方法
-import { isRef } from 'vue'
+import { isRef, isReadonly } from 'vue'
 import { camelize, getComponentName, getCustomRefDetails } from '@utils/util'
 import SharedData from '@utils/shared-data'
 
@@ -7,7 +7,7 @@ export function getInstanceState(instance) {
   return processProps(instance).concat(
     processState(instance),
     processRefs(instance),
-    processSetupState(instance),
+    ...processSetup(instance),
     processComputed(instance),
     processInjected(instance),
     processRouteContext(instance),
@@ -180,24 +180,35 @@ function processRefs(instance) {
  * @return {Array}
  */
 
-function processSetupState(instance) {
+function processSetup(instance) {
   const states = []
+  const computes = []
   Object.entries(instance._setupState || {}).forEach(([key, value]) => {
     if (typeof value === 'function') {
       return
     }
-    value = isRef(value) ? value.value : value
-    if (instance.$refs[key] && value === instance.$refs[key]) {
+    const val = isRef(value) ? value.value : value
+    if (instance.$refs[key] && val === instance.$refs[key]) {
       return
     }
-    states.push({
-      type: 'setup',
-      key,
-      value: isRef(value) ? value.value : value,
-    })
+
+    if (isReadonly(value)) {
+      computes.push({
+        type: 'setup.computed',
+        key,
+        value: val,
+      })
+    } else {
+      states.push({
+        type: 'setup.state/ref',
+        key,
+        value: val,
+        editable: true,
+      })
+    }
   })
 
-  return states
+  return [states, computes]
 }
 
 /**
