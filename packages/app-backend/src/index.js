@@ -658,8 +658,10 @@ function setStateValue({ id, path, value, newKey, remove }) {
 
     let data
     const paths = path.split('.')
-    if (instance._setupState[paths[0]]) {
+    // 支持setup
+    if (instance._setupState?.[paths[0]]) {
       data = instance._setupState[paths[0]]
+      // 替换根元素
       if (paths.length === 1) {
         data.value = parsedValue
         return

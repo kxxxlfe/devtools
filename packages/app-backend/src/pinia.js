@@ -1,11 +1,15 @@
 import { watch } from 'vue'
 import { bridge as exBridge } from '@utils/ext-bridge/web'
 import sharedData from '@utils/shared-data'
-import { stringify } from '@utils/util'
+import { stringify, set, parse } from '@utils/util'
 import { debounce } from './utils'
 
 let currStoreKey = null
 let pinia
+
+const putil = {
+  get: key => pinia._s.get(key),
+}
 
 export function initPiniaBackend(Vue, rootInstances) {
   pinia = rootInstances[0]?.$pinia
@@ -13,6 +17,7 @@ export function initPiniaBackend(Vue, rootInstances) {
     return
   }
 
+  // 初始化
   exBridge.send(`${exBridge.Plat.devtool}/pinia/init`, {
     storeList: Array.from(pinia._s).map(([name, store]) => {
       return {
@@ -30,11 +35,21 @@ export function initPiniaBackend(Vue, rootInstances) {
       state: stringify(state),
     }
   })
+  exBridge.on(`${exBridge.Plat.web}/pinia/editState`, function ({ storeKey, path, value }) {
+    const targetStore = putil.get(storeKey)
+
+    set(targetStore.$state, path, parse(value, true))
+    const state = makePiniaState(storeKey)
+
+    return {
+      state: stringify(state),
+    }
+  })
 }
 
 // 制作某个store的state
 const makePiniaState = function (key) {
-  const targetStore = pinia._s.get(key)
+  const targetStore = putil.get(key)
   const { $state } = targetStore
 
   const state = {}
@@ -42,9 +57,18 @@ const makePiniaState = function (key) {
   const actions = {}
   Object.entries(targetStore).forEach(([key, value]) => {
     if (
-      ['$dispose', '$id', '$onAction', '$patch', '$reset', '$subscribe', '_hotUpdate', '_isOptionsAPI', '_r'].includes(
-        key
-      )
+      [
+        '$dispose',
+        '$id',
+        '$onAction',
+        '$patch',
+        '$reset',
+        '$subscribe',
+        '_hotUpdate',
+        '_isOptionsAPI',
+        '_r',
+        '_p',
+      ].includes(key)
     ) {
       return
     }
@@ -79,13 +103,13 @@ const mutationListen = {
       key: currStoreKey,
       state: stringify(state),
     })
-  }, 350),
+  }, 300),
   sub(key) {
     if (!key) {
       return
     }
     this.unsub()
-    const targetStore = pinia._s.get(key)
+    const targetStore = putil.get(key)
     this.unsubscribe = targetStore.$subscribe((mutation, state) => {
       this.onMutation()
     })

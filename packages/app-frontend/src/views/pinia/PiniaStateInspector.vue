@@ -6,8 +6,8 @@
         <input v-model.trim="filter" placeholder="Filter inspected state" />
       </div>
     </action-header>
-    <div slot="scroll" class="vuex-state-inspector" @click="loadState()">
-      <state-inspector :state="piniaData" :dim-after="-1" />
+    <div slot="scroll" class="vuex-state-inspector">
+      <state-inspector :state="piniaData" :dim-after="-1" @edit="editPinia" />
     </div>
   </scroll-pane>
 </template>
@@ -30,7 +30,7 @@ export default {
   },
 
   setup(props, { emit }) {
-    const { inspectedState } = usePinia()
+    const { inspectedState, editPinia } = usePinia()
 
     provide('InspectorInjection', {
       editable: true,
@@ -61,7 +61,7 @@ export default {
       }
     })
 
-    return { piniaData }
+    return { piniaData, editPinia }
   },
 
   data() {

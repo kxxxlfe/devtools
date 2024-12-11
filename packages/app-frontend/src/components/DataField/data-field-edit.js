@@ -220,7 +220,7 @@ export default {
     },
 
     containsEdition() {
-      return currentEditedField && currentEditedField.path.indexOf(this.path) === 0
+      return currentEditedField?.path.indexOf(this.path) === 0
     },
 
     cancelCurrentEdition() {
