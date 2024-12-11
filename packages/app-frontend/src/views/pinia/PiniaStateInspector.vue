@@ -6,13 +6,16 @@
         <input v-model.trim="filter" placeholder="Filter inspected state" />
       </div>
     </action-header>
-    <div slot="scroll" class="vuex-state-inspector" @click="loadState()">
-      <state-inspector :state="inspectedState" :dim-after="-1" />
+    <div slot="scroll" class="vuex-state-inspector">
+      <state-inspector :state="piniaData" :dim-after="-1" @edit="editPinia" />
     </div>
   </scroll-pane>
 </template>
 
 <script>
+import { computed, provide } from 'vue'
+import isEmpty from 'lodash/isEmpty'
+
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 import StateInspector from '@front/components/StateInspector.vue'
@@ -26,29 +29,46 @@ export default {
     StateInspector,
   },
 
-  provide() {
-    return {
-      InspectorInjection: this.injection,
-    }
-  },
-
   setup(props, { emit }) {
-    const { inspectedState } = usePinia()
-    return { inspectedState }
+    const { inspectedState, editPinia } = usePinia()
+
+    provide('InspectorInjection', {
+      editable: true,
+    })
+
+    const piniaData = computed(() => {
+      if (isEmpty(inspectedState.value)) {
+        return {}
+      }
+      const obj2arr = obj => {
+        return Object.entries(obj || {}).map(([key, value]) => {
+          return {
+            key,
+            type: key,
+            value,
+          }
+        })
+      }
+      const { state, actions, computed: getter } = inspectedState.value
+
+      return {
+        state: obj2arr(state).map(item => {
+          item.editable = true
+          return item
+        }),
+        actions: obj2arr(actions),
+        computed: obj2arr(getter),
+      }
+    })
+
+    return { piniaData, editPinia }
   },
 
   data() {
     return {
       filter: '',
-      injection: {
-        editable: false,
-      },
     }
   },
-
-  computed: {},
-
-  methods: {},
 }
 </script>
 

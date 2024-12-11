@@ -33,18 +33,20 @@
         <div>This instance has no reactive state.</div>
       </div>
       <section v-else class="data">
-        <state-inspector :state="filteredState" class="component-state-inspector" />
+        <state-inspector :state="filteredState" class="component-state-inspector" @edit="editComponentData" />
       </section>
     </template>
   </scroll-pane>
 </template>
 
 <script>
+import groupBy from 'lodash/groupBy'
+import { bridge as exBridge } from '@utils/ext-bridge/devtool'
+
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 import StateInspector from '@front/components/StateInspector.vue'
 import { searchDeepInObject, sortByKey, openInEditor, getComponentDisplayName } from '@utils/util'
-import groupBy from 'lodash/groupBy'
 import { useComponent } from './useComponent'
 
 export default {
@@ -62,7 +64,14 @@ export default {
       return !!inspectedInstance.value?.id
     }
 
-    return { loading: inspected.loading, target: inspectedInstance, hasTarget }
+    function editComponentData(args) {
+      exBridge.send(`${exBridge.Plat.web}/set-instance-data`, {
+        id: inspectedInstance.value.id,
+        ...args,
+      })
+    }
+
+    return { loading: inspected.loading, target: inspectedInstance, hasTarget, editComponentData }
   },
 
   data() {

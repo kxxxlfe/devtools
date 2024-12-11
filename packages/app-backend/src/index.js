@@ -92,11 +92,6 @@ function connect(Vue) {
       toast('No Vue component was found', 'warn')
     })
 
-    bridge.on('set-instance-data', args => {
-      setStateValue(args)
-      flush()
-    })
-
     // vuex
     if (hook.store) {
       initVuexBackend(hook, bridge, hook.store.commit === undefined)
@@ -578,31 +573,6 @@ function inspectInstance(instance) {
 }
 target.__VUE_DEVTOOLS_INSPECT__ = inspectInstance
 
-function setStateValue({ id, path, value, newKey, remove }) {
-  const instance = instanceMap.get(id)
-  if (instance) {
-    try {
-      let parsedValue
-      if (value) {
-        parsedValue = parse(value, true)
-      }
-      const api = isLegacy
-        ? {
-            $set: hook.Vue.set,
-            $delete: hook.Vue.delete,
-          }
-        : instance
-      const data = has(instance._props, path, newKey) ? instance._props : instance._data
-      set(data, path, parsedValue, (obj, field, value) => {
-        ;(remove || newKey) && api.$delete(obj, field)
-        !remove && api.$set(obj, newKey || field, value)
-      })
-    } catch (e) {
-      console.error(e)
-    }
-  }
-}
-
 function initRightClick() {
   if (!isBrowser) return
   // Start recording context menu when Vue is detected
@@ -666,4 +636,56 @@ exBridge.on(`${exBridge.Plat.web}/scroll-to-instance`, id => {
     scrollIntoView(instance)
     highlight(instance)
   }
+})
+
+function setStateValue({ id, path, value, newKey, remove }) {
+  const instance = instanceMap.get(id)
+  if (!instance) {
+    return
+  }
+
+  try {
+    let parsedValue
+    if (value) {
+      parsedValue = parse(value, true)
+    }
+    const api = isLegacy
+      ? {
+          $set: hook.Vue.set,
+          $delete: hook.Vue.delete,
+        }
+      : instance
+
+    let data
+    const paths = path.split('.')
+    // 支持setup
+    if (instance._setupState?.[paths[0]]) {
+      data = instance._setupState[paths[0]]
+      // 替换根元素
+      if (paths.length === 1) {
+        data.value = parsedValue
+        return
+      }
+      data = data.value
+      path = paths.slice(1).join('.')
+    } else if (has(instance._props, path, newKey)) {
+      data = instance._props
+    } else {
+      data = instance._data
+    }
+    set(data, path, parsedValue, (obj, field, value) => {
+      if (remove || newKey) {
+        api.$delete(obj, field)
+      }
+      if (!remove) {
+        api.$set(obj, newKey || field, value)
+      }
+    })
+  } catch (e) {
+    console.error(e)
+  }
+}
+exBridge.on(`${exBridge.Plat.web}/set-instance-data`, args => {
+  setStateValue(args)
+  debounceFlush()
 })

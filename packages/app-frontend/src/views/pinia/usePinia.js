@@ -20,5 +20,15 @@ export const usePinia = function () {
     inspectedState.value = parse(data?.data?.state || '') || {}
   }
 
-  return { stores, currStoreKey, selectStore, inspectedState }
+  const editPinia = async function (args) {
+    const { data } = await exBridge.request(`${exBridge.Plat.web}/pinia/editState`, {
+      ...args,
+      storeKey: currStoreKey.value,
+    })
+    const { key, state } = data.data || {}
+    currStoreKey.value = key
+    inspectedState.value = parse(state) || {}
+  }
+
+  return { stores, currStoreKey, selectStore, inspectedState, editPinia }
 }

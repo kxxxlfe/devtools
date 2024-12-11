@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="data-fields"
-  >
+  <div class="data-fields">
     <template v-if="isFieldsArray">
       <data-field
         v-for="field in displayedFields"
@@ -11,7 +9,6 @@
         :path="field.key"
         :editable="field.editable"
         :force-collapse="forceCollapse"
-        :is-state-field="isStateField(field)"
       />
     </template>
     <template v-else>
@@ -35,37 +32,37 @@
 </template>
 
 <script>
-import DataField from './DataField.vue'
+import DataField from './DataField/DataField.vue'
 
 export default {
   components: {
-    DataField
+    DataField,
   },
 
   props: {
     fields: {
       type: [Array, Object],
-      required: true
+      required: true,
     },
 
     forceCollapse: {
       type: String,
-      default: null
-    }
+      default: null,
+    },
   },
 
-  data () {
+  data() {
     return {
-      limit: 30
+      limit: 30,
     }
   },
 
   computed: {
-    isFieldsArray () {
+    isFieldsArray() {
       return Array.isArray(this.fields)
     },
 
-    displayedFields () {
+    displayedFields() {
       if (this.isFieldsArray) {
         return this.fields.slice(0, this.limit)
       } else {
@@ -78,24 +75,20 @@ export default {
       }
     },
 
-    fieldsCount () {
+    fieldsCount() {
       if (this.isFieldsArray) {
         return this.fields.length
       } else {
         return Object.keys(this.fields).length
       }
-    }
+    },
   },
 
   methods: {
-    isStateField (field) {
-      return field && field.type === 'state'
-    },
-
-    showMore () {
+    showMore() {
       this.limit += 20
-    }
-  }
+    },
+  },
 }
 </script>
 

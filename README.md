@@ -16,7 +16,7 @@
 
 使用步骤
 
-1. 下载 `zip` 文件
+1. `release` 下载 `zip` 文件
 2. 解压后 文件夹添加至 chrome://extensions
 
 开发步骤

@@ -1,12 +1,8 @@
-import {
-  UNDEFINED,
-  SPECIAL_TOKENS,
-  parse
-} from '@utils/util'
+import { UNDEFINED, SPECIAL_TOKENS, parse } from '@utils/util'
 
 let currentEditedField = null
 
-function numberQuickEditMod (event) {
+function numberQuickEditMod(event) {
   let mod = 1
   if (event.ctrlKey || event.metaKey) {
     mod *= 5
@@ -23,70 +19,66 @@ function numberQuickEditMod (event) {
 export default {
   inject: {
     InspectorInjection: {
-      default: null
-    }
+      default: null,
+    },
+    when: {},
   },
 
   props: {
     editable: {
       type: Boolean,
-      default: false
+      default: false,
     },
     removable: {
       type: Boolean,
-      default: false
+      default: false,
     },
     renamable: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
-  data () {
+  data() {
     return {
       editing: false,
       editedValue: null,
       editedKey: null,
       addingValue: false,
-      newField: null
+      newField: null,
     }
   },
 
   computed: {
-    cssClass () {
+    cssClass() {
       return {
-        editing: this.editing
+        editing: this.editing,
       }
     },
 
-    isEditable () {
+    isEditable() {
       if (this.InspectorInjection && !this.InspectorInjection.editable) return false
-      return this.editable &&
+      return (
+        this.editable &&
         !this.fieldOptions.abstract &&
         !this.fieldOptions.readOnly &&
-        (
-          typeof this.field.key !== 'string' ||
-          this.field.key.charAt(0) !== '$'
-        )
+        (typeof this.field.key !== 'string' || this.field.key.charAt(0) !== '$')
+      )
     },
 
-    isValueEditable () {
+    isValueEditable() {
       const type = this.valueType
-      return this.isEditable &&
-        (
-          type === 'null' ||
-          type === 'literal' ||
-          type === 'string' ||
-          type === 'array' ||
-          type === 'plain-object'
-        )
+      return (
+        this.isEditable &&
+        (type === 'null' || type === 'literal' || type === 'string' || type === 'array' || type === 'plain-object')
+      )
     },
 
-    isSubfieldsEditable () {
+    isSubfieldsEditable() {
       return this.isEditable && (this.valueType === 'array' || this.valueType === 'plain-object')
     },
 
-    valueValid () {
+    valueValid() {
       try {
         parse(this.transformSpecialTokens(this.editedValue, false))
         return true
@@ -95,19 +87,19 @@ export default {
       }
     },
 
-    duplicateKey () {
+    duplicateKey() {
       return this.parentField && this.parentField.value.hasOwnProperty(this.editedKey)
     },
 
-    keyValid () {
+    keyValid() {
       return this.editedKey && (this.editedKey === this.field.key || !this.duplicateKey)
     },
 
-    editValid () {
+    editValid() {
       return this.valueValid && (!this.renamable || this.keyValid)
     },
 
-    quickEdits () {
+    quickEdits() {
       if (this.isValueEditable) {
         const value = this.field.value
         const type = typeof value
@@ -115,8 +107,8 @@ export default {
           return [
             {
               icon: value ? 'check_box' : 'check_box_outline_blank',
-              newValue: !value
-            }
+              newValue: !value,
+            },
           ]
         } else if (type === 'number') {
           return [
@@ -124,23 +116,23 @@ export default {
               icon: 'remove',
               class: 'big',
               title: this.quickEditNumberTooltip('-'),
-              newValue: event => value - numberQuickEditMod(event)
+              newValue: event => value - numberQuickEditMod(event),
             },
             {
               icon: 'add',
               class: 'big',
               title: this.quickEditNumberTooltip('+'),
-              newValue: event => value + numberQuickEditMod(event)
-            }
+              newValue: event => value + numberQuickEditMod(event),
+            },
           ]
         }
       }
       return null
-    }
+    },
   },
 
   methods: {
-    openEdit (focusKey = false) {
+    openEdit(focusKey = false) {
       if (this.isValueEditable) {
         if (currentEditedField && currentEditedField !== this) {
           currentEditedField.cancelEdit()
@@ -157,13 +149,13 @@ export default {
       }
     },
 
-    cancelEdit () {
+    cancelEdit() {
       this.editing = false
       this.$emit('cancel-edit')
       currentEditedField = null
     },
 
-    submitEdit () {
+    submitEdit() {
       if (this.editValid) {
         this.editing = false
         const value = this.transformSpecialTokens(this.editedValue, false)
@@ -173,22 +165,14 @@ export default {
       }
     },
 
-    sendEdit (args) {
-      if (this.isStateField) {
-        this.$store.dispatch('vuex/editState', {
-          path: this.path,
-          args
-        })
-      } else {
-        bridge.send('set-instance-data', {
-          id: this.inspectedInstance.id,
-          path: this.path,
-          ...args
-        })
-      }
+    sendEdit(args) {
+      this.when.onEdit?.({
+        path: this.path,
+        ...args,
+      })
     },
 
-    transformSpecialTokens (str, display) {
+    transformSpecialTokens(str, display) {
       Object.keys(SPECIAL_TOKENS).forEach(key => {
         const value = JSON.stringify(SPECIAL_TOKENS[key])
         let search
@@ -205,7 +189,7 @@ export default {
       return str
     },
 
-    quickEdit (info, event) {
+    quickEdit(info, event) {
       let newValue
       if (typeof info.newValue === 'function') {
         newValue = info.newValue(event)
@@ -215,17 +199,17 @@ export default {
       this.sendEdit({ value: JSON.stringify(newValue) })
     },
 
-    removeField () {
+    removeField() {
       this.sendEdit({ remove: true })
     },
 
-    addNewValue () {
+    addNewValue() {
       let key
       if (this.valueType === 'array') {
         key = this.field.value.length
       } else if (this.valueType === 'plain-object') {
         let i = 1
-        while (this.field.value.hasOwnProperty(key = `prop${i}`)) i++
+        while (this.field.value.hasOwnProperty((key = `prop${i}`))) i++
       }
       this.newField = { key, value: UNDEFINED }
       this.expanded = true
@@ -235,18 +219,18 @@ export default {
       })
     },
 
-    containsEdition () {
-      return currentEditedField && currentEditedField.path.indexOf(this.path) === 0
+    containsEdition() {
+      return currentEditedField?.path.indexOf(this.path) === 0
     },
 
-    cancelCurrentEdition () {
+    cancelCurrentEdition() {
       this.containsEdition() && currentEditedField.cancelEdit()
     },
 
-    quickEditNumberTooltip (operator) {
+    quickEditNumberTooltip(operator) {
       return this.$t('DataField.quickEdit.number.tooltip', {
-        operator
+        operator,
       })
-    }
-  }
+    },
+  },
 }
