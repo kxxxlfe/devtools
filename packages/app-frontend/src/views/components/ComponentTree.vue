@@ -34,7 +34,6 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 import ComponentInstance from './ComponentInstance.vue'
@@ -52,8 +51,8 @@ export default {
   },
   setup(props, { emit }) {
     const { isSelecting, setSelecting } = useComponent()
-    const { expansionMap } = useComponentTree()
-    return { isSelecting, setSelecting, expansionMap }
+    const { expansionMap, totalCount } = useComponentTree()
+    return { isSelecting, setSelecting, expansionMap, totalCount }
   },
   mixins: [
     Keyboard({
@@ -124,8 +123,6 @@ export default {
   },
 
   computed: {
-    ...mapGetters('components', ['totalCount']),
-
     finalHighDensity() {
       if (this.$shared.displayDensity === 'auto') {
         return this.highDensity

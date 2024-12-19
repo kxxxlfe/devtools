@@ -152,6 +152,7 @@ import Keyboard from '@front/mixins/keyboard'
 import GroupDropdown from '@front/components/GroupDropdown.vue'
 import { SETTINGS_VERSION_ID, SETTINGS_VERSION } from '@front/views/settings/SettingsTab.vue'
 import { useComponent } from './views/components/useComponent'
+import { useComponentTree } from './views/components/module'
 
 export default {
   name: 'App',
@@ -162,7 +163,8 @@ export default {
 
   setup(props, { emit }) {
     const { freshComponentData } = useComponent()
-    return { freshComponentData }
+    const { totalCount } = useComponentTree()
+    return { freshComponentData, totalComponentCount: totalCount }
   },
 
   mixins: [
@@ -223,10 +225,6 @@ export default {
       message: state => state.message,
       newEventCount: state => state.events.newEventCount,
       view: state => state.view,
-    }),
-
-    ...mapGetters('components', {
-      totalComponentCount: 'totalCount',
     }),
 
     specialTokens() {
