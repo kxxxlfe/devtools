@@ -12,14 +12,14 @@ const inspected = {
   loading: ref(false),
 }
 const { ensurePaneShown } = useDevPanelStatus()
-const { toggleInstance } = useComponentTree()
+const { toggleInstance, instancesMap, flush } = useComponentTree()
 
 // web点击dom触发，inspectInstance
 exBridge.on(`${exBridge.Plat.devtool}/inspect-instance`, id => {
   ensurePaneShown(() => {
     selectInstance(id)
     router.push({ name: 'components' })
-    const instance = window.store.state.components.instancesMap[id]
+    const instance = instancesMap.value[id]
     instance &&
       toggleInstance({
         instance,
@@ -35,7 +35,7 @@ exBridge.on(`${exBridge.Plat.devtool}/update-instance`, ({ id, instance }) => {
   })
 })
 exBridge.on(`${exBridge.Plat.devtool}/flush`, payload => {
-  window.store.commit('components/FLUSH', parse(payload))
+  flush(parse(payload))
 })
 
 // 组件选中

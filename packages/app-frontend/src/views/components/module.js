@@ -50,6 +50,7 @@ export const useComponentTree = function () {
     }
   }
 
+  let inspectTime = null
   function flush(payload) {
     let start
     if (process.env.NODE_ENV !== 'production') {
@@ -85,62 +86,5 @@ export const useComponentTree = function () {
     }
   }
 
-  return { expansionMap, scrollToExpanded, totalCount, toggleInstance, flush }
-}
-
-const state = {
-  instances: [],
-  instancesMap: {},
-  events: [],
-}
-
-const getters = {}
-
-let inspectTime = null
-
-const mutations = {
-  FLUSH(state, payload) {
-    let start
-    if (process.env.NODE_ENV !== 'production') {
-      start = window.performance.now()
-    }
-
-    // Instance ID map
-    // + add 'parent' properties
-    const map = {}
-    function walk(instance) {
-      map[instance.id] = instance
-      if (instance.children) {
-        instance.children.forEach(child => {
-          child.parent = instance
-          walk(child)
-        })
-      }
-    }
-    payload.instances.forEach(walk)
-
-    // Mutations
-    state.instances = Object.freeze(payload.instances)
-    state.instancesMap = Object.freeze(map)
-
-    if (process.env.NODE_ENV !== 'production') {
-      Vue.nextTick(() => {
-        console.log(`devtools render took ${window.performance.now() - start}ms.`)
-        if (inspectTime != null) {
-          console.log(`inspect component took ${window.performance.now() - inspectTime}ms.`)
-          inspectTime = null
-        }
-      })
-    }
-  },
-}
-
-const actions = {}
-
-export default {
-  namespaced: true,
-  state,
-  getters,
-  mutations,
-  actions,
+  return { instances, instancesMap, expansionMap, scrollToExpanded, totalCount, toggleInstance, flush }
 }
