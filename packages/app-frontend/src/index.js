@@ -113,7 +113,6 @@ function initApp(shell) {
       }
 
       const store = createStore()
-      window.store = store
 
       bridge.once('ready', version => {
         store.commit('SHOW_MESSAGE', 'Ready. Detected Vue ' + version + '.')

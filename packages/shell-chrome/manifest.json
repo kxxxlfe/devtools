@@ -1,7 +1,7 @@
 {
   "name": "Vue2.7 devtools",
-  "version": "5.4.1",
-  "version_name": "5.4.1",
+  "version": "5.4.2",
+  "version_name": "5.4.2",
   "description": "base on vue.js devtools 5.3.4",
   "manifest_version": 3,
   "icons": {

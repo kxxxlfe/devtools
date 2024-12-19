@@ -1,12 +1,19 @@
-import Vue, { ref } from 'vue'
+import Vue, { ref, computed } from 'vue'
 
 // 树形相关use
 const scrollToExpanded = ref(null)
 const expansionMap = ref({})
+const instances = ref([])
+const instancesMap = ref({})
 const updateExpand = function ({ id, expanded, scrollTo = null } = {}) {
   Vue.set(expansionMap.value, id, expanded)
   scrollToExpanded.value = scrollTo
 }
+window.expansionMap = expansionMap
+
+const totalCount = computed(() => {
+  return Object.keys(instancesMap.value).length
+})
 
 export const useComponentTree = function () {
   // 展开到某个节点
@@ -42,23 +49,9 @@ export const useComponentTree = function () {
       }
     }
   }
-  return { expansionMap, scrollToExpanded, toggleInstance }
-}
 
-const state = {
-  instances: [],
-  instancesMap: {},
-  events: [],
-}
-
-const getters = {
-  totalCount: state => Object.keys(state.instancesMap).length,
-}
-
-let inspectTime = null
-
-const mutations = {
-  FLUSH(state, payload) {
+  let inspectTime = null
+  function flush(payload) {
     let start
     if (process.env.NODE_ENV !== 'production') {
       start = window.performance.now()
@@ -79,8 +72,8 @@ const mutations = {
     payload.instances.forEach(walk)
 
     // Mutations
-    state.instances = Object.freeze(payload.instances)
-    state.instancesMap = Object.freeze(map)
+    instances.value = Object.freeze(payload.instances)
+    instancesMap.value = Object.freeze(map)
 
     if (process.env.NODE_ENV !== 'production') {
       Vue.nextTick(() => {
@@ -91,15 +84,7 @@ const mutations = {
         }
       })
     }
-  },
-}
+  }
 
-const actions = {}
-
-export default {
-  namespaced: true,
-  state,
-  getters,
-  mutations,
-  actions,
+  return { instances, instancesMap, expansionMap, scrollToExpanded, totalCount, toggleInstance, flush }
 }

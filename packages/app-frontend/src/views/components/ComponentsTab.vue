@@ -14,7 +14,8 @@ import Defer from '@front/mixins/defer'
 import SplitPane from '@front/components/SplitPane.vue'
 import ComponentTree from './ComponentTree.vue'
 import ComponentInspector from './ComponentInspector.vue'
-import {} from './useComponent'
+import { useComponent } from './useComponent'
+import { useComponentTree } from './module'
 
 const superDef = {
   data() {
@@ -37,13 +38,13 @@ export default {
       return !!inspectedInstance.value?.id
     }
 
-    return { loading: inspected.loading, target: inspectedInstance, hasTarget }
+    const { instances } = useComponentTree()
+
+    return { instances, loading: inspected.loading, target: inspectedInstance, hasTarget }
   },
 
   extends: superDef,
 
   mixins: [Defer()],
-
-  computed: mapState('components', ['instances']),
 }
 </script>
