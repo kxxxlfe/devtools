@@ -1,4 +1,4 @@
-import Vue, { ref } from 'vue'
+import Vue, { ref, computed } from 'vue'
 
 // 树形相关use
 const scrollToExpanded = ref(null)
