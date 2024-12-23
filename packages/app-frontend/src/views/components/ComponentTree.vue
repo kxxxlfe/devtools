@@ -39,6 +39,7 @@ import ActionHeader from '@front/components/ActionHeader.vue'
 import ComponentInstance from './ComponentInstance.vue'
 
 import { classify, focusInput } from '@utils/util'
+import { bridge as exBridge } from '@utils/ext-bridge/devtool'
 import Keyboard, { UP, DOWN, LEFT, RIGHT } from '../../mixins/keyboard'
 import { useComponent } from './useComponent'
 import { useComponentTree } from './module'
@@ -149,7 +150,7 @@ export default {
 
   methods: {
     filterInstances(e) {
-      bridge.send('filter-instances', classify(e.target.value))
+      exBridge.send(`${exBridge.Plat.web}/filter-instances`, classify(e.target.value))
     },
 
     updateAutoDensity() {

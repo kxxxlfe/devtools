@@ -70,11 +70,6 @@ function connect(Vue) {
       }
     })
 
-    bridge.on('filter-instances', _filter => {
-      filter = _filter.toLowerCase()
-      debounceFlush()
-    })
-
     // eslint-disable-next-line no-new
     new ComponentSelector(bridge, instanceMap)
 
@@ -687,5 +682,9 @@ function setStateValue({ id, path, value, newKey, remove }) {
 }
 exBridge.on(`${exBridge.Plat.web}/set-instance-data`, args => {
   setStateValue(args)
+  debounceFlush()
+})
+exBridge.on(`${exBridge.Plat.web}/filter-instances`, _filter => {
+  filter = _filter.toLowerCase()
   debounceFlush()
 })
