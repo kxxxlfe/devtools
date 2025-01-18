@@ -1,4 +1,4 @@
-import Vue, { ref, computed } from 'vue'
+import { set, ref, computed, nextTick } from 'vue'
 
 // 树形相关use
 const scrollToExpanded = ref(null)
@@ -6,7 +6,7 @@ const expansionMap = ref({})
 const instances = ref([])
 const instancesMap = ref({})
 const updateExpand = function ({ id, expanded, scrollTo = null } = {}) {
-  Vue.set(expansionMap.value, id, expanded)
+  set(expansionMap.value, id, expanded)
   scrollToExpanded.value = scrollTo
 }
 window.expansionMap = expansionMap
@@ -76,7 +76,7 @@ export const useComponentTree = function () {
     instancesMap.value = Object.freeze(map)
 
     if (process.env.NODE_ENV !== 'production') {
-      Vue.nextTick(() => {
+      nextTick(() => {
         console.log(`devtools render took ${window.performance.now() - start}ms.`)
         if (inspectTime != null) {
           console.log(`inspect component took ${window.performance.now() - inspectTime}ms.`)
