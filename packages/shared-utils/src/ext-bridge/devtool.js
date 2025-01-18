@@ -26,6 +26,10 @@ class DevBridge extends EventHandle {
   }
   // 处理请求，负责返回
   async onRequest(msgdata, sender, sendResponse) {
+    // 可能来自其他tab的信息
+    if (this.tabId !== sender.tab?.id) {
+      return
+    }
     if (!isBridgeMessage(msgdata)) {
       return
     }
