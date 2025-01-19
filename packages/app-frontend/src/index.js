@@ -92,8 +92,6 @@ export function initDevTools(shell) {
 
 function initApp(shell) {
   shell.connect(bridge => {
-    window.bridge = bridge
-
     if (Vue.prototype.hasOwnProperty('$shared')) {
       destroySharedData()
     } else {
