@@ -62,7 +62,7 @@ initDevTools({
  */
 
 async function injectScript(scriptName) {
-  await waitTime(0) // wait page loaded
+  await waitTime(200) // wait page loaded
   const src = `
     (function() {
       var script = document.constructor.prototype.createElement.call(document, 'script');
