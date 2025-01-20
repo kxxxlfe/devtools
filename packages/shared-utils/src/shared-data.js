@@ -66,6 +66,7 @@ export function init(params) {
               clearInterval(initRetryInterval)
             })
           initRetryCount = 0
+          clearInterval(initRetryInterval)
           initRetryInterval = setInterval(() => {
             debug('[shared data] Master init retrying...')
             checkReady()
