@@ -1,0 +1,11 @@
+{
+  "name": "@vue-devtools/ext-bridge",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": [
+    "src/**"
+  ],
+  "dependencies": {
+    "uuid": "^9.0.0"
+  }
+}
