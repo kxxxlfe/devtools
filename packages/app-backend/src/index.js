@@ -14,6 +14,16 @@ import { stringify, classify, camelize, set, has, parse, getComponentName, setIn
 import SharedData, { init as initSharedData } from '@utils/shared-data'
 import { isBrowser, target } from '@utils/env'
 import { bridge as exBridge } from '@utils/ext-bridge/web'
+import { WebBridge, Plat } from '@yuhufe/browser-bridge'
+
+const webBridge = new WebBridge()
+webBridge.on(`${Plat.web}/webTest`, async function (params) {
+  console.log(params)
+  return { devtoolKey: Plat.web }
+})
+window.testDevtool = function () {
+  webBridge.request(`${Plat.web}/devtoolTest`, { testDevtool: 'Hi' })
+}
 
 // hook should have been injected before this executes.
 const hook = target.__VUE_DEVTOOLS_GLOBAL_HOOK__

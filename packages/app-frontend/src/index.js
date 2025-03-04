@@ -11,6 +11,16 @@ import { isChrome, initEnv } from '@utils/env'
 import SharedData, { init as initSharedData, destroy as destroySharedData } from '@utils/shared-data'
 import { init as initStorage } from '@utils/storage'
 import { bridge as exBridge } from '@utils/ext-bridge/devtool'
+import { DevtoolBridge, Plat } from '@yuhufe/browser-bridge'
+
+const devtoolBridge = new DevtoolBridge()
+devtoolBridge.on(`${Plat.devtool}/devtoolTest`, async function (params) {
+  console.log(params)
+  return { devtoolKey: Plat.devtool }
+})
+window.testWeb = function () {
+  devtoolBridge.request(`${Plat.web}/webTest`, { testWeb: 'Hi' })
+}
 
 // register filters
 for (const key in filters) {

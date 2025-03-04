@@ -3,6 +3,9 @@
 // to the chrome runtime API. It serves as a proxy between the injected
 // backend and the Vue devtools panel.
 import '@utils/ext-bridge/content'
+import { ContentBridge, Plat } from '@yuhufe/browser-bridge'
+
+window.contentBridge = new ContentBridge()
 
 const port = chrome.runtime.connect({
   name: 'content-script',
