@@ -37,6 +37,7 @@
   },
   "homepage": "https://github.com/vuejs/vue-devtools#readme",
   "devDependencies": {
+    "@yuhufe/browser-bridge": "^0.0.1",
     "autoprefixer": "^9.1.5",
     "cross-env": "^5.2.0",
     "cypress": "^3.1.0",
