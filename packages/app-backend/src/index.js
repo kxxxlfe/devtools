@@ -21,8 +21,9 @@ webBridge.on(`${Plat.web}/webTest`, async function (params) {
   console.log(params)
   return { devtoolKey: Plat.web }
 })
-window.testDevtool = function () {
-  webBridge.request(`${Plat.devtool}/devtoolTest`, { testDevtool: 'Hi' })
+window.testDevtool = async function () {
+  const res = await webBridge.request(`${Plat.devtool}/devtoolTest`, { testDevtool: 'Hi' })
+  console.log(res);
 }
 
 // hook should have been injected before this executes.

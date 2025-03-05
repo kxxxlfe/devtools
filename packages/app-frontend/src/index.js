@@ -18,8 +18,9 @@ devtoolBridge.on(`${Plat.devtool}/devtoolTest`, async function (params) {
   console.log(params)
   return { devtoolKey: Plat.devtool }
 })
-window.testWeb = function () {
-  devtoolBridge.request(`${Plat.web}/webTest`, { testWeb: 'Hi' })
+window.testWeb = async function () {
+  const res = await devtoolBridge.request(`${Plat.web}/webTest`, { testWeb: 'Hi' })
+  console.log(res)
 }
 
 // register filters
