@@ -12,7 +12,7 @@
   - router:changed 开关不生效 fix，页面数据太多时会导致卡顿
   - 解决 `@Ref` 语法计算属性导致的性能问题
 - 优化
-  - 新的通信机制，支持返回值
+  - 支持`Promise`的通信机制 [https://github.com/defghy/web-toolkits/tree/main/packages/wtool-chrome-bridge]
 
 使用步骤
 
