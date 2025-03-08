@@ -510,6 +510,11 @@
   resolved "https://registry.yarnpkg.com/@xtuc/long/-/long-4.2.2.tgz#d291c6a4e97989b5c61d9acf396ae4fe133a718d"
   integrity sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==
 
+"@yuhufe/browser-bridge@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@yuhufe/browser-bridge/-/browser-bridge-0.0.2.tgz#5542168fb45a3e855b9c2ea993753adae52f5021"
+  integrity sha512-mRMd0H0Y6wOLxT4Hkl8rZyWgtJK3e0yFRMrkOem6zOl03IFfvPbFLbZrw29ol39aUhs4RcgSaG+Zfss28SRH2Q==
+
 accepts@~1.3.4, accepts@~1.3.5, accepts@~1.3.7:
   version "1.3.7"
   resolved "https://registry.yarnpkg.com/accepts/-/accepts-1.3.7.tgz#531bc726517a3b2b41f850021c6cc15eaab507cd"

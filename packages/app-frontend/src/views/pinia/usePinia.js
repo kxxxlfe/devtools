@@ -16,16 +16,16 @@ exBridge.on(`${exBridge.Plat.devtool}/pinia/updateState`, function ({ key, state
 export const usePinia = function () {
   const selectStore = async function (key) {
     currStoreKey.value = key
-    const { data } = await exBridge.request(`${exBridge.Plat.web}/pinia/select`, { key })
-    inspectedState.value = parse(data?.data?.state || '') || {}
+    const data = await exBridge.request(`${exBridge.Plat.web}/pinia/select`, { key })
+    inspectedState.value = parse(data?.state || '') || {}
   }
 
   const editPinia = async function (args) {
-    const { data } = await exBridge.request(`${exBridge.Plat.web}/pinia/editState`, {
+    const data = await exBridge.request(`${exBridge.Plat.web}/pinia/editState`, {
       ...args,
       storeKey: currStoreKey.value,
     })
-    const { key, state } = data.data || {}
+    const { key, state } = data || {}
     currStoreKey.value = key
     inspectedState.value = parse(state) || {}
   }

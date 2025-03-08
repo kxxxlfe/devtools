@@ -1,62 +1,17 @@
 /* 
   web环境：content <=> web
 */
-import { MsgDef, Plat, APIHandler, makeRequest, makeResponse, isBridgeMessage, EventHandle } from './const'
+import { DevtoolBridge, Plat } from '@yuhufe/browser-bridge'
 
-class DevBridge extends EventHandle {
-  callbacks = {}
-  plat = Plat.devtool
-  tabId = chrome.devtools?.inspectedWindow.tabId
-  Plat = Plat
+export const bridge = new DevtoolBridge()
+bridge.Plat = Plat
 
-  constructor() {
-    super()
-    this.onRequest = this.onRequest.bind(this)
-    chrome.runtime.onMessage.addListener(this.onRequest)
-  }
-
-  send(path, params) {
-    const msg = makeRequest({ plat: this.plat, path, params })
-    return chrome.tabs.sendMessage(this.tabId, msg, {})
-  }
-  request(path, params) {
-    const msg = makeRequest({ plat: this.plat, path, params })
-    msg.needResponse = true
-    return chrome.tabs.sendMessage(this.tabId, msg, {})
-  }
-  // 处理请求，负责返回
-  async onRequest(msgdata, sender, sendResponse) {
-    // 可能来自其他tab的信息
-    if (this.tabId !== sender.tab?.id) {
-      return
-    }
-    if (!isBridgeMessage(msgdata)) {
-      return
-    }
-    if (!msgdata.target?.startsWith(this.plat)) {
-      return
-    }
-    const uuid = msgdata.uuid
-
-    if (msgdata.type !== MsgDef.request) {
-      return
-    }
-
-    const request = msgdata
-    const { path, params } = request
-    const res = await this.trigger(path, params)
-    sendResponse(makeResponse({ plat: this.plat, data: res, request }))
-  }
-}
-
-export const bridge = new DevBridge()
-
-window.devtoolBridge = bridge
-window.test = async function () {
-  const res = await bridge.request(`${Plat.web}/test`, { aaa: 1 })
-  console.log(res)
-}
-bridge.on(`${Plat.devtool}/test`, function (info) {
-  console.log('web request: ', info)
-  return { result: 'devtool ok' }
-})
+// window.devtoolBridge = bridge
+// window.test = async function () {
+//   const res = await bridge.request(`${Plat.web}/test`, { aaa: 1 })
+//   console.log(res)
+// }
+// bridge.on(`${Plat.devtool}/test`, function (info) {
+//   console.log('web request: ', info)
+//   return { result: 'devtool ok' }
+// })
