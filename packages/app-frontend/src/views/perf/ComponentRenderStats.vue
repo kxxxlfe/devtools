@@ -1,15 +1,10 @@
 <template>
-  <SplitPane>
+  <SplitPane style="width: 100%">
     <ScrollPane slot="left">
       <ActionHeader slot="header">
-        <div
-          class="search"
-        >
+        <div class="search">
           <VueIcon icon="search" />
-          <input
-            v-model.trim="filter"
-            placeholder="Filter components"
-          >
+          <input v-model.trim="filter" placeholder="Filter components" />
         </div>
       </ActionHeader>
 
@@ -20,7 +15,7 @@
         :item-size="highDensity ? 22 : 34"
         class="components"
         :class="{
-          'high-density': highDensity
+          'high-density': highDensity,
         }"
       >
         <template slot-scope="{ item: entry, index, active }">
@@ -29,33 +24,23 @@
             :data-index="index"
             class="component selectable-item"
             :class="{
-              selected: selectedEntry === entry
+              selected: selectedEntry === entry,
             }"
             @click="selectedEntry = entry"
           >
-            <div class="name">
-              &lt;{{ getComponentName(entry) }}&gt;
-            </div>
+            <div class="name">&lt;{{ getComponentName(entry) }}&gt;</div>
 
-            <div class="total-time">
-              {{ Math.round(entry.totalTime) }} ms
-            </div>
+            <div class="total-time">{{ Math.round(entry.totalTime) }} ms</div>
 
             <div class="bar-wrapper">
-              <div
-                :style="getTotalTimeBarStyle(entry)"
-                class="bar"
-              />
+              <div :style="getTotalTimeBarStyle(entry)" class="bar" />
             </div>
           </div>
         </template>
       </RecycleScroller>
     </ScrollPane>
 
-    <ComponentRenderDetails
-      slot="right"
-      :entry="selectedEntry"
-    />
+    <ComponentRenderDetails slot="right" :entry="selectedEntry" />
   </SplitPane>
 </template>
 
@@ -74,41 +59,37 @@ export default {
     SplitPane,
     ScrollPane,
     ActionHeader,
-    ComponentRenderDetails
+    ComponentRenderDetails,
   },
 
-  data () {
+  data() {
     return {
       filter: '',
-      selectedEntry: null
+      selectedEntry: null,
     }
   },
 
   computed: {
-    ...mapState('perf', [
-      'currentBenchmark'
-    ]),
+    ...mapState('perf', ['currentBenchmark']),
 
-    ...mapGetters('perf', [
-      'metrics'
-    ]),
+    ...mapGetters('perf', ['metrics']),
 
-    highDensity () {
+    highDensity() {
       const pref = this.$shared.displayDensity
       return (pref === 'auto' && this.metrics.componentRender.length > 8) || pref === 'high'
     },
 
-    totalTimes () {
+    totalTimes() {
       return this.metrics.componentRender.map(metric => metric.totalTime)
     },
 
-    totalTimesScale () {
+    totalTimesScale() {
       return scaleLinear()
         .domain(extent([0].concat(this.totalTimes)))
         .range([0, 100])
     },
 
-    filteredItems () {
+    filteredItems() {
       let list = this.metrics.componentRender
 
       if (!list) return
@@ -121,26 +102,26 @@ export default {
       list.sort((a, b) => b.totalTime - a.totalTime)
 
       return list
-    }
+    },
   },
 
   watch: {
-    currentBenchmark () {
+    currentBenchmark() {
       this.selectedEntry = null
-    }
+    },
   },
 
   methods: {
-    getTotalTimeBarStyle (entry) {
+    getTotalTimeBarStyle(entry) {
       return {
-        width: `${this.totalTimesScale(entry.totalTime)}%`
+        width: `${this.totalTimesScale(entry.totalTime)}%`,
       }
     },
 
-    getComponentName (entry) {
+    getComponentName(entry) {
       return getComponentDisplayName(entry.id, this.$shared.componentNameStyle) || 'Anonymous Component'
-    }
-  }
+    },
+  },
 }
 </script>
 

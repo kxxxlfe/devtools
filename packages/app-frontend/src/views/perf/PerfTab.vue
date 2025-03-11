@@ -1,10 +1,7 @@
 <template>
   <div class="perf-tab">
     <ScrollPane>
-      <ActionHeader
-        slot="header"
-        class="no-search"
-      >
+      <ActionHeader slot="header" class="no-search">
         <VueButton
           v-if="!$shared.recordPerf"
           v-tooltip="'Start benchmark'"
@@ -14,13 +11,7 @@
         >
           Start
         </VueButton>
-        <VueButton
-          v-else
-          v-tooltip="'Stop benchmark'"
-          icon-left="lens"
-          class="flat stop-button"
-          @click="stop()"
-        >
+        <VueButton v-else v-tooltip="'Stop benchmark'" icon-left="lens" class="flat stop-button" @click="stop()">
           Stop
         </VueButton>
 
@@ -38,37 +29,19 @@
             :label="benchmark.label"
           />
 
-          <div
-            v-if="!benchmarks.length"
-            class="vue-ui-empty"
-          >
-            No saved benchmark yet
-          </div>
+          <div v-if="!benchmarks.length" class="vue-ui-empty">No saved benchmark yet</div>
         </VueSelect>
 
-        <div
-          v-if="currentBenchmark && $responsive.width > 900"
-          class="benchmark-duration"
-        >
+        <div v-if="currentBenchmark && $responsive.width > 900" class="benchmark-duration">
           Total duration: {{ Math.round(benchmarkDuration / 1000) }}s
         </div>
 
         <div class="vue-ui-spacer" />
 
-        <VueGroup
-          v-model="routeModel"
-        >
-          <VueGroupButton
-            value="fps"
-          >
-            Frames per second
-          </VueGroupButton>
+        <VueGroup v-model="routeModel">
+          <VueGroupButton value="fps">Frames per second</VueGroupButton>
 
-          <VueGroupButton
-            value="component-render"
-          >
-            Component render
-          </VueGroupButton>
+          <VueGroupButton value="component-render">Component render</VueGroupButton>
         </VueGroup>
       </ActionHeader>
 
@@ -82,41 +55,47 @@ import { mapState, mapMutations } from 'vuex'
 
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
+import { usePerf } from './usePerf'
 
 const DEFAULT_ROUTE = 'fps'
 const MAX_DURATION = 300000
 
+usePerf()
+
 export default {
   components: {
     ScrollPane,
-    ActionHeader
+    ActionHeader,
   },
 
-  data () {
+  data() {
     return {
-      now: Date.now()
+      now: Date.now(),
     }
   },
 
   computed: {
-    ...mapState('perf', [
-      'currentBenchmark',
-      'benchmarks'
-    ]),
+    ...mapState('perf', ['currentBenchmark', 'benchmarks']),
 
     currentBenchmarkModel: {
-      get () { return this.currentBenchmark },
-      set (value) { this.setCurrentBenchmark(value) }
+      get() {
+        return this.currentBenchmark
+      },
+      set(value) {
+        this.setCurrentBenchmark(value)
+      },
     },
 
     routeModel: {
-      get () { return this.$route.name },
-      set (value) {
+      get() {
+        return this.$route.name
+      },
+      set(value) {
         this.$router.push({ name: value })
-      }
+      },
     },
 
-    benchmarkDuration () {
+    benchmarkDuration() {
       if (this.currentBenchmark) {
         let end
         if (this.currentBenchmark.end) {
@@ -127,10 +106,10 @@ export default {
         return end - this.currentBenchmark.start
       }
       return 0
-    }
+    },
   },
 
-  created () {
+  created() {
     if (this.$route.matched.length <= 1) {
       this.$router.replace({ name: DEFAULT_ROUTE })
     }
@@ -140,18 +119,18 @@ export default {
     ...mapMutations('perf', {
       setCurrentBenchmark: 'SET_CURRENT_BENCHMARK',
       updateBenchmark: 'UPDATE_BENCHMARK',
-      addBenchmark: 'ADD_BENCHMARK'
+      addBenchmark: 'ADD_BENCHMARK',
     }),
 
-    start () {
+    start() {
       const benchmark = {
         start: Date.now(),
         end: null,
         label: new Date().toLocaleString(),
         metrics: {
           fps: [],
-          componentRender: []
-        }
+          componentRender: [],
+        },
       }
       this.addBenchmark(benchmark)
       this.currentBenchmarkModel = benchmark
@@ -163,15 +142,15 @@ export default {
       }, 1000)
     },
 
-    stop () {
+    stop() {
       this.updateBenchmark({
-        end: Date.now()
+        end: Date.now(),
       })
       clearTimeout(this.$_timer)
       clearInterval(this.$_secondTimer)
       this.$shared.recordPerf = false
-    }
-  }
+    },
+  },
 }
 </script>
 
