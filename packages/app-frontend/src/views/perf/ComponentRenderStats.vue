@@ -128,6 +128,7 @@ export default {
 <style lang="stylus" scoped>
 .components
   height 100%
+  width 100%
 
 .component
   display flex
