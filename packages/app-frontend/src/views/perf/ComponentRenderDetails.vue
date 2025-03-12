@@ -1,11 +1,6 @@
 <template>
   <ScrollPane class="component-render-details">
-    <div
-      v-if="!entry"
-      class="vue-ui-empty"
-    >
-      No component selected
-    </div>
+    <div v-if="!entry" class="vue-ui-empty">No component selected</div>
 
     <template v-else>
       <ActionHeader slot="header">
@@ -20,27 +15,20 @@
         slot="scroll"
         class="metrics"
         :class="{
-          'high-density': highDensity
+          'high-density': highDensity,
         }"
       >
         <div class="header">
-          <div
-            v-for="column of columns"
-            :key="column"
-            class="column"
-          >
-            {{ column }}
-          </div>
+          <div class="column type">type</div>
+          <div class="column count">count</div>
+          <div class="column total-time">total time</div>
+          <div class="column average-time">average time</div>
         </div>
-        <div
-          v-for="e of entries"
-          :key="e.id"
-          class="metric selectable-item"
-        >
+        <div v-for="e of entries" :key="e.id" class="metric selectable-item">
           <div
             class="type"
             :class="{
-              dim: e.count === 0
+              dim: e.count === 0,
             }"
           >
             {{ e.id }}
@@ -49,7 +37,7 @@
           <div
             class="count"
             :class="{
-              dim: e.count === 0
+              dim: e.count === 0,
             }"
           >
             {{ e.count }}
@@ -58,7 +46,7 @@
           <div
             class="total-time"
             :class="{
-              dim: e.totalTime === 0
+              dim: e.totalTime === 0,
             }"
           >
             {{ Math.round(e.totalTime) }} ms
@@ -67,7 +55,7 @@
           <div
             class="average-time"
             :class="{
-              dim: e.totalTime === 0
+              dim: e.totalTime === 0,
             }"
           >
             {{ Math.round(e.totalTime / Math.max(e.count, 1)) }} ms
@@ -94,50 +82,49 @@ const ENTRIES = [
   'updateRender',
   'updated',
   'beforeDestroyed',
-  'destroyed'
+  'destroyed',
 ]
 
-const COLUMNS = [
-  'type',
-  'count',
-  'total time',
-  'average time'
-]
+const COLUMNS = ['type', 'count', 'total time', 'average time']
 
 export default {
   components: {
     ScrollPane,
-    ActionHeader
+    ActionHeader,
   },
 
   props: {
     entry: {
       type: Object,
-      default: null
-    }
+      default: null,
+    },
+  },
+
+  data() {
+    return {}
   },
 
   computed: {
-    entries () {
+    entries() {
       return ENTRIES.map(type => ({
         id: type,
-        ...this.entry.hooks[type] || { totalTime: 0, count: 0 }
+        ...(this.entry.hooks[type] || { totalTime: 0, count: 0 }),
       }))
     },
 
-    componentName () {
+    componentName() {
       return getComponentDisplayName(this.entry.id, this.$shared.componentNameStyle) || 'Anonymous Component'
     },
 
-    highDensity () {
+    highDensity() {
       const pref = this.$shared.displayDensity
       return (pref === 'auto' && this.entries.length > 8) || pref === 'high'
-    }
+    },
   },
 
-  created () {
+  created() {
     this.columns = COLUMNS
-  }
+  },
 }
 </script>
 
@@ -157,7 +144,6 @@ export default {
 .metric
   display flex
   /deep/ > *
-    flex 25% 0 0
     padding 4px 10px
     .high-density &
       padding 2px 10px
@@ -176,4 +162,14 @@ export default {
 
 .type
   color $green
+  width 120px
+  flex-shrink 0
+.count
+  width 100px
+  flex-shrink 0
+.totla-time
+  width 100px
+  flex-shrink 0
+.average-time
+  flex: 1
 </style>
