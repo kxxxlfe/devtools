@@ -2,7 +2,10 @@
 // activated. Because it is not injected using eval, it has full privilege
 // to the chrome runtime API. It serves as a proxy between the injected
 // backend and the Vue devtools panel.
-import '@utils/ext-bridge/content'
+import { ContentBridge } from '@yuhufe/browser-bridge'
+
+// 用于bridge转发
+new ContentBridge()
 
 const port = chrome.runtime.connect({
   name: 'content-script',

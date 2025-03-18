@@ -4,7 +4,8 @@
   "dependencies": {
     "@vue-devtools/app-backend": "^0.0.0",
     "@vue-devtools/app-frontend": "^0.0.0",
-    "@vue-devtools/shared-utils": "^0.0.0"
+    "@vue-devtools/shared-utils": "^0.0.0",
+    "@yuhufe/browser-bridge": "^0.0.3"
   },
   "devDependencies": {
     "@vue-devtools/build-tools": "^0.0.0",
