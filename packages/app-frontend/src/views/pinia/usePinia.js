@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { bridge as exBridge } from '@utils/ext-bridge/devtool'
+import { bridge as exBridge } from '@front/bridge'
 import { parse } from '@utils/util'
 
 const stores = ref([])

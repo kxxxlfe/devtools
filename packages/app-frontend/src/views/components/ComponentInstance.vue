@@ -70,7 +70,7 @@ import { mapState, mapMutations } from 'vuex'
 import debounce from 'lodash/debounce'
 import { getComponentDisplayName, UNDEFINED } from '@utils/util'
 
-import { bridge as exBridge } from '@utils/ext-bridge/devtool'
+import { bridge as exBridge } from '@front/bridge'
 import { useComponent } from './useComponent'
 import { useComponentTree } from './module'
 

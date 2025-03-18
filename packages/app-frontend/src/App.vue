@@ -147,7 +147,7 @@
 import { mapState, mapGetters } from 'vuex'
 import { SPECIAL_TOKENS } from '@utils/util'
 import { get, set } from '@utils/storage'
-import { bridge as exBridge } from '@utils/ext-bridge/devtool'
+import { bridge as exBridge } from '@front/bridge'
 import Keyboard from '@front/mixins/keyboard'
 import GroupDropdown from '@front/components/GroupDropdown.vue'
 import { SETTINGS_VERSION_ID, SETTINGS_VERSION } from '@front/views/settings/SettingsTab.vue'

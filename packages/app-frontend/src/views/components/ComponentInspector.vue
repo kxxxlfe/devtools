@@ -41,7 +41,7 @@
 
 <script>
 import groupBy from 'lodash/groupBy'
-import { bridge as exBridge } from '@utils/ext-bridge/devtool'
+import { bridge as exBridge } from '@front/bridge'
 
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'

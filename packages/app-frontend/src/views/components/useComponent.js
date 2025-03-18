@@ -1,5 +1,5 @@
 import { ref, computed, set } from 'vue'
-import { bridge as exBridge } from '@utils/ext-bridge/devtool'
+import { bridge as exBridge } from '@front/bridge'
 import { parse } from '@utils/util'
 import { useDevPanelStatus } from '../../plugins/usePanelStatus'
 import router from '../../router'
