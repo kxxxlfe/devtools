@@ -1,5 +1,5 @@
 import { watch } from 'vue'
-import { bridge as exBridge } from '@utils/ext-bridge/web'
+import { bridge as exBridge } from './bridge'
 import sharedData from '@utils/shared-data'
 import { stringify, set, parse } from '@utils/util'
 import { debounce } from './utils'

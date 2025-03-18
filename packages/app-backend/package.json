@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@vue-devtools/shared-utils": "^0.0.0",
+    "@yuhufe/browser-bridge": "^0.0.3",
     "vue": "^2.7.16"
   }
 }

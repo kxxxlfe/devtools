@@ -1,7 +1,7 @@
 import { highlight, unHighlight } from './highlighter'
 import { findRelatedComponent } from './utils'
 import { isBrowser } from '@utils/env'
-import { bridge as exBridge } from '@utils/ext-bridge/web'
+import { bridge as exBridge } from './bridge'
 
 export default class ComponentSelector {
   constructor(bridge, instanceMap) {
@@ -70,7 +70,7 @@ export default class ComponentSelector {
     this.cancelEvent(e)
 
     if (this.selectedInstance) {
-      window.__VUE_DEVTOOLS_INSPECT__(this.selectedInstance);
+      window.__VUE_DEVTOOLS_INSPECT__(this.selectedInstance)
     } else {
       exBridge.send(`${exBridge.Plat.devtool}/stop-component-selector`)
     }

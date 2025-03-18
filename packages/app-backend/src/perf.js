@@ -1,6 +1,6 @@
 import SharedData, { watch } from '@utils/shared-data'
 import { getComponentName } from '@utils/util'
-import { bridge as exBridge } from '@utils/ext-bridge/web'
+import { bridge as exBridge } from './bridge'
 
 const COMPONENT_HOOKS = [
   'beforeCreate',
