@@ -147,7 +147,7 @@
 import { mapState, mapGetters } from 'vuex'
 import { SPECIAL_TOKENS } from '@utils/util'
 import { get, set } from '@utils/storage'
-import { bridge as exBridge } from '@front/bridge'
+import { bridge as exBridge, api } from '@front/bridge'
 import Keyboard from '@front/mixins/keyboard'
 import GroupDropdown from '@front/components/GroupDropdown.vue'
 import { SETTINGS_VERSION_ID, SETTINGS_VERSION } from '@front/views/settings/SettingsTab.vue'
@@ -281,7 +281,7 @@ export default {
       const refreshIcon = this.$refs.refresh.$el.querySelector('.vue-ui-icon')
       refreshIcon.style.animation = 'none'
 
-      await exBridge.request(`${exBridge.Plat.web}/refresh`)
+      await exBridge.request(api.web.refresh)
 
       refreshIcon.style.animation = 'rotate 1s'
     },

@@ -26,7 +26,7 @@ export function initPiniaBackend(Vue, rootInstances) {
     }),
   })
 
-  exBridge.on(api.devtool.pinia.select, function ({ key }) {
+  exBridge.on(api.web.pinia.select, function ({ key }) {
     currStoreKey = key
     mutationListen.sub(key)
     const state = makePiniaState(key)
@@ -35,7 +35,7 @@ export function initPiniaBackend(Vue, rootInstances) {
       state: stringify(state),
     }
   })
-  exBridge.on(api.devtool.pinia.editState, function ({ storeKey, path, value }) {
+  exBridge.on(api.web.pinia.editState, function ({ storeKey, path, value }) {
     const targetStore = putil.get(storeKey)
 
     set(targetStore.$state, path, parse(value, true))

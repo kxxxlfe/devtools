@@ -18,6 +18,10 @@ export const api = {
     setInstanceData: `${PLATFORM.web}/set-instance-data`,
     filterInstance: `${PLATFORM.web}/filter-data`,
     refresh: `${PLATFORM.web}/refresh`,
+    pinia: {
+      select: `${PLATFORM.devtool}/pinia/select`,
+      editState: `${PLATFORM.devtool}/pinia/editState`,
+    },
   },
   devtool: {
     flush: `${PLATFORM.devtool}/flush`,
@@ -29,8 +33,6 @@ export const api = {
     },
     pinia: {
       init: `${PLATFORM.devtool}/pinia/init`,
-      select: `${PLATFORM.devtool}/pinia/select`,
-      editState: `${PLATFORM.devtool}/pinia/editState`,
       updateState: `${PLATFORM.devtool}/pinia/updateState`,
     },
   },
