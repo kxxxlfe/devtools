@@ -1,6 +1,6 @@
 import SharedData, { watch } from '@utils/shared-data'
 import { getComponentName } from '@utils/util'
-import { bridge as exBridge } from './bridge'
+import { bridge as exBridge, api } from './bridge'
 
 const COMPONENT_HOOKS = [
   'beforeCreate',
@@ -77,7 +77,7 @@ function frameInterval() {
   }
   metric.value = Math.round((frames / (metric.end - metric.start)) * 1000)
   frames = 0
-  exBridge.send(`${exBridge.Plat.devtool}/perf/add-metric`, metric)
+  exBridge.send(api.devtool.perf.addMetric, metric)
 }
 
 function applyHooks(vm) {
@@ -146,5 +146,5 @@ function addComponentMetric(options, type, start, end) {
 
   metric.totalTime += duration
 
-  exBridge.send(`${exBridge.Plat.devtool}/perf/upsert-metric`, { type: 'componentRender', data: metric })
+  exBridge.send(api.devtool.perf.upsertMetric, { type: 'componentRender', data: metric })
 }

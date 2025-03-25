@@ -1,5 +1,5 @@
 import { watch } from 'vue'
-import { bridge as exBridge } from './bridge'
+import { bridge as exBridge, api } from './bridge'
 import sharedData from '@utils/shared-data'
 import { stringify, set, parse } from '@utils/util'
 import { debounce } from './utils'
@@ -18,7 +18,7 @@ export function initPiniaBackend(Vue, rootInstances) {
   }
 
   // 初始化
-  exBridge.send(`${exBridge.Plat.devtool}/pinia/init`, {
+  exBridge.send(api.devtool.pinia.init, {
     storeList: Array.from(pinia._s).map(([name, store]) => {
       return {
         name,
@@ -26,7 +26,7 @@ export function initPiniaBackend(Vue, rootInstances) {
     }),
   })
 
-  exBridge.on(`${exBridge.Plat.web}/pinia/select`, function ({ key }) {
+  exBridge.on(api.devtool.pinia.select, function ({ key }) {
     currStoreKey = key
     mutationListen.sub(key)
     const state = makePiniaState(key)
@@ -35,7 +35,7 @@ export function initPiniaBackend(Vue, rootInstances) {
       state: stringify(state),
     }
   })
-  exBridge.on(`${exBridge.Plat.web}/pinia/editState`, function ({ storeKey, path, value }) {
+  exBridge.on(api.devtool.pinia.editState, function ({ storeKey, path, value }) {
     const targetStore = putil.get(storeKey)
 
     set(targetStore.$state, path, parse(value, true))
@@ -99,7 +99,7 @@ const mutationListen = {
       return
     }
     const state = makePiniaState(currStoreKey)
-    exBridge.send(`${exBridge.Plat.devtool}/pinia/updateState`, {
+    exBridge.send(api.devtool.pinia.updateState, {
       key: currStoreKey,
       state: stringify(state),
     })

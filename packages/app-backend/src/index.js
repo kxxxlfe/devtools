@@ -589,14 +589,14 @@ function initRightClick() {
 }
 
 // exBridge
-exBridge.on(`${exBridge.Plat.web}/enter-instance`, id => {
+exBridge.on(api.web.enterInstance, id => {
   const instance = findInstanceOrVnode(id)
   if (instance) highlight(instance)
 })
-exBridge.on(`${exBridge.Plat.web}/leave-instance`, id => {
+exBridge.on(api.web.leaveInstance, id => {
   unHighlight(id)
 })
-exBridge.on(`${exBridge.Plat.web}/select-instance`, id => {
+exBridge.on(api.web.selectInstance, id => {
   currentInspectedId = id
   const instance = findInstanceOrVnode(id)
   if (!instance) return
@@ -606,11 +606,11 @@ exBridge.on(api.web.flush, () => {
   debounceFlush()
 })
 // instance的fetch
-exBridge.on(`${exBridge.Plat.web}/fetch-instance`, id => {
+exBridge.on(api.web.fetchInstance, id => {
   const instStr = stringify(getInstanceDetails(id))
   return instStr
 })
-exBridge.on(`${exBridge.Plat.web}/refresh`, scan)
+exBridge.on(api.web.refresh, scan)
 
 /**
  * Sroll a node into view.
@@ -625,7 +625,7 @@ function scrollIntoView(instance) {
     window.scrollBy(0, rect.top + (rect.height - window.innerHeight) / 2)
   }
 }
-exBridge.on(`${exBridge.Plat.web}/scroll-to-instance`, id => {
+exBridge.on(api.web.scrollToInstance, id => {
   const instance = findInstanceOrVnode(id)
   if (instance) {
     scrollIntoView(instance)
@@ -680,11 +680,11 @@ function setStateValue({ id, path, value, newKey, remove }) {
     console.error(e)
   }
 }
-exBridge.on(`${exBridge.Plat.web}/set-instance-data`, args => {
+exBridge.on(api.web.setInstanceData, args => {
   setStateValue(args)
   debounceFlush()
 })
-exBridge.on(`${exBridge.Plat.web}/filter-instances`, _filter => {
+exBridge.on(api.web.filterInstance, _filter => {
   filter = _filter.toLowerCase()
   debounceFlush()
 })

@@ -45,20 +45,20 @@ function setSelecting(value) {
     isSelecting.value = value
 
     if (isSelecting.value) {
-      exBridge.send(`${exBridge.Plat.web}/start-component-selector`)
+      exBridge.send(api.web.startComponentSelector)
     } else {
-      exBridge.send(`${exBridge.Plat.web}/stop-component-selector`)
+      exBridge.send(api.web.stopComponentSelector)
     }
   }
 }
 // 点击component树触发
 const selectInstance = async function (id) {
-  await exBridge.request(`${exBridge.Plat.web}/select-instance`, id)
+  await exBridge.request(api.web.selectInstance, id)
   setSelecting(false)
   inspected.loading.value = true
 
   // 获取instance最新的state
-  const msgdata = await exBridge.request(`${exBridge.Plat.web}/fetch-instance`, id)
+  const msgdata = await exBridge.request(api.web.fetchInstance, id)
   set(inspected.map.value, id, parse(msgdata))
   inspected.id.value = id
   inspected.loading.value = false
