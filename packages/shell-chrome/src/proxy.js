@@ -3,9 +3,10 @@
 // to the chrome runtime API. It serves as a proxy between the injected
 // backend and the Vue devtools panel.
 import { ContentBridge } from '@yuhufe/browser-bridge'
+import { PLATFORM } from '@utils/api'
 
 // 用于bridge转发
-new ContentBridge()
+new ContentBridge({ platWeb: PLATFORM.web })
 
 const port = chrome.runtime.connect({
   name: 'content-script',
