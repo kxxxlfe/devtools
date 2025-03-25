@@ -13,7 +13,7 @@ import { getInstanceState, getInstanceName } from './process'
 import { stringify, classify, camelize, set, has, parse, getComponentName, setInstanceMap, kebabize } from '@utils/util'
 import SharedData, { init as initSharedData } from '@utils/shared-data'
 import { isBrowser, target } from '@utils/env'
-import { bridge as exBridge } from './bridge'
+import { bridge as exBridge, api } from './bridge'
 
 // hook should have been injected before this executes.
 const hook = target.__VUE_DEVTOOLS_GLOBAL_HOOK__
@@ -253,11 +253,11 @@ function flush() {
     )
   }
 
-  exBridge.send(`${exBridge.Plat.devtool}/update-instance`, {
+  exBridge.send(api.devtool.updateInstance, {
     id: currentInspectedId,
     instance: stringify(getInstanceDetails(currentInspectedId)),
   })
-  exBridge.send(`${exBridge.Plat.devtool}/flush`, payload)
+  exBridge.send(api.devtool.flush, payload)
 }
 
 const debounceFlush = debounce(flush, 200)
@@ -564,7 +564,7 @@ export function toast(message, type = 'normal') {
 
 function inspectInstance(instance) {
   const id = instance.__VUE_DEVTOOLS_UID__
-  id && exBridge.send(`${exBridge.Plat.devtool}/inspect-instance`, id)
+  id && exBridge.send(api.devtool.inspectInstance, id)
 }
 target.__VUE_DEVTOOLS_INSPECT__ = inspectInstance
 
@@ -602,7 +602,7 @@ exBridge.on(`${exBridge.Plat.web}/select-instance`, id => {
   if (!instance) return
   if (!/:functional:/.test(id)) bindToConsole(instance)
 })
-exBridge.on(`${exBridge.Plat.web}/flush`, () => {
+exBridge.on(api.web.flush, () => {
   debounceFlush()
 })
 // instance的fetch
