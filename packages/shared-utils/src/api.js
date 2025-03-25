@@ -19,8 +19,13 @@ export const api = {
     filterInstance: `${PLATFORM.web}/filter-data`,
     refresh: `${PLATFORM.web}/refresh`,
     pinia: {
-      select: `${PLATFORM.devtool}/pinia/select`,
-      editState: `${PLATFORM.devtool}/pinia/editState`,
+      select: `${PLATFORM.web}/pinia/select`,
+      editState: `${PLATFORM.web}/pinia/editState`,
+    },
+    shared: {
+      ready: `${PLATFORM.web}/shared-data:ready`,
+      loadComplete: `${PLATFORM.web}/shared-data:load-complete`,
+      setData: `${PLATFORM.web}/shared-data:set`,
     },
   },
   devtool: {
@@ -34,6 +39,9 @@ export const api = {
     pinia: {
       init: `${PLATFORM.devtool}/pinia/init`,
       updateState: `${PLATFORM.devtool}/pinia/updateState`,
+    },
+    shared: {
+      setData: `${PLATFORM.devtool}/shared-data:set`,
     },
   },
 }

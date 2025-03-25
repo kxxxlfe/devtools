@@ -1,5 +1,6 @@
 import * as storage from './storage'
 import { debug } from './util'
+import { api, PLATFORM } from './api'
 
 // Initial state
 const internalSharedData = {
@@ -61,7 +62,7 @@ export function init(params) {
       const webReady = async function () {
         return new Promise(resolve => {
           const checkReady = () =>
-            exBridge.request(`${exBridge.Plat.web}/shared-data:ready`).then(() => {
+            exBridge.request(api.web.shared.ready).then(() => {
               resolve()
               clearInterval(initRetryInterval)
             })
@@ -94,15 +95,15 @@ export function init(params) {
       Object.keys(internalSharedData).forEach(key => {
         sendValue(key, internalSharedData[key])
       })
-      exBridge.send(`${exBridge.Plat.web}/shared-data:load-complete`)
+      exBridge.send(api.web.shared.loadComplete)
 
       debug('[shared data] Master init complete')
       resolve()
     }
     // web
     else {
-      exBridge.on(`${exBridge.Plat.web}/shared-data:ready`, () => 'ready')
-      exBridge.on(`${exBridge.Plat.web}/shared-data:load-complete`, () => {
+      exBridge.on(api.web.shared.ready, () => 'ready')
+      exBridge.on(api.web.shared.loadComplete, () => {
         resolve()
       })
     }
@@ -113,14 +114,14 @@ export function init(params) {
     })
 
     // Update value from other shared data clients
-    exBridge.on(`${exBridge.plat}/shared-data:set`, ({ key, value }) => {
+    const sapi = exBridge.plat === PLATFORM.web ? api.web.shared : api.devtool.shared
+    exBridge.on(sapi.setData, ({ key, value }) => {
       setValue(key, value)
     })
   })
 }
 
 export function destroy() {
-  exBridge.off(`${exBridge.plat}/shared-data:set`)
   vm.$destroy()
 }
 
@@ -135,8 +136,8 @@ function setValue(key, value) {
 }
 
 function sendValue(key, value) {
-  const plat = exBridge.plat === exBridge.Plat.web ? exBridge.Plat.devtool : exBridge.Plat.web
-  exBridge?.send(`${plat}/shared-data:set`, { key, value })
+  const sapi = exBridge.plat === PLATFORM.web ? api.web.shared : api.devtool.shared
+  exBridge?.send(sapi.setData, { key, value })
 }
 
 export function watch(...args) {
