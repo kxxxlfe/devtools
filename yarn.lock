@@ -515,6 +515,11 @@
   resolved "https://registry.yarnpkg.com/@yuhufe/browser-bridge/-/browser-bridge-0.0.4.tgz#bf9af13581e3300b0987e3940e743294faec079b"
   integrity sha512-m5kUXaCMKEOzAID9QbW/XC1/S16yZ6ojpoTdXSOREDTWZUMO8WJ7lUY8+BIuuZXpOGWv7gtbnRXMDtU53aFFJQ==
 
+"@yuhufe/browser-bridge@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@yuhufe/browser-bridge/-/browser-bridge-0.0.5.tgz#11125c9b0e73ecba64e56bed6e0d22b1ec6aeb0b"
+  integrity sha512-8dFHSY8GF2JFL0zopoIKEP9YaMy01eRYuiI3iAS6Nj3TzHYm/0mJRI06TJDJZIkuXBQLwOqsYFAptWNjFwl1aA==
+
 accepts@~1.3.4, accepts@~1.3.5, accepts@~1.3.7:
   version "1.3.7"
   resolved "https://registry.yarnpkg.com/accepts/-/accepts-1.3.7.tgz#531bc726517a3b2b41f850021c6cc15eaab507cd"
