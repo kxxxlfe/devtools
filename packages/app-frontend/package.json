@@ -5,7 +5,7 @@
   "dependencies": {
     "@vue/ui": "^0.11.5",
     "@vue-devtools/shared-utils": "^0.0.0",
-    "@yuhufe/browser-bridge": "^0.0.5",
+    "@yuhufe/browser-bridge": "^0.0.6",
     "circular-json-es6": "^2.0.2",
     "d3": "^5.9.2",
     "lodash": "^4.17.15",
