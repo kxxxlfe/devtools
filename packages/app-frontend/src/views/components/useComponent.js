@@ -18,7 +18,10 @@ const { toggleInstance, instancesMap, flush } = useComponentTree()
 exBridge.on(api.devtool.inspectInstance, id => {
   ensurePaneShown(() => {
     selectInstance(id)
-    router.push({ name: 'components' })
+    const { currentRoute } = router
+    if (currentRoute?.name !== 'components') {
+      router.push({ name: 'components' })
+    }
     const instance = instancesMap.value[id]
     instance &&
       toggleInstance({

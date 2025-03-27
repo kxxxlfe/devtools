@@ -62,10 +62,13 @@ export function init(params) {
       const webReady = async function () {
         return new Promise(resolve => {
           const checkReady = () =>
-            exBridge.request(api.web.shared.ready).then(() => {
-              resolve()
-              clearInterval(initRetryInterval)
-            })
+            exBridge
+              .request(api.web.shared.ready)
+              .then(() => {
+                resolve()
+                clearInterval(initRetryInterval)
+              })
+              .catch(e => {})
           initRetryCount = 0
           clearInterval(initRetryInterval)
           initRetryInterval = setInterval(() => {
