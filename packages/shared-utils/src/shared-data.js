@@ -68,7 +68,9 @@ export function init(params) {
                 resolve()
                 clearInterval(initRetryInterval)
               })
-              .catch(e => {})
+              .catch(e => {
+                console.error(e)
+              })
           initRetryCount = 0
           clearInterval(initRetryInterval)
           initRetryInterval = setInterval(() => {
