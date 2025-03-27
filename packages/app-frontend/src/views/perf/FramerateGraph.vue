@@ -1,15 +1,7 @@
 <template>
   <SplitPane class="fps">
-    <div
-      slot="left"
-      style="height: 100%"
-    >
-      <div
-        v-if="metrics.fps"
-        ref="chart"
-        class="chart"
-        @wheel="onMouseWheel"
-      >
+    <div slot="left" style="height: 100%">
+      <div v-if="metrics.fps" ref="chart" class="chart" @wheel="onMouseWheel">
         <div class="markers">
           <div
             v-for="marker of fpsMarkers"
@@ -17,7 +9,7 @@
             :style="getMarkerStyle(marker)"
             class="marker"
             :class="{
-              selected: selectedMarker === marker
+              selected: selectedMarker === marker,
             }"
             @click="selectedMarker = marker"
           >
@@ -26,7 +18,7 @@
               :key="bubble.type"
               v-tooltip="{
                 content: `${bubble.entries.length} ${bubble.type}`,
-                delay: { show: 100, hide: 0 }
+                delay: { show: 100, hide: 0 },
               }"
               :style="getBubbleStyle(bubble)"
               class="bubble"
@@ -44,24 +36,18 @@
             :key="index"
             v-tooltip="{
               content: getBarTootip(metric),
-              delay: { show: 100, hide: 0 }
+              delay: { show: 100, hide: 0 },
             }"
             class="bar-wrapper"
             @click="onMetricClick(metric)"
           >
-            <div
-              :style="getMetricStyle(metric)"
-              class="bar"
-            />
+            <div :style="getMetricStyle(metric)" class="bar" />
           </div>
         </div>
       </div>
     </div>
 
-    <FramerateMarkerInspector
-      slot="right"
-      :marker="selectedMarker"
-    />
+    <FramerateMarkerInspector slot="right" :marker="selectedMarker" />
   </SplitPane>
 </template>
 
@@ -75,7 +61,7 @@ import FramerateMarkerInspector from './FramerateMarkerInspector.vue'
 const BUBBLE_COLORS = {
   mutations: '#FF6B00',
   events: '#997fff',
-  routes: '#42B983'
+  routes: '#42B983',
 }
 
 // In ms
@@ -86,119 +72,113 @@ const SLICE_WIDTH = 12
 export default {
   components: {
     SplitPane,
-    FramerateMarkerInspector
+    FramerateMarkerInspector,
   },
 
-  data () {
+  data() {
     return {
-      selectedMarker: null
+      selectedMarker: null,
     }
   },
 
   computed: {
-    ...mapState('perf', [
-      'currentBenchmark'
-    ]),
+    ...mapState('perf', ['currentBenchmark']),
 
-    ...mapGetters('perf', [
-      'metrics',
-      'fpsMarkers'
-    ]),
+    ...mapGetters('perf', ['metrics', 'fpsMarkers']),
 
-    values () {
+    values() {
       return this.metrics.fps.map(metric => metric.value)
     },
 
-    max () {
+    max() {
       return d3.max(this.values)
     },
 
-    scale () {
-      return d3.scaleLinear()
+    scale() {
+      return d3
+        .scaleLinear()
         .domain(d3.extent([0].concat(this.values)))
         .range([0, 100])
     },
 
-    interpolateColor () {
-      return d3.interpolateRgb(
-        '#C41A16',
-        '#44A1FF'
-      )
-    }
+    interpolateColor() {
+      return d3.interpolateRgb('#C41A16', '#44A1FF')
+    },
   },
 
   watch: {
-    'metrics.fps' () {
+    'metrics.fps'() {
       const el = this.$refs.chart
       if (el && el.scrollLeft >= el.scrollWidth - el.offsetWidth - 100) {
         this.scrollToEnd()
       }
     },
 
-    currentBenchmark () {
+    currentBenchmark() {
       this.selectedMarker = null
-    }
+    },
   },
 
-  mounted () {
+  mounted() {
     this.scrollToEnd()
   },
 
   methods: {
-    scrollToEnd () {
+    scrollToEnd() {
       requestAnimationFrame(() => {
         const el = this.$refs.chart
         if (el) el.scrollLeft = 9999
       })
     },
 
-    getMetricStyle (metric) {
+    getMetricStyle(metric) {
       const { value, start, end } = metric
       const duration = end - start
       return {
-        width: `${duration / SLICE_TIME * SLICE_WIDTH}px`,
+        width: `${(duration / SLICE_TIME) * SLICE_WIDTH}px`,
         height: `${this.scale(value)}%`,
-        backgroundColor: this.interpolateColor(this.scale(value) / 100)
+        backgroundColor: this.interpolateColor(this.scale(value) / 100),
       }
     },
 
-    getBarTootip (metric) {
+    getBarTootip(metric) {
       return `
       <div>${metric.value} frames per second</div>
       <div style="color:#999;">${this.$options.filters.formatTime(metric.time, this.$shared.timeFormat)}</div>
       `
     },
 
-    getMarkerStyle (marker) {
+    getMarkerStyle(marker) {
       const start = Math.round(this.currentBenchmark.start / FPS_MARKERS_PRECISION) * FPS_MARKERS_PRECISION
       return {
-        left: `${(marker.time - start) / SLICE_TIME * SLICE_WIDTH - 12}px`
+        left: `${((marker.time - start) / SLICE_TIME) * SLICE_WIDTH - 12}px`,
       }
     },
 
-    getBubbleStyle (bubble) {
+    getBubbleStyle(bubble) {
       return {
-        backgroundColor: BUBBLE_COLORS[bubble.type]
+        backgroundColor: BUBBLE_COLORS[bubble.type],
       }
     },
 
-    onMouseWheel (event) {
+    onMouseWheel(event) {
       const el = this.$refs.chart
-      el.scrollLeft += ((event.deltaX || event.deltaY) * 5)
+      el.scrollLeft += (event.deltaX || event.deltaY) * 5
       event.preventDefault()
     },
 
-    onMetricClick (metric) {
+    onMetricClick(metric) {
       const index = Math.round(metric.time / FPS_MARKERS_PRECISION) * FPS_MARKERS_PRECISION
       this.selectedMarker = this.fpsMarkers[index]
-    }
-  }
+    },
+  },
 }
 </script>
 
 <style lang="stylus" scoped>
 .fps
   height 100%
+  width 100%
 
 .chart
   display flex

@@ -1,5 +1,6 @@
 import SharedData, { watch } from '@utils/shared-data'
 import { getComponentName } from '@utils/util'
+import { bridge as exBridge, api } from './bridge'
 
 const COMPONENT_HOOKS = [
   'beforeCreate',
@@ -9,14 +10,14 @@ const COMPONENT_HOOKS = [
   'beforeUpdate',
   'updated',
   'beforeDestroyed',
-  'destroyed'
+  'destroyed',
 ]
 
 const RENDER_HOOKS = {
   beforeMount: { after: 'mountRender' },
   mounted: { before: 'mountRender' },
   beforeUpdate: { after: 'updateRender' },
-  updated: { before: 'updateRender' }
+  updated: { before: 'updateRender' },
 }
 
 let frames = 0
@@ -26,14 +27,14 @@ let bridge
 
 let componentMetrics
 
-export function initPerfBackend (Vue, _bridge, instanceMap) {
+export function initPerfBackend(Vue, _bridge, instanceMap) {
   bridge = _bridge
 
   // Global mixin
   Vue.mixin({
-    beforeCreate () {
+    beforeCreate() {
       applyHooks(this)
-    }
+    },
   })
 
   // Apply to existing components
@@ -48,7 +49,7 @@ export function initPerfBackend (Vue, _bridge, instanceMap) {
   })
 }
 
-function startRecording () {
+function startRecording() {
   frames = 0
   frameTime = performance.now()
   secondsTimer = setInterval(frameInterval, 500)
@@ -56,30 +57,30 @@ function startRecording () {
   requestAnimationFrame(frame)
 }
 
-function stopRecording () {
+function stopRecording() {
   clearInterval(secondsTimer)
 }
 
-function frame () {
+function frame() {
   frames++
   if (SharedData.recordPerf) {
     requestAnimationFrame(frame)
   }
 }
 
-function frameInterval () {
+function frameInterval() {
   const metric = {
     type: 'fps',
     time: Date.now(),
     start: frameTime,
-    end: frameTime = performance.now()
+    end: (frameTime = performance.now()),
   }
-  metric.value = Math.round(frames / (metric.end - metric.start) * 1000)
+  metric.value = Math.round((frames / (metric.end - metric.start)) * 1000)
   frames = 0
-  bridge.send('perf:add-metric', metric)
+  exBridge.send(api.devtool.perf.addMetric, metric)
 }
 
-function applyHooks (vm) {
+function applyHooks(vm) {
   if (vm.$options.$_devtoolsPerfHooks) return
   vm.$options.$_devtoolsPerfHooks = true
 
@@ -109,7 +110,7 @@ function applyHooks (vm) {
             // Render hook starts after one hook
             renderMetrics[renderHook.after] = {
               start: newTime,
-              end: 0
+              end: 0,
             }
           }
         })
@@ -126,24 +127,24 @@ function applyHooks (vm) {
   })
 }
 
-function addComponentMetric (options, type, start, end) {
+function addComponentMetric(options, type, start, end) {
   const duration = end - start
   const name = getComponentName(options)
 
-  const metric = componentMetrics[name] = componentMetrics[name] || {
+  const metric = (componentMetrics[name] = componentMetrics[name] || {
     id: name,
     hooks: {},
-    totalTime: 0
-  }
+    totalTime: 0,
+  })
 
-  const hook = metric.hooks[type] = metric.hooks[type] || {
+  const hook = (metric.hooks[type] = metric.hooks[type] || {
     count: 0,
-    totalTime: 0
-  }
+    totalTime: 0,
+  })
   hook.count++
   hook.totalTime += duration
 
   metric.totalTime += duration
 
-  bridge.send('perf:upsert-metric', { type: 'componentRender', data: metric })
+  exBridge.send(api.devtool.perf.upsertMetric, { type: 'componentRender', data: metric })
 }

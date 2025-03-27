@@ -70,7 +70,7 @@ import { mapState, mapMutations } from 'vuex'
 import debounce from 'lodash/debounce'
 import { getComponentDisplayName, UNDEFINED } from '@utils/util'
 
-import { bridge as exBridge } from '@utils/ext-bridge/devtool'
+import { bridge as exBridge, api } from '@front/bridge'
 import { useComponent } from './useComponent'
 import { useComponentTree } from './module'
 
@@ -117,11 +117,11 @@ export default defineComponent({
     }
 
     function enter() {
-      exBridge.send(`${exBridge.Plat.web}/enter-instance`, props.instance.id)
+      exBridge.send(api.web.enterInstance, props.instance.id)
     }
 
     function leave() {
-      exBridge.send(`${exBridge.Plat.web}/leave-instance`, props.instance.id)
+      exBridge.send(api.web.leaveInstance, props.instance.id)
     }
 
     const scrollIntoView = debounce(() => {
@@ -191,7 +191,7 @@ export default defineComponent({
     },
 
     scrollToInstance() {
-      exBridge.send(`${exBridge.Plat.web}/scroll-to-instance`, this.instance.id)
+      exBridge.send(api.web.scrollToInstance, this.instance.id)
     },
   },
 })

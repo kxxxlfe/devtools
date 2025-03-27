@@ -1,7 +1,7 @@
 import { highlight, unHighlight } from './highlighter'
 import { findRelatedComponent } from './utils'
 import { isBrowser } from '@utils/env'
-import { bridge as exBridge } from '@utils/ext-bridge/web'
+import { bridge as exBridge, api } from './bridge'
 
 export default class ComponentSelector {
   constructor(bridge, instanceMap) {
@@ -10,8 +10,8 @@ export default class ComponentSelector {
     self.instanceMap = instanceMap
     self.bindMethods()
 
-    exBridge.on(`${exBridge.Plat.web}/start-component-selector`, self.startSelecting)
-    exBridge.on(`${exBridge.Plat.web}/stop-component-selector`, self.stopSelecting)
+    exBridge.on(api.web.startComponentSelector, self.startSelecting)
+    exBridge.on(api.web.stopComponentSelector, self.stopSelecting)
   }
 
   /**
@@ -70,9 +70,9 @@ export default class ComponentSelector {
     this.cancelEvent(e)
 
     if (this.selectedInstance) {
-      window.__VUE_DEVTOOLS_INSPECT__(this.selectedInstance);
+      window.__VUE_DEVTOOLS_INSPECT__(this.selectedInstance)
     } else {
-      exBridge.send(`${exBridge.Plat.devtool}/stop-component-selector`)
+      exBridge.send(api.devtool.stopComponentSelector)
     }
 
     this.stopSelecting()

@@ -13,7 +13,7 @@ import { getInstanceState, getInstanceName } from './process'
 import { stringify, classify, camelize, set, has, parse, getComponentName, setInstanceMap, kebabize } from '@utils/util'
 import SharedData, { init as initSharedData } from '@utils/shared-data'
 import { isBrowser, target } from '@utils/env'
-import { bridge as exBridge } from '@utils/ext-bridge/web'
+import { bridge as exBridge, api } from './bridge'
 
 // hook should have been injected before this executes.
 const hook = target.__VUE_DEVTOOLS_GLOBAL_HOOK__
@@ -253,11 +253,11 @@ function flush() {
     )
   }
 
-  exBridge.send(`${exBridge.Plat.devtool}/update-instance`, {
+  exBridge.send(api.devtool.updateInstance, {
     id: currentInspectedId,
     instance: stringify(getInstanceDetails(currentInspectedId)),
   })
-  exBridge.send(`${exBridge.Plat.devtool}/flush`, payload)
+  exBridge.send(api.devtool.flush, payload)
 }
 
 const debounceFlush = debounce(flush, 200)
@@ -564,7 +564,7 @@ export function toast(message, type = 'normal') {
 
 function inspectInstance(instance) {
   const id = instance.__VUE_DEVTOOLS_UID__
-  id && exBridge.send(`${exBridge.Plat.devtool}/inspect-instance`, id)
+  id && exBridge.send(api.devtool.inspectInstance, id)
 }
 target.__VUE_DEVTOOLS_INSPECT__ = inspectInstance
 
@@ -589,28 +589,28 @@ function initRightClick() {
 }
 
 // exBridge
-exBridge.on(`${exBridge.Plat.web}/enter-instance`, id => {
+exBridge.on(api.web.enterInstance, id => {
   const instance = findInstanceOrVnode(id)
   if (instance) highlight(instance)
 })
-exBridge.on(`${exBridge.Plat.web}/leave-instance`, id => {
+exBridge.on(api.web.leaveInstance, id => {
   unHighlight(id)
 })
-exBridge.on(`${exBridge.Plat.web}/select-instance`, id => {
+exBridge.on(api.web.selectInstance, id => {
   currentInspectedId = id
   const instance = findInstanceOrVnode(id)
   if (!instance) return
   if (!/:functional:/.test(id)) bindToConsole(instance)
 })
-exBridge.on(`${exBridge.Plat.web}/flush`, () => {
+exBridge.on(api.web.flush, () => {
   debounceFlush()
 })
 // instance的fetch
-exBridge.on(`${exBridge.Plat.web}/fetch-instance`, id => {
+exBridge.on(api.web.fetchInstance, id => {
   const instStr = stringify(getInstanceDetails(id))
   return instStr
 })
-exBridge.on(`${exBridge.Plat.web}/refresh`, scan)
+exBridge.on(api.web.refresh, scan)
 
 /**
  * Sroll a node into view.
@@ -625,7 +625,7 @@ function scrollIntoView(instance) {
     window.scrollBy(0, rect.top + (rect.height - window.innerHeight) / 2)
   }
 }
-exBridge.on(`${exBridge.Plat.web}/scroll-to-instance`, id => {
+exBridge.on(api.web.scrollToInstance, id => {
   const instance = findInstanceOrVnode(id)
   if (instance) {
     scrollIntoView(instance)
@@ -680,11 +680,11 @@ function setStateValue({ id, path, value, newKey, remove }) {
     console.error(e)
   }
 }
-exBridge.on(`${exBridge.Plat.web}/set-instance-data`, args => {
+exBridge.on(api.web.setInstanceData, args => {
   setStateValue(args)
   debounceFlush()
 })
-exBridge.on(`${exBridge.Plat.web}/filter-instances`, _filter => {
+exBridge.on(api.web.filterInstance, _filter => {
   filter = _filter.toLowerCase()
   debounceFlush()
 })

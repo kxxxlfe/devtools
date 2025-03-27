@@ -10,7 +10,7 @@ import { parse } from '@utils/util'
 import { isChrome, initEnv } from '@utils/env'
 import SharedData, { init as initSharedData, destroy as destroySharedData } from '@utils/shared-data'
 import { init as initStorage } from '@utils/storage'
-import { bridge as exBridge } from '@utils/ext-bridge/devtool'
+import { bridge as exBridge } from '@front/bridge'
 
 // register filters
 for (const key in filters) {
@@ -112,6 +112,7 @@ function initApp(shell) {
       }
 
       const store = createStore()
+      window.store = store
 
       bridge.once('ready', version => {
         store.commit('SHOW_MESSAGE', 'Ready. Detected Vue ' + version + '.')
@@ -185,14 +186,6 @@ function initApp(shell) {
 
       bridge.on('events:reset', () => {
         store.commit('events/RESET')
-      })
-
-      bridge.on('perf:add-metric', data => {
-        store.commit('perf/ADD_METRIC', data)
-      })
-
-      bridge.on('perf:upsert-metric', ({ type, data }) => {
-        store.commit('perf/UPSERT_METRIC', { type, data })
       })
 
       initEnv(Vue)

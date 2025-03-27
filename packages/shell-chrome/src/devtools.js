@@ -3,7 +3,6 @@
 import { initDevTools } from '@front'
 import Bridge from '@utils/bridge'
 import { waitTime } from '@utils/tools'
-import '@utils/ext-bridge/devtool'
 
 initDevTools({
   /**

@@ -41,7 +41,7 @@
 
 <script>
 import groupBy from 'lodash/groupBy'
-import { bridge as exBridge } from '@utils/ext-bridge/devtool'
+import { bridge as exBridge, api } from '@front/bridge'
 
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
@@ -65,7 +65,7 @@ export default {
     }
 
     function editComponentData(args) {
-      exBridge.send(`${exBridge.Plat.web}/set-instance-data`, {
+      exBridge.send(api.web.setInstanceData, {
         id: inspectedInstance.value.id,
         ...args,
       })

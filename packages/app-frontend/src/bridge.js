@@ -1,10 +1,10 @@
-/* 
-  web环境：content <=> web
-*/
 import { DevtoolBridge, Plat } from '@yuhufe/browser-bridge'
+import { PLATFORM, api } from '@utils/api'
 
 export const bridge = new DevtoolBridge()
 bridge.Plat = Plat
+
+export { api }
 
 // window.devtoolBridge = bridge
 // window.test = async function () {
