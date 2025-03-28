@@ -69,7 +69,7 @@ export function init(params) {
                 clearInterval(initRetryInterval)
               })
               .catch(e => {
-                debug('shared-data:ready', e.message)
+                debug('shared-data:ready catch', e.message)
               })
           initRetryCount = 0
           clearInterval(initRetryInterval)
