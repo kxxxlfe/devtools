@@ -192,7 +192,8 @@ function replacer(key) {
       return encodeCache.cache(val, () => getCustomInstanceDetails(val))
     } else if (typeof val.render === 'function') {
       return encodeCache.cache(val, () => getCustomComponentDefinitionDetails(val))
-    } else if (val.constructor && val.constructor.name === 'VNode') {
+    } else if (val.constructor.name?.startsWith('VNode')) {
+      // localhost maybe VNode2
       return `[native VNode <${val.tag}>]`
     }
   } else if (Number.isNaN(val)) {
