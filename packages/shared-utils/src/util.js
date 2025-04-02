@@ -186,13 +186,13 @@ function replacer(key) {
       return `[native Error ${val.message}]`
     } else if (val.state && val._vm) {
       return encodeCache.cache(val, () => getCustomStoreDetails(val))
-    } else if (val.constructor && val.constructor.name === 'VueRouter') {
+    } else if (val.constructor?.name === 'VueRouter') {
       return encodeCache.cache(val, () => getCustomRouterDetails(val))
     } else if (val._isVue) {
       return encodeCache.cache(val, () => getCustomInstanceDetails(val))
     } else if (typeof val.render === 'function') {
       return encodeCache.cache(val, () => getCustomComponentDefinitionDetails(val))
-    } else if (val.constructor.name?.startsWith('VNode')) {
+    } else if (val.constructor?.name?.startsWith('VNode')) {
       // localhost maybe VNode2
       return `[native VNode <${val.tag}>]`
     }
