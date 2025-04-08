@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import SharedData from '@utils/shared-data'
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
@@ -83,6 +83,12 @@ export default {
       }
       selectStore(entry.name)
     }
+
+    onMounted(() => {
+      if (currStoreKey.value) {
+        selectStore(currStoreKey.value)
+      }
+    })
 
     return { currStoreKey, stores, isInspected, highDensity, recordPinia, toggleRecording, storeList, inspect }
   },
