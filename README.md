@@ -17,12 +17,14 @@
 使用步骤
 
 1. `release` 下载 `zip` 文件
-2. 解压后 文件夹添加至 chrome://extensions
+2. 解压缩为文件夹（直接使用`zip`被认定为临时文件，会导致一段时间后失效） 
+3. 文件夹 添加至 chrome://extensions
 
 开发步骤
 
 - 详见 `Manual Installation`
 - icon 来源：https://fonts.google.com/icons?hl=zh-cn&icon.query=lens&icon.set=Material+Icons&icon.size=24&icon.color=%235f6368
+- [数据](https://api.github.com/repos/kxxxlfe/devtools/releases)
 
 # vue-devtools
 
