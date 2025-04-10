@@ -11,6 +11,7 @@
   - vuex:mutation 截流: 页面 store 太多，数千个 store 中间状态导致页面崩溃
   - router:changed 开关不生效 fix，页面数据太多时会导致卡顿
   - 解决 `@Ref` 语法计算属性导致的性能问题
+  - 解决 `VNode2` 识别有误，导致无效的序列化性能问题
 - 优化
   - 支持`Promise`的通信机制 [https://github.com/defghy/web-toolkits/tree/main/packages/wtool-chrome-bridge]
 
