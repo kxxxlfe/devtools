@@ -60,8 +60,8 @@ importers:
         specifier: workspace:*
         version: link:../shared-utils
       '@yuhufe/browser-bridge':
-        specifier: ^0.0.6
-        version: 0.0.6(lodash-es@4.17.21)
+        specifier: ^0.0.7
+        version: 0.0.7(lodash-es@4.17.21)
       vue:
         specifier: ^2.7.16
         version: 2.7.16
@@ -75,8 +75,8 @@ importers:
         specifier: ^0.11.5
         version: 0.11.6(vue@2.7.16)
       '@yuhufe/browser-bridge':
-        specifier: ^0.0.6
-        version: 0.0.6(lodash-es@4.17.21)
+        specifier: ^0.0.7
+        version: 0.0.7(lodash-es@4.17.21)
       circular-json-es6:
         specifier: ^2.0.2
         version: 2.0.2
@@ -162,8 +162,8 @@ importers:
         specifier: workspace:*
         version: link:../app-backend
       '@yuhufe/browser-bridge':
-        specifier: ^0.0.6
-        version: 0.0.6(lodash-es@4.17.21)
+        specifier: ^0.0.7
+        version: 0.0.7(lodash-es@4.17.21)
       events:
         specifier: 3.3.0
         version: 3.3.0
@@ -183,8 +183,8 @@ importers:
         specifier: workspace:*
         version: link:../shared-utils
       '@yuhufe/browser-bridge':
-        specifier: ^0.0.6
-        version: 0.0.6(lodash-es@4.17.21)
+        specifier: ^0.0.7
+        version: 0.0.7(lodash-es@4.17.21)
     devDependencies:
       '@vue-devtools/build-tools':
         specifier: workspace:*
@@ -570,8 +570,8 @@ packages:
   '@xtuc/long@4.2.2':
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
 
-  '@yuhufe/browser-bridge@0.0.6':
-    resolution: {integrity: sha512-SCZw67ljK8Xgk3juvLH6TlVJPu0qhgzjaOmK4Eufg8beId1FwwvO90xPeHOkbwcKhWR8DEjyWJZeqmGOirYNYA==}
+  '@yuhufe/browser-bridge@0.0.7':
+    resolution: {integrity: sha512-+x3zwd7KSlVYRmMwhxm9J3PAOFoaxON1xhgg92im7ORxRHnTjTHRRY2oLRaZyC4BOVi14bN3wDypr/akJJDFmA==}
     peerDependencies:
       lodash-es: ^4.17.21
 
@@ -4134,7 +4134,7 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
-  '@yuhufe/browser-bridge@0.0.6(lodash-es@4.17.21)':
+  '@yuhufe/browser-bridge@0.0.7(lodash-es@4.17.21)':
     dependencies:
       lodash-es: 4.17.21
 
