@@ -69,7 +69,7 @@ export function init(params) {
                 clearInterval(initRetryInterval)
               })
               .catch(e => {
-                console.error(e)
+                debug('shared-data:ready catch', e.message)
               })
           initRetryCount = 0
           clearInterval(initRetryInterval)
@@ -141,7 +141,7 @@ function setValue(key, value) {
 }
 
 function sendValue(key, value) {
-  const sapi = exBridge.plat === PLATFORM.web ? api.web.shared : api.devtool.shared
+  const sapi = exBridge.plat === PLATFORM.web ? api.devtool.shared : api.web.shared
   exBridge?.send(sapi.setData, { key, value })
 }
 

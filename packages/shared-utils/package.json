@@ -5,7 +5,7 @@
   "sideEffects": [],
   "dependencies": {
     "@vue-devtools/app-backend": "workspace:*",
-    "@yuhufe/browser-bridge": "^0.0.6",
+    "@yuhufe/browser-bridge": "^0.0.7",
     "path-browserify": "1.0.1",
     "events": "3.3.0"
   }
