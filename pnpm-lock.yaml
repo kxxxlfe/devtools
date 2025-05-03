@@ -158,9 +158,6 @@ importers:
 
   packages/shared-utils:
     dependencies:
-      '@vue-devtools/app-backend':
-        specifier: workspace:*
-        version: link:../app-backend
       '@yuhufe/browser-bridge':
         specifier: ^0.0.7
         version: 0.0.7(lodash-es@4.17.21)
