@@ -2,7 +2,9 @@
   "name": "@vue-devtools/shell-chrome",
   "version": "0.0.0",
   "scripts": {
-    "dev:chrome": "webpack --watch"
+    "dev:chrome": "webpack --watch",
+    "build": "cross-env NODE_ENV=production webpack --progress --stats=errors-only && npm run zip",
+    "zip": "zip -r ../shell-chrome.zip ./*"
   },
   "dependencies": {
     "@vue-devtools/app-backend": "workspace:*",
