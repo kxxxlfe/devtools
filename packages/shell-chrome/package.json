@@ -1,6 +1,9 @@
 {
   "name": "@vue-devtools/shell-chrome",
   "version": "0.0.0",
+  "scripts": {
+    "dev:chrome": "webpack --watch"
+  },
   "dependencies": {
     "@vue-devtools/app-backend": "workspace:*",
     "@vue-devtools/app-frontend": "workspace:*",
