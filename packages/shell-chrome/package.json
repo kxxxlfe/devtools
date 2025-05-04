@@ -2,16 +2,18 @@
   "name": "@vue-devtools/shell-chrome",
   "version": "0.0.0",
   "scripts": {
-    "zip": "zip -r ../vue-devtools@5.4.10.zip ./*"
+    "dev:chrome": "webpack --watch",
+    "build": "cross-env NODE_ENV=production webpack --progress --stats=errors-only && npm run zip",
+    "zip": "zip -r ../shell-chrome.zip ./*"
   },
   "dependencies": {
-    "@vue-devtools/app-backend": "^0.0.0",
-    "@vue-devtools/app-frontend": "^0.0.0",
-    "@vue-devtools/shared-utils": "^0.0.0",
+    "@vue-devtools/app-backend": "workspace:*",
+    "@vue-devtools/app-frontend": "workspace:*",
+    "@vue-devtools/shared-utils": "workspace:*",
     "@yuhufe/browser-bridge": "^0.0.7"
   },
   "devDependencies": {
-    "@vue-devtools/build-tools": "^0.0.0",
+    "@vue-devtools/build-tools": "workspace:*",
     "webpack": "^5.96.1",
     "webpack-cli": "^5.1.4"
   }

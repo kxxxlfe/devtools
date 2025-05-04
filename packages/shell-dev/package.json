@@ -2,12 +2,12 @@
   "name": "@vue-devtools/shell-dev",
   "version": "0.0.0",
   "dependencies": {
-    "@vue-devtools/app-backend": "^0.0.0",
-    "@vue-devtools/app-frontend": "^0.0.0",
-    "@vue-devtools/shared-utils": "^0.0.0"
+    "@vue-devtools/app-backend": "workspace:*",
+    "@vue-devtools/app-frontend": "workspace:*",
+    "@vue-devtools/shared-utils": "workspace:*"
   },
   "devDependencies": {
-    "@vue-devtools/build-tools": "^0.0.0",
+    "@vue-devtools/build-tools": "workspace:*",
     "launch-editor-middleware": "^2.2.1",
     "webpack": "^5.96.1",
     "webpack-cli": "^5.1.4",

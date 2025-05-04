@@ -23,7 +23,7 @@ exports.createConfig = (config, target = { chrome: 52, firefox: 48 }) => {
         '@back': '@vue-devtools/app-backend/src',
         '@utils': '@vue-devtools/shared-utils/src',
       },
-      symlinks: false,
+      symlinks: true,
     },
     module: {
       rules: [

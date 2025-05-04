@@ -4,7 +4,7 @@
       "type": "node-terminal",
       "name": "vue-devtools shell-dev",
       "request": "launch",
-      "command": "npm run dev",
+      "command": "npm run dev:chrome",
       "autoAttachChildProcesses": true,
       "cwd": "${workspaceFolder}",
       "env": {
