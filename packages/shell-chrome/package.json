@@ -1,6 +1,9 @@
 {
   "name": "@vue-devtools/shell-chrome",
   "version": "0.0.0",
+  "scripts": {
+    "zip": "zip -r ../vue-devtools@5.4.10.zip ./*"
+  },
   "dependencies": {
     "@vue-devtools/app-backend": "^0.0.0",
     "@vue-devtools/app-frontend": "^0.0.0",
