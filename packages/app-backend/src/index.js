@@ -342,7 +342,7 @@ function capture(instance, index, list) {
     captureCount++
   }
 
-  if (instance.$options && instance.$options.abstract && instance._vnode && instance._vnode.componentInstance) {
+  if (instance.$options?.abstract && instance._vnode?.componentInstance) {
     instance = instance._vnode.componentInstance
   }
 
@@ -563,8 +563,18 @@ export function toast(message, type = 'normal') {
 }
 
 function inspectInstance(instance) {
-  const id = instance.__VUE_DEVTOOLS_UID__
-  id && exBridge.send(api.devtool.inspectInstance, id)
+  let id = null
+  do {
+    id = instance.__VUE_DEVTOOLS_UID__
+    if (id) {
+      break
+    }
+    instance = instance.$parent
+  } while (instance)
+
+  if (id) {
+    exBridge.send(api.devtool.inspectInstance, id)
+  }
 }
 target.__VUE_DEVTOOLS_INSPECT__ = inspectInstance
 
