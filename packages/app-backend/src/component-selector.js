@@ -19,8 +19,10 @@ export default class ComponentSelector {
    */
   startSelecting() {
     if (!isBrowser) return
+    this.stopSelecting() // 防止重复绑定
     window.addEventListener('mouseover', this.elementMouseOver, true)
-    window.addEventListener('click', this.elementClicked, true)
+    window.addEventListener('pointerdown', this.elementClicked, true)
+    window.addEventListener('click', this.cancelEvent, true)
     window.addEventListener('mouseout', this.cancelEvent, true)
     window.addEventListener('mouseenter', this.cancelEvent, true)
     window.addEventListener('mouseleave', this.cancelEvent, true)
@@ -34,7 +36,8 @@ export default class ComponentSelector {
   stopSelecting() {
     if (!isBrowser) return
     window.removeEventListener('mouseover', this.elementMouseOver, true)
-    window.removeEventListener('click', this.elementClicked, true)
+    window.removeEventListener('pointerdown', this.elementClicked, true)
+    window.removeEventListener('click', this.cancelEvent, true)
     window.removeEventListener('mouseout', this.cancelEvent, true)
     window.removeEventListener('mouseenter', this.cancelEvent, true)
     window.removeEventListener('mouseleave', this.cancelEvent, true)
@@ -69,13 +72,14 @@ export default class ComponentSelector {
   elementClicked(e) {
     this.cancelEvent(e)
 
-    if (this.selectedInstance) {
-      window.__VUE_DEVTOOLS_INSPECT__(this.selectedInstance)
-    } else {
-      exBridge.send(api.devtool.stopComponentSelector)
-    }
-
-    this.stopSelecting()
+    setTimeout(() => {
+      if (this.selectedInstance) {
+        window.__VUE_DEVTOOLS_INSPECT__(this.selectedInstance)
+      } else {
+        exBridge.send(api.devtool.stopComponentSelector)
+      }
+      this.stopSelecting()
+    }, 180)
   }
 
   /**
