@@ -85,7 +85,7 @@ export function getInstanceName(instance) {
 let isLegacy = false
 const propModes = ['default', 'sync', 'once']
 
-function processProps(instance) {
+export function processProps(instance) {
   let props
   if (isLegacy && (props = instance._props)) {
     // 1.x
