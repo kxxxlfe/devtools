@@ -85,6 +85,20 @@ export const SPECIAL_TOKENS = {
 
 export const MAX_STRING_SIZE = 10000
 export const MAX_ARRAY_SIZE = 5000
+// 数组需要根据其中元素数量&大小，动态计算size
+const calcMaxArraySize = function (arr) {
+  const sampleSize = 3
+  const MAX_BYTE_SIZE = 50000 // 50k
+  if (arr.length <= sampleSize) {
+    return arr.length
+  }
+
+  const sampleByteSize = JSON.stringify(arr.slice(0, sampleSize)).length / sampleSize
+  let maxSize = Math.floor(MAX_BYTE_SIZE / sampleByteSize)
+  maxSize = Math.max(0, maxSize)
+  maxSize = Math.min(arr.length, maxSize)
+  return maxSize
+}
 
 export function specialTokenToString(value) {
   if (value === null) {
