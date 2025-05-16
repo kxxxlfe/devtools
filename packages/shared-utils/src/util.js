@@ -1,4 +1,5 @@
 import path from 'path-browserify'
+import { isRef } from 'vue'
 import * as CircularJSON from './transfer'
 import { getCustomInstanceDetails } from '@back/process'
 import { getCustomStoreDetails } from '@back/vuex'
@@ -209,6 +210,8 @@ function replacer(key) {
     } else if (val.constructor?.name?.startsWith('VNode')) {
       // localhost maybe VNode2
       return `[native VNode <${val.tag}>]`
+    } else if (isRef(val)) {
+      return val.value
     }
   } else if (Number.isNaN(val)) {
     return NAN
