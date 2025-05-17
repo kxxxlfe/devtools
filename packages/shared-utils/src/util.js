@@ -89,13 +89,13 @@ export const MAX_STRING_SIZE = 10000
 export const MAX_ARRAY_SIZE = 1999
 // 数组需要根据其中元素数量&大小，动态计算size
 const calcMaxArraySize = function (arr) {
-  const sampleSize = 3
-  const MAX_BYTE_SIZE = 50000 // 数组裁剪
-  if (arr.length <= sampleSize) {
+  if (arr.length <= 100) {
     return arr.length
   }
 
   // 裁剪掉子数组
+  const sampleSize = 3
+  const MAX_BYTE_SIZE = 50000 // 数组裁剪
   const tailorArr = function (obj) {
     if (!obj || typeof obj !== 'object') {
       return obj
