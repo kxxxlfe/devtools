@@ -1,6 +1,8 @@
+import * as flatted from 'flatted'
+
 const MAX_SERIALIZED_SIZE = 512 * 1024 // 1MB
 
-function encode (data, replacer, list, seen) {
+function encode(data, replacer, list, seen) {
   let stored, key, value, i, l
   const seenIndex = seen.get(data)
   if (seenIndex != null) {
@@ -34,7 +36,7 @@ function encode (data, replacer, list, seen) {
   return index
 }
 
-function decode (list, reviver) {
+function decode(list, reviver) {
   let i = list.length
   let j, k, data, key, value, proto
   while (i--) {
@@ -58,12 +60,10 @@ function decode (list, reviver) {
   }
 }
 
-export function stringify (data, replacer, space) {
+export function stringify(data, replacer, space) {
   let result
   try {
-    result = arguments.length === 1
-      ? JSON.stringify(data)
-      : JSON.stringify(data, replacer, space)
+    result = arguments.length === 1 ? JSON.stringify(data) : JSON.stringify(data, replacer, space)
   } catch (e) {
     result = stringifyStrict(data, replacer, space)
   }
@@ -78,15 +78,13 @@ export function stringify (data, replacer, space) {
   return result
 }
 
-export function parse (data, reviver) {
+export function parse(data, reviver) {
   if (Array.isArray(data)) {
     data = data.join('')
   }
   const hasCircular = /^\s/.test(data)
   if (!hasCircular) {
-    return arguments.length === 1
-      ? JSON.parse(data)
-      : JSON.parse(data, reviver)
+    return arguments.length === 1 ? JSON.parse(data) : JSON.parse(data, reviver)
   } else {
     const list = JSON.parse(data)
     decode(list, reviver)
@@ -94,10 +92,8 @@ export function parse (data, reviver) {
   }
 }
 
-export function stringifyStrict (data, replacer, space) {
+export function stringifyStrict(data, replacer, space) {
   const list = []
   encode(data, replacer, list, new Map())
-  return space
-    ? ' ' + JSON.stringify(list, null, space)
-    : ' ' + JSON.stringify(list)
+  return space ? ' ' + JSON.stringify(list, null, space) : ' ' + JSON.stringify(list)
 }
