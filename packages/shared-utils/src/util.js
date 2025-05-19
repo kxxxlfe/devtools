@@ -95,7 +95,7 @@ const calcMaxArraySize = function (arr) {
 
   // 裁剪掉子数组
   const sampleSize = 3
-  const MAX_BYTE_SIZE = 50000 // 数组裁剪
+  const MAX_BYTE_SIZE = 300000 // 数组裁剪
   const tailorArr = function (obj) {
     if (!obj || typeof obj !== 'object') {
       return obj
