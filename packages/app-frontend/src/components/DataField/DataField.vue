@@ -257,7 +257,7 @@ export default {
         value = value._custom.value
       }
 
-      if (value && value._isArray) {
+      if (value?._isArray) {
         value = value.items
       }
       return { value, inherit }

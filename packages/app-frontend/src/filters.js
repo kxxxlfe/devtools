@@ -1,22 +1,16 @@
-import {
-  UNDEFINED,
-  INFINITY,
-  NEGATIVE_INFINITY,
-  NAN,
-  isPlainObject,
-  escape,
-  specialTokenToString
-} from '@utils/util'
+import { UNDEFINED, INFINITY, NEGATIVE_INFINITY, NAN, isPlainObject, escape, specialTokenToString } from '@utils/util'
 
 const rawTypeRE = /^\[object (\w+)]$/
 const specialTypeRE = /^\[native (\w+) (.*)\]$/
 
-export function formatTime (timestamp, format) {
+export function formatTime(timestamp, format) {
   const date = new Date(timestamp)
-  return `${date.toString().match(/\d\d:\d\d:\d\d/)[0]}${format === 'ms' ? '.' + String(date.getMilliseconds()).padStart(3, '0') : ''}`
+  return `${date.toString().match(/\d\d:\d\d:\d\d/)[0]}${
+    format === 'ms' ? '.' + String(date.getMilliseconds()).padStart(3, '0') : ''
+  }`
 }
 
-export function valueType (value) {
+export function valueType(value) {
   const type = typeof value
   if (value == null || value === UNDEFINED) {
     return 'null'
@@ -37,7 +31,7 @@ export function valueType (value) {
     } else {
       return 'string'
     }
-  } else if (Array.isArray(value) || (value && value._isArray)) {
+  } else if (Array.isArray(value) || value?._isArray) {
     return 'array'
   } else if (isPlainObject(value)) {
     return 'plain-object'
@@ -46,7 +40,7 @@ export function valueType (value) {
   }
 }
 
-export function formattedValue (value, quotes = true) {
+export function formattedValue(value, quotes = true) {
   let result
   const type = valueType(value)
   if ((result = specialTokenToString(value))) {
@@ -68,8 +62,7 @@ export function formattedValue (value, quotes = true) {
     } else {
       value = escape(value)
     }
-    value = value.replace(/ /g, '&nbsp;')
-      .replace(/\n/g, '<span>\\n</span>')
+    value = value.replace(/ /g, '&nbsp;').replace(/\n/g, '<span>\\n</span>')
   }
   return value
 }
