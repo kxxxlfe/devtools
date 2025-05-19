@@ -63,7 +63,7 @@ function decode(list, reviver) {
 export function stringify(data, replacer, space) {
   let result
   try {
-    result = arguments.length === 1 ? JSON.stringify(data) : JSON.stringify(data, replacer, space)
+    result = arguments.length === 1 ? flatted.stringify(data) : flatted.stringify(data, replacer, space)
   } catch (e) {
     result = stringifyStrict(data, replacer, space)
   }
@@ -84,7 +84,7 @@ export function parse(data, reviver) {
   }
   const hasCircular = /^\s/.test(data)
   if (!hasCircular) {
-    return arguments.length === 1 ? JSON.parse(data) : JSON.parse(data, reviver)
+    return arguments.length === 1 ? flatted.parse(data) : flatted.parse(data, reviver)
   } else {
     const list = JSON.parse(data)
     decode(list, reviver)
