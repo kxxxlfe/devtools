@@ -2,6 +2,18 @@ import * as flatted from 'flatted'
 
 const MAX_SERIALIZED_SIZE = 512 * 1024 // 1MB
 
+// flatted可以减少json数据和时间，但是不可读；
+// JSON会对相同数据进行重复处理，但是可读
+export const jsonTool = {
+  engine: JSON,
+  useFlatted() {
+    jsonTool.engine = flatted
+  },
+  reset() {
+    jsonTool.engine = JSON
+  },
+}
+
 function encode(data, replacer, list, seen) {
   let stored, key, value, i, l
   const seenIndex = seen.get(data)
@@ -62,8 +74,9 @@ function decode(list, reviver) {
 
 export function stringify(data, replacer, space) {
   let result
+  const engine = jsonTool.engine
   try {
-    result = arguments.length === 1 ? flatted.stringify(data) : flatted.stringify(data, replacer, space)
+    result = arguments.length === 1 ? engine.stringify(data) : engine.stringify(data, replacer, space)
   } catch (e) {
     result = stringifyStrict(data, replacer, space)
   }
@@ -84,7 +97,8 @@ export function parse(data, reviver) {
   }
   const hasCircular = /^\s/.test(data)
   if (!hasCircular) {
-    return arguments.length === 1 ? flatted.parse(data) : flatted.parse(data, reviver)
+    const engine = jsonTool.engine
+    return arguments.length === 1 ? engine.parse(data) : engine.parse(data, reviver)
   } else {
     const list = JSON.parse(data)
     decode(list, reviver)

@@ -179,6 +179,16 @@ export function stringify(data) {
   encodeCache.clear()
   return CircularJSON.stringify(data, replacer)
 }
+// 使用 flatted 的 stringify
+export function stringifyFlatted(data) {
+  CircularJSON.jsonTool.useFlatted()
+
+  const result = stringify(data)
+
+  CircularJSON.jsonTool.reset()
+
+  return result
+}
 
 function replacer(key) {
   const val = this[key]
@@ -400,6 +410,12 @@ export function getCustomRefDetails(instance, key, ref) {
 
 export function parse(data, revive) {
   return revive ? CircularJSON.parse(data, reviver) : CircularJSON.parse(data)
+}
+export function parseFlatted(data, { revive = false } = {}) {
+  CircularJSON.jsonTool.useFlatted()
+  const res = revive ? CircularJSON.parse(data, reviver) : CircularJSON.parse(data)
+  CircularJSON.jsonTool.reset()
+  return res
 }
 
 const specialTypeRE = /^\[native (\w+) (.*)\]$/
