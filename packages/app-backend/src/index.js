@@ -266,7 +266,7 @@ function flush() {
 
   exBridge.send(api.devtool.updateInstance, {
     id: currentInspectedId,
-    instance: stringifyFlatted(getInstanceDetails(currentInspectedId)),
+    instance: stringify(getInstanceDetails(currentInspectedId)),
   })
   exBridge.send(api.devtool.flush, payload)
 }
@@ -628,7 +628,7 @@ exBridge.on(api.web.flush, () => {
 })
 // instance的fetch
 exBridge.on(api.web.fetchInstance, id => {
-  const instStr = stringifyFlatted(getInstanceDetails(id))
+  const instStr = stringify(getInstanceDetails(id))
   return instStr
 })
 exBridge.on(api.web.refresh, scan)

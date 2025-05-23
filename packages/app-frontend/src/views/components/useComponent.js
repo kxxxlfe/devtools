@@ -33,7 +33,7 @@ exBridge.on(api.devtool.inspectInstance, id => {
 })
 exBridge.on(api.devtool.updateInstance, ({ id, instance }) => {
   ensurePaneShown(() => {
-    set(inspected.map.value, id, parseFlatted(instance))
+    set(inspected.map.value, id, parse(instance))
     inspected.id.value = id
   })
 })
@@ -62,7 +62,7 @@ const selectInstance = async function (id) {
 
   // 获取instance最新的state
   const msgdata = await exBridge.request(api.web.fetchInstance, id)
-  const msgJSON = parseFlatted(msgdata)
+  const msgJSON = parse(msgdata)
   set(inspected.map.value, id, msgJSON)
   inspected.id.value = id
   inspected.loading.value = false
