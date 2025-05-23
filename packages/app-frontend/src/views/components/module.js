@@ -63,6 +63,9 @@ export const useComponentTree = function () {
     function walk(instance) {
       map[instance.id] = instance
       if (instance.children) {
+        if (instance.children._isArray) {
+          instance.children = instance.children.items || []
+        }
         instance.children.forEach(child => {
           child.parent = instance
           walk(child)

@@ -9,8 +9,19 @@ import { initPerfBackend } from './perf'
 import { initPiniaBackend } from './pinia'
 import { findRelatedComponent, debounce } from './utils'
 import ComponentSelector from './component-selector'
-import { getInstanceState, getInstanceName } from './process'
-import { stringify, classify, camelize, set, has, parse, getComponentName, setInstanceMap, kebabize } from '@utils/util'
+import { getInstanceState, getInstanceName, processProps } from './process'
+import {
+  stringify,
+  stringifyFlatted,
+  classify,
+  camelize,
+  set,
+  has,
+  parse,
+  getComponentName,
+  setInstanceMap,
+  kebabize,
+} from '@utils/util'
 import SharedData, { init as initSharedData } from '@utils/shared-data'
 import { isBrowser, target } from '@utils/env'
 import { bridge as exBridge, api } from './bridge'
@@ -255,7 +266,7 @@ function flush() {
 
   exBridge.send(api.devtool.updateInstance, {
     id: currentInspectedId,
-    instance: stringify(getInstanceDetails(currentInspectedId)),
+    instance: stringifyFlatted(getInstanceDetails(currentInspectedId)),
   })
   exBridge.send(api.devtool.flush, payload)
 }
@@ -342,7 +353,7 @@ function capture(instance, index, list) {
     captureCount++
   }
 
-  if (instance.$options && instance.$options.abstract && instance._vnode && instance._vnode.componentInstance) {
+  if (instance.$options?.abstract && instance._vnode?.componentInstance) {
     instance = instance._vnode.componentInstance
   }
 
@@ -563,8 +574,18 @@ export function toast(message, type = 'normal') {
 }
 
 function inspectInstance(instance) {
-  const id = instance.__VUE_DEVTOOLS_UID__
-  id && exBridge.send(api.devtool.inspectInstance, id)
+  let id = null
+  do {
+    id = instance.__VUE_DEVTOOLS_UID__
+    if (id) {
+      break
+    }
+    instance = instance.$parent
+  } while (instance)
+
+  if (id) {
+    exBridge.send(api.devtool.inspectInstance, id)
+  }
 }
 target.__VUE_DEVTOOLS_INSPECT__ = inspectInstance
 
@@ -607,7 +628,7 @@ exBridge.on(api.web.flush, () => {
 })
 // instance的fetch
 exBridge.on(api.web.fetchInstance, id => {
-  const instStr = stringify(getInstanceDetails(id))
+  const instStr = stringifyFlatted(getInstanceDetails(id))
   return instStr
 })
 exBridge.on(api.web.refresh, scan)

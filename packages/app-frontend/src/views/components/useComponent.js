@@ -1,6 +1,6 @@
 import { ref, computed, set } from 'vue'
 import { bridge as exBridge, api } from '@front/bridge'
-import { parse } from '@utils/util'
+import { parse, parseFlatted } from '@utils/util'
 import { useDevPanelStatus } from '../../plugins/usePanelStatus'
 import router from '../../router'
 import { useComponentTree } from './module'
@@ -33,7 +33,7 @@ exBridge.on(api.devtool.inspectInstance, id => {
 })
 exBridge.on(api.devtool.updateInstance, ({ id, instance }) => {
   ensurePaneShown(() => {
-    set(inspected.map.value, id, parse(instance))
+    set(inspected.map.value, id, parseFlatted(instance))
     inspected.id.value = id
   })
 })
@@ -62,7 +62,8 @@ const selectInstance = async function (id) {
 
   // 获取instance最新的state
   const msgdata = await exBridge.request(api.web.fetchInstance, id)
-  set(inspected.map.value, id, parse(msgdata))
+  const msgJSON = parseFlatted(msgdata)
+  set(inspected.map.value, id, msgJSON)
   inspected.id.value = id
   inspected.loading.value = false
 }

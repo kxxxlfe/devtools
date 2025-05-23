@@ -1,4 +1,6 @@
 import path from 'path-browserify'
+import { isRef } from 'vue'
+import { transform } from 'lodash-es'
 import * as CircularJSON from './transfer'
 import { getCustomInstanceDetails } from '@back/process'
 import { getCustomStoreDetails } from '@back/vuex'
@@ -84,7 +86,43 @@ export const SPECIAL_TOKENS = {
 }
 
 export const MAX_STRING_SIZE = 10000
-export const MAX_ARRAY_SIZE = 5000
+export const MAX_ARRAY_SIZE = 1999
+// 数组需要根据其中元素数量&大小，动态计算size
+const calcMaxArraySize = function (arr) {
+  if (arr.length <= 100) {
+    return arr.length
+  }
+
+  // 裁剪掉子数组
+  const sampleSize = 3
+  const MAX_BYTE_SIZE = 300000 // 数组裁剪
+  const tailorArr = function (obj) {
+    if (!obj || typeof obj !== 'object') {
+      return obj
+    }
+    return transform(
+      obj,
+      (result, value, key) => {
+        if (isPlainObject(value)) {
+          // 递归处理嵌套对象
+          const nested = tailorArr(value)
+          result[key] = nested
+        } else if (!Array.isArray(value)) {
+          // 非数组的属性保留
+          result[key] = value
+        }
+      },
+      {}
+    )
+  }
+
+  const sampleData = tailorArr(arr.slice(0, sampleSize))
+  const sampleByteSize = JSON.stringify(sampleData).length / sampleSize || 1
+  let maxSize = Math.floor(MAX_BYTE_SIZE / sampleByteSize)
+  maxSize = Math.max(0, maxSize)
+  maxSize = Math.min(arr.length, maxSize)
+  return maxSize
+}
 
 export function specialTokenToString(value) {
   if (value === null) {
@@ -141,17 +179,28 @@ export function stringify(data) {
   encodeCache.clear()
   return CircularJSON.stringify(data, replacer)
 }
+// 使用 flatted 的 stringify
+export function stringifyFlatted(data) {
+  CircularJSON.jsonTool.useFlatted()
+
+  const result = stringify(data)
+
+  CircularJSON.jsonTool.reset()
+
+  return result
+}
 
 function replacer(key) {
   const val = this[key]
   const type = typeof val
   if (Array.isArray(val)) {
     const l = val.length
-    if (l > MAX_ARRAY_SIZE) {
+    const maxSize = calcMaxArraySize(val)
+    if (l > maxSize) {
       return {
         _isArray: true,
         length: l,
-        items: val.slice(0, MAX_ARRAY_SIZE),
+        items: val.slice(0, maxSize),
       }
     }
     return val
@@ -195,6 +244,8 @@ function replacer(key) {
     } else if (val.constructor?.name?.startsWith('VNode')) {
       // localhost maybe VNode2
       return `[native VNode <${val.tag}>]`
+    } else if (isRef(val)) {
+      return val.value
     }
   } else if (Number.isNaN(val)) {
     return NAN
@@ -359,6 +410,12 @@ export function getCustomRefDetails(instance, key, ref) {
 
 export function parse(data, revive) {
   return revive ? CircularJSON.parse(data, reviver) : CircularJSON.parse(data)
+}
+export function parseFlatted(data, { revive = false } = {}) {
+  CircularJSON.jsonTool.useFlatted()
+  const res = revive ? CircularJSON.parse(data, reviver) : CircularJSON.parse(data)
+  CircularJSON.jsonTool.reset()
+  return res
 }
 
 const specialTypeRE = /^\[native (\w+) (.*)\]$/

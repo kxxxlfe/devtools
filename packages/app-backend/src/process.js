@@ -3,6 +3,21 @@ import { isRef, isReadonly } from 'vue'
 import { camelize, getComponentName, getCustomRefDetails } from '@utils/util'
 import SharedData from '@utils/shared-data'
 
+// 判断数据是否响应式
+const checkReact = function ({ key, val, host }) {
+  if (typeof val === 'object') {
+    return isRef(val) || isReactive(val)
+  }
+
+  const descriptor = Object.getOwnPropertyDescriptor(host, key)
+
+  if (descriptor?.get && descriptor?.set) {
+    return true
+  }
+
+  return
+}
+
 export function getInstanceState(instance) {
   return processProps(instance).concat(
     processState(instance),
@@ -70,7 +85,7 @@ export function getInstanceName(instance) {
 let isLegacy = false
 const propModes = ['default', 'sync', 'once']
 
-function processProps(instance) {
+export function processProps(instance) {
   let props
   if (isLegacy && (props = instance._props)) {
     // 1.x
