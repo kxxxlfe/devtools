@@ -4,7 +4,7 @@
   "scripts": {
     "dev:chrome": "webpack --watch",
     "build": "cross-env NODE_ENV=production webpack --progress --stats=errors-only && npm run zip",
-    "zip": "zip -r ../shell-chrome.zip ./*"
+    "zip": "zip -r ../shell-chrome.zip ./* -x 'node_modules/*'"
   },
   "dependencies": {
     "@vue-devtools/app-backend": "workspace:*",
