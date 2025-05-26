@@ -1,18 +1,9 @@
 <template>
   <scroll-pane>
-    <div
-      v-if="activeEvent"
-      slot="scroll"
-    >
+    <div v-if="activeEvent" slot="scroll">
       <state-inspector :state="{ 'event info': sortedEventData }" />
     </div>
-    <div
-      v-else
-      slot="scroll"
-      class="no-event-data"
-    >
-      No event selected
-    </div>
+    <div v-else slot="scroll" class="no-event-data">No event selected</div>
   </scroll-pane>
 </template>
 
@@ -20,20 +11,22 @@
 import ScrollPane from '@front/components/ScrollPane.vue'
 import StateInspector from '@front/components/StateInspector.vue'
 
-import { mapGetters } from 'vuex'
+import { useEvents } from './useEvents'
 
 export default {
   components: {
     ScrollPane,
-    StateInspector
+    StateInspector,
+  },
+
+  setup(props, { emit }) {
+    const { activeEvent } = useEvents()
+
+    return { activeEvent }
   },
 
   computed: {
-    ...mapGetters('events', [
-      'activeEvent'
-    ]),
-
-    sortedEventData () {
+    sortedEventData() {
       if (!this.activeEvent) {
         return {}
       }
@@ -41,10 +34,10 @@ export default {
         name: this.activeEvent.eventName,
         type: this.activeEvent.type,
         source: '<' + this.activeEvent.instanceName + '>',
-        payload: this.activeEvent.payload
+        payload: this.activeEvent.payload,
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

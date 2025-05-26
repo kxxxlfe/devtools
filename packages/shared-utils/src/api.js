@@ -44,4 +44,9 @@ export const api = {
       setData: `${PLATFORM.devtool}/shared-data:set`,
     },
   },
+  events: {
+    toggleRecording: `${PLATFORM.web}/events/toggleRecording`,
+    reset: `${PLATFORM.devtool}/events/reset`,
+    triggered: `${PLATFORM.devtool}/events/triggered`,
+  },
 }

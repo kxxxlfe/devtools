@@ -17,7 +17,7 @@
       <a
         v-tooltip="$t(`EventsHistory.${enabled ? 'stopRecording' : 'startRecording'}.tooltip`)"
         class="button toggle-recording"
-        @click="toggleRecording"
+        @click="toggle"
       >
         <VueIcon :class="{ enabled }" class="small" icon="lens" />
         <span>{{ enabled ? 'Recording' : 'Paused' }}</span>
@@ -69,11 +69,28 @@ import Keyboard, { UP, DOWN, DEL, BACKSPACE } from '@front/mixins/keyboard'
 import EntryList from '@front/mixins/entry-list'
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 import { focusInput, getComponentDisplayName } from '@utils/util'
+import { useEvents } from './useEvents'
 
 export default {
   components: {
     ScrollPane,
     ActionHeader,
+  },
+
+  setup(props, { emit }) {
+    const {
+      filter: eventsFilter,
+      inspect,
+      toggle,
+      reset,
+      enabled,
+      events,
+      inspectedIndex,
+      filteredEvents,
+      updateFilter,
+    } = useEvents()
+
+    return { eventsFilter, inspect, toggle, reset, enabled, events, inspectedIndex, filteredEvents, updateFilter }
   },
 
   mixins: [
@@ -97,7 +114,7 @@ export default {
               this.inspect(this.inspectedIndex + 1)
               return false
             } else if (key === 'r') {
-              this.toggleRecording()
+              this.toggle()
             }
         }
       },
@@ -106,17 +123,13 @@ export default {
   ],
 
   computed: {
-    ...mapState('events', ['enabled', 'events', 'inspectedIndex']),
-
-    ...mapGetters('events', ['filteredEvents']),
-
     filter: {
       get() {
-        return this.$store.state.events.filter
+        return this.eventsFilter
       },
       set(filter) {
-        this.$store.commit('events/UPDATE_FILTER', filter)
-        this.$store.dispatch('events/inspect', filter ? -1 : this.events.length - 1)
+        this.updateFilter(filter)
+        this.inspect(filter ? -1 : this.events.length - 1)
       },
     },
 
@@ -127,13 +140,6 @@ export default {
   },
 
   methods: {
-    ...mapMutations('events', {
-      reset: 'RESET',
-      toggleRecording: 'TOGGLE',
-    }),
-
-    ...mapActions('events', ['inspect']),
-
     displayComponentName(name) {
       return getComponentDisplayName(name, this.$shared.componentNameStyle)
     },
@@ -146,6 +152,7 @@ export default {
   width: 100%;
 }
 </style>
+
 <style lang="stylus" scoped>
 .vue-recycle-scroller
   height 100%

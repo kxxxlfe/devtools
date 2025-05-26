@@ -153,6 +153,7 @@ import GroupDropdown from '@front/components/GroupDropdown.vue'
 import { SETTINGS_VERSION_ID, SETTINGS_VERSION } from '@front/views/settings/SettingsTab.vue'
 import { useComponent } from './views/components/useComponent'
 import { useComponentTree } from './views/components/module'
+import { useEvents } from './views/events/useEvents'
 
 export default {
   name: 'App',
@@ -164,7 +165,8 @@ export default {
   setup(props, { emit }) {
     const { freshComponentData } = useComponent()
     const { totalCount } = useComponentTree()
-    return { freshComponentData, totalComponentCount: totalCount }
+    const { resetNewEventCount, newEventCount } = useEvents()
+    return { freshComponentData, totalComponentCount: totalCount, resetNewEventCount, newEventCount }
   },
 
   mixins: [
@@ -223,7 +225,6 @@ export default {
   computed: {
     ...mapState({
       message: state => state.message,
-      newEventCount: state => state.events.newEventCount,
       view: state => state.view,
     }),
 
@@ -256,7 +257,7 @@ export default {
     '$route.name'(tab) {
       bridge.send('switch-tab', tab)
       if (tab === 'events') {
-        this.$store.commit('events/RESET_NEW_EVENT_COUNT')
+        this.resetNewEventCount()
       }
       if (tab === 'components') {
         this.freshComponentData()

@@ -6,11 +6,12 @@ import { createStore } from './store'
 import * as filters from './filters'
 import './plugins'
 import VuexResolve from './views/vuex/resolve'
+import { useEvents } from './views/events/useEvents'
 import { parse } from '@utils/util'
 import { isChrome, initEnv } from '@utils/env'
 import SharedData, { init as initSharedData, destroy as destroySharedData } from '@utils/shared-data'
 import { init as initStorage } from '@utils/storage'
-import { bridge as exBridge } from '@front/bridge'
+import { bridge as exBridge, api } from '@front/bridge'
 
 // register filters
 for (const key in filters) {
@@ -90,6 +91,8 @@ export function initDevTools(shell) {
  * @param {Object} shell
  */
 
+const { enabled: eventsEnabled } = useEvents()
+
 function initApp(shell) {
   shell.connect(bridge => {
     window.bridge = bridge
@@ -116,7 +119,7 @@ function initApp(shell) {
 
       bridge.once('ready', version => {
         store.commit('SHOW_MESSAGE', 'Ready. Detected Vue ' + version + '.')
-        bridge.send('events:toggle-recording', store.state.events.enabled)
+        exBridge.send(api.events.toggleRecording, eventsEnabled.value)
         bridge.send('router:toggle-recording', store.state.router.enabled)
 
         if (isChrome) {
@@ -161,13 +164,6 @@ function initApp(shell) {
         })
       })
 
-      bridge.on('event:triggered', payload => {
-        store.commit('events/RECEIVE_EVENT', parse(payload))
-        if (router.currentRoute.name !== 'events') {
-          store.commit('events/INCREASE_NEW_EVENT_COUNT')
-        }
-      })
-
       bridge.on('router:init', payload => {
         store.commit('router/INIT', parse(payload))
       })
@@ -182,10 +178,6 @@ function initApp(shell) {
 
       bridge.on('routes:changed', payload => {
         store.commit('routes/CHANGED', parse(payload))
-      })
-
-      bridge.on('events:reset', () => {
-        store.commit('events/RESET')
       })
 
       initEnv(Vue)

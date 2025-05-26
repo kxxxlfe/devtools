@@ -1,17 +1,13 @@
 <template>
   <div>
     <split-pane>
-      <events-history
-        v-if="defer(3)"
-        slot="left"
-      />
+      <events-history v-if="defer(3)" slot="left" />
       <event-inspector slot="right" />
     </split-pane>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
 import Defer from '@front/mixins/defer'
 
 import SplitPane from '@front/components/SplitPane.vue'
@@ -22,15 +18,14 @@ export default {
   components: {
     SplitPane,
     EventsHistory,
-    EventInspector
+    EventInspector,
+  },
+  setup(props, { emit }) {
+    const { enabled } = useEvents()
+
+    return { enabled }
   },
 
-  mixins: [
-    Defer()
-  ],
-
-  computed: mapState('events', [
-    'enabled'
-  ])
+  mixins: [Defer()],
 }
 </script>
