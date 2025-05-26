@@ -1,6 +1,6 @@
 import { ref, reactive, computed, toRefs } from 'vue'
 import * as storage from '@utils/storage'
-import { getComponentDisplayName } from '@utils/util'
+import { getComponentDisplayName, parse } from '@utils/util'
 import SharedData from '@utils/shared-data'
 import { bridge as exBridge, api } from '@front/bridge'
 
@@ -95,7 +95,7 @@ const matchingEvent =
 
 exBridge.on(api.events.triggered, payload => {
   const newEvt = parse(payload)
-  payload.id = uid++
+  newEvt.id = uid++
   state.events.push(newEvt)
   if (!state.filter) {
     state.inspectedIndex = state.events.length - 1
