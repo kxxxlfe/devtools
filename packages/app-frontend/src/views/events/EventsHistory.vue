@@ -1,16 +1,9 @@
 <template>
   <scroll-pane>
     <action-header slot="header">
-      <div
-        v-tooltip="$t('EventsHistory.filter.tooltip')"
-        class="search"
-      >
+      <div v-tooltip="$t('EventsHistory.filter.tooltip')" class="search">
         <VueIcon icon="search" />
-        <input
-          ref="filterEvents"
-          v-model.trim="filter"
-          placeholder="Filter events"
-        >
+        <input ref="filterEvents" v-model.trim="filter" placeholder="Filter events" />
       </div>
       <a
         v-tooltip="$t('EventsHistory.clear.tooltip')"
@@ -18,10 +11,7 @@
         class="button reset"
         @click="reset"
       >
-        <VueIcon
-          class="small"
-          icon="do_not_disturb"
-        />
+        <VueIcon class="small" icon="do_not_disturb" />
         <span>Clear</span>
       </a>
       <a
@@ -29,11 +19,7 @@
         class="button toggle-recording"
         @click="toggleRecording"
       >
-        <VueIcon
-          :class="{ enabled }"
-          class="small"
-          icon="lens"
-        />
+        <VueIcon :class="{ enabled }" class="small" icon="lens" />
         <span>{{ enabled ? 'Recording' : 'Paused' }}</span>
       </a>
     </action-header>
@@ -43,15 +29,15 @@
       :item-size="highDensity ? 22 : 34"
       class="history"
       :class="{
-        'high-density': highDensity
+        'high-density': highDensity,
       }"
     >
-      <div
-        v-if="filteredEvents.length === 0"
-        slot="after-container"
-        class="no-events"
-      >
-        No events found<span v-if="!enabled"><br>(Recording is paused)</span>
+      <div v-if="filteredEvents.length === 0" slot="after-container" class="no-events">
+        No events found
+        <span v-if="!enabled">
+          <br />
+          (Recording is paused)
+        </span>
       </div>
       <template slot-scope="{ item: event, index, active }">
         <div
@@ -79,12 +65,7 @@
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 
-import Keyboard, {
-  UP,
-  DOWN,
-  DEL,
-  BACKSPACE
-} from '@front/mixins/keyboard'
+import Keyboard, { UP, DOWN, DEL, BACKSPACE } from '@front/mixins/keyboard'
 import EntryList from '@front/mixins/entry-list'
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 import { focusInput, getComponentDisplayName } from '@utils/util'
@@ -92,12 +73,12 @@ import { focusInput, getComponentDisplayName } from '@utils/util'
 export default {
   components: {
     ScrollPane,
-    ActionHeader
+    ActionHeader,
   },
 
   mixins: [
     Keyboard({
-      onKeyDown ({ key, modifiers }) {
+      onKeyDown({ key, modifiers }) {
         switch (modifiers) {
           case 'ctrl':
             if (key === DEL || key === BACKSPACE) {
@@ -119,55 +100,52 @@ export default {
               this.toggleRecording()
             }
         }
-      }
+      },
     }),
-    EntryList()
+    EntryList(),
   ],
 
   computed: {
-    ...mapState('events', [
-      'enabled',
-      'events',
-      'inspectedIndex'
-    ]),
+    ...mapState('events', ['enabled', 'events', 'inspectedIndex']),
 
-    ...mapGetters('events', [
-      'filteredEvents'
-    ]),
+    ...mapGetters('events', ['filteredEvents']),
 
     filter: {
-      get () {
+      get() {
         return this.$store.state.events.filter
       },
-      set (filter) {
+      set(filter) {
         this.$store.commit('events/UPDATE_FILTER', filter)
         this.$store.dispatch('events/inspect', filter ? -1 : this.events.length - 1)
-      }
+      },
     },
 
-    highDensity () {
+    highDensity() {
       const pref = this.$shared.displayDensity
       return (pref === 'auto' && this.filteredEvents.length > 8) || pref === 'high'
-    }
+    },
   },
 
   methods: {
     ...mapMutations('events', {
       reset: 'RESET',
-      toggleRecording: 'TOGGLE'
+      toggleRecording: 'TOGGLE',
     }),
 
-    ...mapActions('events', [
-      'inspect'
-    ]),
+    ...mapActions('events', ['inspect']),
 
-    displayComponentName (name) {
+    displayComponentName(name) {
       return getComponentDisplayName(name, this.$shared.componentNameStyle)
-    }
-  }
+    },
+  },
 }
 </script>
 
+<style scoped>
+.history {
+  width: 100%;
+}
+</style>
 <style lang="stylus" scoped>
 .vue-recycle-scroller
   height 100%
