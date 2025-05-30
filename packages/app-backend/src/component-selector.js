@@ -1,3 +1,4 @@
+import { throttle } from 'lodash-es'
 import { highlight, unHighlight } from './highlighter'
 import { findRelatedComponent } from './utils'
 import { isBrowser } from '@utils/env'
@@ -97,7 +98,7 @@ export default class ComponentSelector {
   bindMethods() {
     this.startSelecting = this.startSelecting.bind(this)
     this.stopSelecting = this.stopSelecting.bind(this)
-    this.elementMouseOver = this.elementMouseOver.bind(this)
+    this.elementMouseOver = throttle(this.elementMouseOver.bind(this), 50)
     this.elementClicked = this.elementClicked.bind(this)
   }
 }
