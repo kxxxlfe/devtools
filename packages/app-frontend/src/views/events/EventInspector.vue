@@ -22,21 +22,19 @@ export default {
   setup(props, { emit }) {
     const { activeEvent } = useEvents()
 
-    return { activeEvent }
-  },
-
-  computed: {
-    sortedEventData() {
-      if (!this.activeEvent) {
+    const sortedEventData = computed(() => {
+      if (!activeEvent.value) {
         return {}
       }
       return {
-        name: this.activeEvent.eventName,
-        type: this.activeEvent.type,
-        source: '<' + this.activeEvent.instanceName + '>',
-        payload: this.activeEvent.payload,
+        name: activeEvent.value.eventName,
+        type: activeEvent.value.type,
+        source: '<' + activeEvent.value.instanceName + '>',
+        payload: activeEvent.value.payload,
       }
-    },
+    })
+
+    return { activeEvent, sortedEventData }
   },
 }
 </script>
