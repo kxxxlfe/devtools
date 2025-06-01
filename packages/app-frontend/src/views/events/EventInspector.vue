@@ -8,12 +8,13 @@
 </template>
 
 <script>
+import { defineComponent } from 'vue'
 import ScrollPane from '@front/components/ScrollPane.vue'
 import StateInspector from '@front/components/StateInspector.vue'
 
 import { useEvents } from './useEvents'
 
-export default {
+export default defineComponent({
   components: {
     ScrollPane,
     StateInspector,
@@ -36,7 +37,7 @@ export default {
 
     return { activeEvent, sortedEventData }
   },
-}
+})
 </script>
 
 <style lang="stylus" scoped>
