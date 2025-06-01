@@ -1,8 +1,11 @@
 // this script is called when the VueDevtools panel is activated.
 
+import { debounce } from 'lodash-es'
 import { initDevTools } from '@front'
 import Bridge from '@utils/bridge'
 import { waitTime } from '@utils/tools'
+
+let connectLatestRunId = null
 
 initDevTools({
   /**
@@ -12,6 +15,12 @@ initDevTools({
    */
 
   async connect(cb) {
+    connectLatestRunId = Date.now()
+    const currRunId = connectLatestRunId
+    await waitTime(500) // wait page loaded
+    if (currRunId !== connectLatestRunId) {
+      return console.log('connect run repeat, reload too fast, will ignore', currRunId, connectLatestRunId)
+    }
     // 1. inject backend code into page
     await injectScript(chrome.runtime.getURL('build/backend.js'))
 
@@ -61,7 +70,6 @@ initDevTools({
  */
 
 async function injectScript(scriptName) {
-  await waitTime(200) // wait page loaded
   const src = `
     (function() {
       var script = document.constructor.prototype.createElement.call(document, 'script');
