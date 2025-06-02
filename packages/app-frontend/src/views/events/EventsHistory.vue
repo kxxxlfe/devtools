@@ -150,13 +150,11 @@ export default {
 <style scoped>
 .history {
   width: 100%;
+  height: 100%;
 }
 </style>
 
 <style lang="stylus" scoped>
-.vue-recycle-scroller
-  height 100%
-
 .no-events
   color #ccc
   text-align center
