@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, computed } from 'vue'
 import ScrollPane from '@front/components/ScrollPane.vue'
 import StateInspector from '@front/components/StateInspector.vue'
 
