@@ -59,7 +59,7 @@ export const detectVue = function () {
     return null
   }
 
-  let Vue = Object.getPrototypeOf(el.__vue__).constructor
+  let Vue = Object.getPrototypeOf($el.__vue__).constructor
   while (Vue.super) {
     Vue = Vue.super
   }
