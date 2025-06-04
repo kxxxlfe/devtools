@@ -44,7 +44,7 @@ export const detectVue = function () {
   let runCount = 0
   let $el = null
   treeUtil.tranverse(globalThis.document.body, function (node) {
-    runCountt++
+    runCount++
     if (node.__vue__) {
       $el = node
       return false
