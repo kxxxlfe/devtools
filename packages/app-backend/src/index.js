@@ -51,7 +51,7 @@ export function initBackend(_bridge) {
   bridge = _bridge
 
   if (hook.Vue) {
-    isLegacy = hook.Vue.version && hook.Vue.version.split('.')[0] === '1'
+    isLegacy = hook.Vue.version?.split('.')[0] === '1'
     connect(hook.Vue)
   } else {
     hook.once('init', connect)
