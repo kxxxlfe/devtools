@@ -36,7 +36,7 @@ export const treeUtil = {
 }
 
 // 嗅探Vue
-export const detectVue = function () {
+export const detectVue = function ({ times = 1000 } = {}) {
   if (!globalThis.document?.body) {
     return null
   }
@@ -50,7 +50,7 @@ export const detectVue = function () {
       return false
     }
     // 最多查找1000个节点
-    if (runCount >= 1000) {
+    if (runCount >= times) {
       return false
     }
   })
