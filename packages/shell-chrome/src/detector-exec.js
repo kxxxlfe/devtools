@@ -28,9 +28,6 @@ function detect(win) {
     // Method 2: Scan all elements inside document
     const Vue = detectVue()
     if (Vue) {
-      if (globalThis.__VUE_DEVTOOLS_GLOBAL_HOOK__ && !globalThis.__VUE_DEVTOOLS_GLOBAL_HOOK__.Vue) {
-        globalThis.__VUE_DEVTOOLS_GLOBAL_HOOK__.Vue = Vue
-      }
       win.postMessage(
         {
           devtoolsEnabled: Vue.config.devtools,

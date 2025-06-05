@@ -64,5 +64,11 @@ export const detectVue = function ({ times = 1000 } = {}) {
     Vue = Vue.super
   }
 
+  // 每次检测到Vue，直接分发出去
+  const hook = globalThis.__VUE_DEVTOOLS_GLOBAL_HOOK__
+  if (hook && !hook.Vue && Vue.config.devtools) {
+    hook.Vue = Vue
+  }
+
   return Vue
 }
