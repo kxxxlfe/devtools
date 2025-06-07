@@ -241,7 +241,12 @@ function replacer(key) {
       return encodeCache.cache(val, () => getCustomInstanceDetails(val))
     } else if (typeof val.render === 'function') {
       return encodeCache.cache(val, () => getCustomComponentDefinitionDetails(val))
-    } else if (val.constructor?.name?.startsWith('VNode')) {
+    }
+    // 线上代码不能依赖name
+    else if (
+      val.constructor?.name?.startsWith('VNode') ||
+      ['tag', 'elm', 'componentInstance', 'asyncFactory'].every(key => Reflect.has(val, key))
+    ) {
       // localhost maybe VNode2
       return `[native VNode <${val.tag}>]`
     } else if (isRef(val)) {

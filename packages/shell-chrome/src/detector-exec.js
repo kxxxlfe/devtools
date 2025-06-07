@@ -1,4 +1,5 @@
 import { installToast } from '@back/toast'
+import { detectVue } from '@utils/tools'
 
 function detect(win) {
   setTimeout(() => {
@@ -25,19 +26,8 @@ function detect(win) {
     }
 
     // Method 2: Scan all elements inside document
-    const all = document.querySelectorAll('*')
-    let el
-    for (let i = 0; i < all.length; i++) {
-      if (all[i].__vue__) {
-        el = all[i]
-        break
-      }
-    }
-    if (el) {
-      let Vue = Object.getPrototypeOf(el.__vue__).constructor
-      while (Vue.super) {
-        Vue = Vue.super
-      }
+    const Vue = detectVue()
+    if (Vue) {
       win.postMessage(
         {
           devtoolsEnabled: Vue.config.devtools,

@@ -1,51 +1,43 @@
 <template>
   <scroll-pane>
-    <div
-      v-if="activeEvent"
-      slot="scroll"
-    >
+    <div v-if="activeEvent" slot="scroll">
       <state-inspector :state="{ 'event info': sortedEventData }" />
     </div>
-    <div
-      v-else
-      slot="scroll"
-      class="no-event-data"
-    >
-      No event selected
-    </div>
+    <div v-else slot="scroll" class="no-event-data">No event selected</div>
   </scroll-pane>
 </template>
 
 <script>
+import { defineComponent, computed } from 'vue'
 import ScrollPane from '@front/components/ScrollPane.vue'
 import StateInspector from '@front/components/StateInspector.vue'
 
-import { mapGetters } from 'vuex'
+import { useEvents } from './useEvents'
 
-export default {
+export default defineComponent({
   components: {
     ScrollPane,
-    StateInspector
+    StateInspector,
   },
 
-  computed: {
-    ...mapGetters('events', [
-      'activeEvent'
-    ]),
+  setup(props, { emit }) {
+    const { activeEvent } = useEvents()
 
-    sortedEventData () {
-      if (!this.activeEvent) {
+    const sortedEventData = computed(() => {
+      if (!activeEvent.value) {
         return {}
       }
       return {
-        name: this.activeEvent.eventName,
-        type: this.activeEvent.type,
-        source: '<' + this.activeEvent.instanceName + '>',
-        payload: this.activeEvent.payload
+        name: activeEvent.value.eventName,
+        type: activeEvent.value.type,
+        source: '<' + activeEvent.value.instanceName + '>',
+        payload: activeEvent.value.payload,
       }
-    }
-  }
-}
+    })
+
+    return { activeEvent, sortedEventData }
+  },
+})
 </script>
 
 <style lang="stylus" scoped>

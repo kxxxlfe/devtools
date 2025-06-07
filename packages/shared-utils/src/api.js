@@ -41,7 +41,13 @@ export const api = {
       updateState: `${PLATFORM.devtool}/pinia/updateState`,
     },
     shared: {
+      init: `${PLATFORM.devtool}/shared-data:init`,
       setData: `${PLATFORM.devtool}/shared-data:set`,
     },
+  },
+  events: {
+    toggleRecording: `${PLATFORM.web}/events/toggleRecording`,
+    reset: `${PLATFORM.devtool}/events/reset`,
+    triggered: `${PLATFORM.devtool}/events/triggered`,
   },
 }

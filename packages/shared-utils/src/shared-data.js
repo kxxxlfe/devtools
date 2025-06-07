@@ -1,6 +1,19 @@
 import * as storage from './storage'
 import { debug } from './util'
 import { api, PLATFORM } from './api'
+import { waitTime } from '@utils/tools'
+
+Promise.withResolvers =
+  Promise.withResolvers ||
+  function () {
+    let resolve, reject
+    const promise = new Promise((res, rej) => {
+      resolve = res
+      reject = rej
+    })
+
+    return { promise, resolve, reject }
+  }
 
 // Initial state
 const internalSharedData = {
@@ -46,84 +59,55 @@ let persist = false
 // For reactivity, we wrap the data in a Vue instance
 let vm
 
-let initRetryInterval
-let initRetryCount = 0
+export async function init(params) {
+  const { promise, resolve } = Promise.withResolvers()
 
-export function init(params) {
-  return new Promise(async (resolve, reject) => {
-    // Mandatory params
-    exBridge = params.exBridge
-    Vue = params.Vue
-    persist = !!params.persist
+  // Mandatory params
+  exBridge = params.exBridge
+  Vue = params.Vue
+  persist = !!params.persist
 
-    // devtool
-    if (persist) {
-      debug('[shared data] Master init in progress...')
-      const webReady = async function () {
-        return new Promise(resolve => {
-          const checkReady = () =>
-            exBridge
-              .request(api.web.shared.ready)
-              .then(() => {
-                resolve()
-                clearInterval(initRetryInterval)
-              })
-              .catch(e => {
-                debug('shared-data:ready catch', e.message)
-              })
-          initRetryCount = 0
-          clearInterval(initRetryInterval)
-          initRetryInterval = setInterval(() => {
-            debug('[shared data] Master init retrying...')
-            checkReady()
-            initRetryCount++
-            if (initRetryCount > 30) {
-              clearInterval(initRetryInterval)
-              console.error('[shared data] Master init failed')
-            }
-          }, 1000)
-          checkReady()
-        })
+  // Wrapper Vue instance
+  vm = new Vue({
+    data: internalSharedData,
+  })
+
+  // Update value from other shared data clients
+  const sapi = exBridge.plat === PLATFORM.web ? api.web.shared : api.devtool.shared
+  exBridge.on(sapi.setData, ({ key, value }) => {
+    setValue(key, value)
+  })
+
+  // devtool
+  if (persist) {
+    debug('[shared data] Master init in progress...')
+
+    // Load persisted fields
+    persisted.forEach(key => {
+      const value = storage.get(`shared-data:${key}`)
+      if (value !== null) {
+        internalSharedData[key] = value
       }
-
-      // Load persisted fields
-      persisted.forEach(key => {
-        const value = storage.get(`shared-data:${key}`)
-        if (value !== null) {
-          internalSharedData[key] = value
-        }
-      })
-
-      await webReady()
-
-      // Send all fields
-      Object.keys(internalSharedData).forEach(key => {
-        sendValue(key, internalSharedData[key])
-      })
-      exBridge.send(api.web.shared.loadComplete)
-
-      debug('[shared data] Master init complete')
-      resolve()
-    }
-    // web
-    else {
-      exBridge.on(api.web.shared.ready, () => 'ready')
-      exBridge.on(api.web.shared.loadComplete, () => {
-        resolve()
-      })
-    }
-
-    // Wrapper Vue instance
-    vm = new Vue({
-      data: internalSharedData,
     })
 
-    // Update value from other shared data clients
-    const sapi = exBridge.plat === PLATFORM.web ? api.web.shared : api.devtool.shared
-    exBridge.on(sapi.setData, ({ key, value }) => {
+    // web调用这个接口，说明完成了
+    exBridge.on(api.devtool.shared.init, async function () {
+      resolve()
+      debug('[shared data] Master init complete')
+      return internalSharedData
+    })
+  }
+  // web
+  else {
+    // 初始化时获取devtool数据，同步到自身
+    const devtoolSharedData = await exBridge.request(api.devtool.shared.init)
+    Object.entries(devtoolSharedData).forEach(([key, value]) => {
       setValue(key, value)
     })
-  })
+    resolve()
+  }
+
+  return promise
 }
 
 export function destroy() {

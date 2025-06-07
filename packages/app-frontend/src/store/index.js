@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import vuex from '@front/views/vuex/module'
-import events from '@front/views/events/module'
 import router from '@front/views/router/module'
 import routes from '@front/views/routes/module'
 import perf from '@front/views/perf/module'
@@ -24,7 +23,6 @@ export function createStore() {
     },
     modules: {
       vuex,
-      events,
       router,
       routes,
       perf,
@@ -35,7 +33,6 @@ export function createStore() {
     module.hot.accept(
       [
         '@front/views/vuex/module',
-        '@front/views/events/module',
         '@front/views/router/module',
         '@front/views/routes/module',
         '@front/views/perf/module',
@@ -45,7 +42,6 @@ export function createStore() {
           store.hotUpdate({
             modules: {
               vuex: require('@front/views/vuex/module').default,
-              events: require('@front/views/events/module').default,
               router: require('@front/views/router/module').default,
               routes: require('@front/views/routes/module').default,
               perf: require('@front/views/perf/module').default,

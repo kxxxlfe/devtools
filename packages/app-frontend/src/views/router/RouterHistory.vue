@@ -3,32 +3,14 @@
     <action-header slot="header">
       <div class="search">
         <VueIcon icon="search" />
-        <input
-          ref="filterRoutes"
-          v-model.trim="filter"
-          placeholder="Filter routes"
-        >
+        <input ref="filterRoutes" v-model.trim="filter" placeholder="Filter routes" />
       </div>
-      <a
-        :class="{ disabled: !filteredRoutes.length }"
-        class="button reset"
-        @click="reset"
-      >
-        <VueIcon
-          class="small"
-          icon="do_not_disturb"
-        />
+      <a :class="{ disabled: !filteredRoutes.length }" class="button reset" @click="reset">
+        <VueIcon class="small" icon="do_not_disturb" />
         <span>Clear</span>
       </a>
-      <a
-        class="button toggle-recording"
-        @click="toggleRecording"
-      >
-        <VueIcon
-          :class="{ enabled }"
-          class="small"
-          icon="lens"
-        />
+      <a class="button toggle-recording" @click="toggleRecording">
+        <VueIcon :class="{ enabled }" class="small" icon="lens" />
         <span>{{ enabled ? 'Recording' : 'Paused' }}</span>
       </a>
     </action-header>
@@ -38,15 +20,15 @@
       :item-size="highDensity ? 22 : 34"
       class="history"
       :class="{
-        'high-density': highDensity
+        'high-density': highDensity,
       }"
     >
-      <div
-        v-if="filteredRoutes.length === 0"
-        slot="after-container"
-        class="no-routes"
-      >
-        No route transitions found<span v-if="!enabled"><br>(Recording is paused)</span>
+      <div v-if="filteredRoutes.length === 0" slot="after-container" class="no-routes">
+        No route transitions found
+        <span v-if="!enabled">
+          <br />
+          (Recording is paused)
+        </span>
       </div>
 
       <template slot-scope="{ item: route, index, active }">
@@ -58,16 +40,8 @@
         >
           <span class="route-name">{{ route.to.path }}</span>
           <span class="time">{{ route.timestamp | formatTime($shared.timeFormat) }}</span>
-          <span
-            v-if="route.to.redirectedFrom"
-            class="label redirect"
-          >
-            redirect
-          </span>
-          <span
-            v-if="isNotEmpty(route.to.name)"
-            class="label name"
-          >
+          <span v-if="route.to.redirectedFrom" class="label redirect">redirect</span>
+          <span v-if="isNotEmpty(route.to.name)" class="label name">
             {{ route.to.name }}
           </span>
         </div>
@@ -85,47 +59,45 @@ import ActionHeader from '@front/components/ActionHeader.vue'
 export default {
   components: {
     ScrollPane,
-    ActionHeader
+    ActionHeader,
   },
   computed: {
     filter: {
-      get () {
+      get() {
         return this.$store.state.router.filter
       },
-      set (filter) {
+      set(filter) {
         this.$store.commit('router/UPDATE_FILTER', filter)
-      }
+      },
     },
-    highDensity () {
+    highDensity() {
       const pref = this.$shared.displayDensity
       return (pref === 'auto' && this.totalCount > 12) || pref === 'high'
     },
-    ...mapState('router', [
-      'enabled',
-      'routeChanges',
-      'inspectedIndex'
-    ]),
-    ...mapGetters('router', [
-      'filteredRoutes'
-    ])
+    ...mapState('router', ['enabled', 'routeChanges', 'inspectedIndex']),
+    ...mapGetters('router', ['filteredRoutes']),
   },
   methods: {
     ...mapMutations('router', {
       inspect: 'INSPECT',
       reset: 'RESET',
-      toggleRecording: 'TOGGLE'
+      toggleRecording: 'TOGGLE',
     }),
-    isNotEmpty (value) {
+    isNotEmpty(value) {
       return !!value && value !== UNDEFINED
-    }
-  }
+    },
+  },
 }
 </script>
 
-<style lang="stylus" scoped>
-.vue-recycle-scroller
-  height 100%
+<style scoped>
+.vue-recycle-scroller {
+  width: 100%;
+  height: 100%;
+}
+</style>
 
+<style lang="stylus" scoped>
 .no-routes
   color #ccc
   text-align center

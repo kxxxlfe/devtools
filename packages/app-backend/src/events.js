@@ -1,14 +1,15 @@
 import { stringify } from '@utils/util'
 import { getInstanceName } from './process'
+import { bridge as exBridge, api } from './bridge'
 
 const internalRE = /^(?:pre-)?hook:/
 
 export function initEventsBackend(Vue, bridge) {
   let recording = true
 
-  bridge.send('events:reset')
+  exBridge.send(api.events.reset)
 
-  bridge.on('events:toggle-recording', enabled => {
+  exBridge.on(api.events.toggleRecording, enabled => {
     recording = enabled
   })
 
@@ -18,8 +19,8 @@ export function initEventsBackend(Vue, bridge) {
     // this also ensures the event is only logged for direct $emit (source)
     // instead of by $dispatch/$broadcast
     if (typeof eventName === 'string' && !internalRE.test(eventName)) {
-      bridge.send(
-        'event:triggered',
+      exBridge.send(
+        api.events.triggered,
         stringify({
           eventName,
           type,
@@ -35,7 +36,7 @@ export function initEventsBackend(Vue, bridge) {
   function wrap(method) {
     const original = Vue.prototype[method]
     if (original) {
-      Vue.prototype[method] = function(...args) {
+      Vue.prototype[method] = function (...args) {
         const res = original.apply(this, args)
         if (recording) {
           logEvent(this, method, args[0], args.slice(1))

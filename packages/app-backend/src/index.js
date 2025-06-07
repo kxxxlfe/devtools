@@ -1,6 +1,6 @@
 // This is the backend that is injected into the page that a Vue app lives in
 // when the Vue Devtools panel is activated.
-import { isRef } from 'vue'
+import Vue from 'vue'
 import { highlight, unHighlight, getInstanceOrVnodeRect } from './highlighter'
 import { initVuexBackend } from './vuex'
 import { initEventsBackend } from './events'
@@ -25,6 +25,8 @@ import {
 import SharedData, { init as initSharedData } from '@utils/shared-data'
 import { isBrowser, target } from '@utils/env'
 import { bridge as exBridge, api } from './bridge'
+
+Vue.config.devtools = false // 否则会干扰到页面中的Vue
 
 // hook should have been injected before this executes.
 const hook = target.__VUE_DEVTOOLS_GLOBAL_HOOK__
@@ -51,7 +53,7 @@ export function initBackend(_bridge) {
   bridge = _bridge
 
   if (hook.Vue) {
-    isLegacy = hook.Vue.version && hook.Vue.version.split('.')[0] === '1'
+    isLegacy = hook.Vue.version?.split('.')[0] === '1'
     connect(hook.Vue)
   } else {
     hook.once('init', connect)

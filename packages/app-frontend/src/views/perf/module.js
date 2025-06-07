@@ -1,4 +1,7 @@
 import { parse } from '@utils/util'
+import { useEvents } from '../events/useEvents'
+
+const { events } = useEvents()
 
 export const FPS_MARKERS_PRECISION = 1000
 
@@ -7,13 +10,13 @@ export default {
 
   state: () => ({
     currentBenchmark: null,
-    benchmarks: []
+    benchmarks: [],
   }),
 
   getters: {
     metrics: state => (state.currentBenchmark && state.currentBenchmark.metrics) || {},
 
-    fpsMarkers (state, getters, rootState) {
+    fpsMarkers(state, getters, rootState) {
       const { currentBenchmark } = state
       let markers = {}
       if (!currentBenchmark) return markers
@@ -27,17 +30,17 @@ export default {
             continue
           }
           const time = Math.round(entry.timestamp / FPS_MARKERS_PRECISION) * FPS_MARKERS_PRECISION
-          let marker = markers[time] = markers[time] || {
+          let marker = (markers[time] = markers[time] || {
             time,
-            bubbles: {}
-          }
-          let bubble = marker.bubbles[type] = marker.bubbles[type] || {
+            bubbles: {},
+          })
+          let bubble = (marker.bubbles[type] = marker.bubbles[type] || {
             type,
-            entries: []
-          }
+            entries: [],
+          })
           bubble.entries.push({
             ...getInfo(entry),
-            timestamp: entry.timestamp
+            timestamp: entry.timestamp,
           })
         }
       }
@@ -47,55 +50,54 @@ export default {
         label: entry.mutation.type,
         state: {
           'mutation info': {
-            payload: parse(entry.mutation.payload)
-          }
-        }
+            payload: parse(entry.mutation.payload),
+          },
+        },
       }))
 
-      const { events } = rootState.events
-      addEntries('events', events, entry => ({
+      addEntries('events', events.value, entry => ({
         label: entry.eventName,
         state: {
           'event info': {
             name: entry.eventName,
             type: entry.type,
             source: `<${entry.instanceName}>`,
-            payload: entry.payload
-          }
-        }
+            payload: entry.payload,
+          },
+        },
       }))
 
       const { routeChanges } = rootState.router
       addEntries('routes', routeChanges, entry => ({
         label: entry.to.fullPath,
         state: {
-          'from': entry.from,
-          'to': entry.to
-        }
+          from: entry.from,
+          to: entry.to,
+        },
       }))
 
       return markers
-    }
+    },
   },
 
   mutations: {
-    'SET_CURRENT_BENCHMARK' (state, value) {
+    SET_CURRENT_BENCHMARK(state, value) {
       state.currentBenchmark = value
     },
 
-    'UPDATE_BENCHMARK' (state, data) {
+    UPDATE_BENCHMARK(state, data) {
       Object.assign(state.currentBenchmark, data)
     },
 
-    'ADD_BENCHMARK' (state, benchmark) {
+    ADD_BENCHMARK(state, benchmark) {
       state.benchmarks.splice(0, 0, benchmark)
     },
 
-    'ADD_METRIC' (state, metric) {
+    ADD_METRIC(state, metric) {
       state.currentBenchmark.metrics[metric.type].push(metric)
     },
 
-    'UPSERT_METRIC' (state, { type, data }) {
+    UPSERT_METRIC(state, { type, data }) {
       const list = state.currentBenchmark.metrics[type]
       const metric = list.find(m => m.id === data.id)
       if (metric) {
@@ -103,6 +105,6 @@ export default {
       } else {
         list.push(data)
       }
-    }
-  }
+    },
+  },
 }
