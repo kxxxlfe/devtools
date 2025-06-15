@@ -1,3 +1,4 @@
+import { bridge, api } from '@back/bridge'
 import { installToast } from '@back/toast'
 import { detectVue } from '@utils/tools'
 
@@ -13,28 +14,44 @@ function detect(win) {
         Vue = window.$nuxt.$root.constructor
       }
 
-      win.postMessage(
-        {
-          devtoolsEnabled: Vue && Vue.config.devtools,
-          vueDetected: true,
-          nuxtDetected: true,
-        },
-        '*'
-      )
+      bridge.send(api.back.vueDetectResult, {
+        devtoolsEnabled: Vue && Vue.config.devtools,
+        vueDetected: true,
+        nuxtDetected: true,
+      })
+
+      // win.postMessage(
+      //   {
+      //     devtoolsEnabled: Vue && Vue.config.devtools,
+      //     vueDetected: true,
+      //     nuxtDetected: true,
+      //   },
+      //   '*'
+      // )
 
       return
     }
 
     // Method 2: Scan all elements inside document
     const Vue = detectVue()
+
     if (Vue) {
-      win.postMessage(
-        {
-          devtoolsEnabled: Vue.config.devtools,
-          vueDetected: true,
-        },
-        '*'
-      )
+      // 每次检测到Vue，直接分发出去
+      const hook = globalThis.__VUE_DEVTOOLS_GLOBAL_HOOK__
+      if (hook && !hook.Vue && Vue.config.devtools) {
+        hook.Vue = Vue
+      }
+      bridge.send(api.back.vueDetectResult, {
+        devtoolsEnabled: Vue.config.devtools,
+        vueDetected: true,
+      })
+      // win.postMessage(
+      //   {
+      //     devtoolsEnabled: Vue.config.devtools,
+      //     vueDetected: true,
+      //   },
+      //   '*'
+      // )
     }
   }, 100)
 }

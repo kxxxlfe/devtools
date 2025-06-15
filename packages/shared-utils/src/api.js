@@ -3,6 +3,7 @@ import { Plat } from '@yuhufe/browser-bridge'
 export const PLATFORM = {
   web: 'vueDevtoolsWeb',
   devtool: Plat.devtool,
+  back: Plat.background,
 }
 
 export const api = {
@@ -49,5 +50,8 @@ export const api = {
     toggleRecording: `${PLATFORM.web}/events/toggleRecording`,
     reset: `${PLATFORM.devtool}/events/reset`,
     triggered: `${PLATFORM.devtool}/events/triggered`,
+  },
+  back: {
+    vueDetectResult: `${PLATFORM.back}/vueDetectResult`, // vue检测完成
   },
 }

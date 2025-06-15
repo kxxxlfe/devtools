@@ -1,5 +1,9 @@
 // the background script runs all the time and serves as a central message
 // hub for each vue devtools (panel + proxy + backend) instance.
+import { BackgroundBridge } from '@yuhufe/browser-bridge'
+import { PLATFORM, api } from '@utils/api'
+
+const backBridge = new BackgroundBridge()
 
 const ports = {}
 
@@ -95,6 +99,22 @@ chrome.runtime.onMessage.addListener((req, sender) => {
     //   popup: req.devtoolsEnabled ? `../popups/enabled${suffix}.html` : `../popups/disabled${suffix}.html`,
     // })
   }
+})
+backBridge.on(api.back.vueDetectResult, function ({ vueDetected, nuxtDetected }, extra) {
+  if (!vueDetected) {
+    return
+  }
+
+  const { sender } = extra || {}
+  const suffix = nuxtDetected ? '.nuxt' : ''
+  chrome.action.setIcon({
+    tabId: sender.tab.id,
+    path: {
+      16: `../icons/16${suffix}.png`,
+      48: `../icons/48${suffix}.png`,
+      128: `../icons/128${suffix}.png`,
+    },
+  })
 })
 
 // Right-click inspect context menu entry
