@@ -9,6 +9,7 @@ const init = async function () {
   const descEl = document.body.querySelector('.desc')
   const { vueDetected, nuxtDetected, devtoolsEnabled, vueVersion } = detectRes
   descEl.innerHTML = createDesc(detectRes)
+  const showForceEnable = vueDetected && !devtoolsEnabled
 }
 init()
 
