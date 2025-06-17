@@ -2,6 +2,16 @@ import { bridge, api } from '@back/bridge'
 import { installToast } from '@back/toast'
 import { detectVue } from '@utils/tools'
 
+let detectRes = {}
+const initDetectRes = function ({ Vue, ...others }) {
+  detectRes = {
+    ...others,
+    devtoolsEnabled: Vue?.config.devtools,
+    vueVersion: Vue?.version,
+    vueDetected: !!Vue,
+  }
+}
+
 function detect(win) {
   setTimeout(() => {
     // Method 1: Check Nuxt.js
@@ -14,20 +24,8 @@ function detect(win) {
         Vue = window.$nuxt.$root.constructor
       }
 
-      bridge.send(api.back.vueDetectResult, {
-        devtoolsEnabled: Vue && Vue.config.devtools,
-        vueDetected: true,
-        nuxtDetected: true,
-      })
-
-      // win.postMessage(
-      //   {
-      //     devtoolsEnabled: Vue && Vue.config.devtools,
-      //     vueDetected: true,
-      //     nuxtDetected: true,
-      //   },
-      //   '*'
-      // )
+      initDetectRes({ Vue, nuxtDetected: true })
+      bridge.send(api.back.vueDetectResult, detectRes)
 
       return
     }
@@ -41,20 +39,15 @@ function detect(win) {
       if (hook && !hook.Vue && Vue.config.devtools) {
         hook.Vue = Vue
       }
-      bridge.send(api.back.vueDetectResult, {
-        devtoolsEnabled: Vue.config.devtools,
-        vueDetected: true,
-      })
-      // win.postMessage(
-      //   {
-      //     devtoolsEnabled: Vue.config.devtools,
-      //     vueDetected: true,
-      //   },
-      //   '*'
-      // )
+      initDetectRes({ Vue })
+      bridge.send(api.back.vueDetectResult, detectRes)
     }
   }, 100)
 }
+
+bridge.on(api.web.fetchVueDetect, function () {
+  return detectRes
+})
 
 // inject the hook
 if (document instanceof HTMLDocument) {

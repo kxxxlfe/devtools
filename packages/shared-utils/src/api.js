@@ -28,6 +28,7 @@ export const api = {
       loadComplete: `${PLATFORM.web}/shared-data:load-complete`,
       setData: `${PLATFORM.web}/shared-data:set`,
     },
+    fetchVueDetect: `${PLATFORM.web}/fetchVueDetect`,
   },
   devtool: {
     flush: `${PLATFORM.devtool}/flush`,

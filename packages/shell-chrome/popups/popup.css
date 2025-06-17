@@ -8,8 +8,9 @@ body {
   color: #2c3e50;
 }
 
-.parag {
-  min-width: 200px;
+.desc {
+  min-width: 100px;
   max-width: 300px;
   white-space: nowrap;
+  font-weight: bold;
 }

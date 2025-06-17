@@ -83,23 +83,6 @@ function doublePipe(id, one, two) {
   updateContextMenuItem()
 }
 
-chrome.runtime.onMessage.addListener((req, sender) => {
-  if (sender.tab && req.vueDetected) {
-    // const suffix = req.nuxtDetected ? '.nuxt' : ''
-    // chrome.action.setIcon({
-    //   tabId: sender.tab.id,
-    //   path: {
-    //     16: `../icons/16${suffix}.png`,
-    //     48: `../icons/48${suffix}.png`,
-    //     128: `../icons/128${suffix}.png`,
-    //   },
-    // })
-    // chrome.action.setPopup({
-    //   tabId: sender.tab.id,
-    //   popup: req.devtoolsEnabled ? `../popups/enabled${suffix}.html` : `../popups/disabled${suffix}.html`,
-    // })
-  }
-})
 backBridge.on(api.back.vueDetectResult, function ({ vueDetected, nuxtDetected, sender }) {
   if (!vueDetected) {
     return
