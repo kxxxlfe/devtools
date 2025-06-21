@@ -32,6 +32,16 @@ Vue.config.devtools = false // 否则会干扰到页面中的Vue
 const hook = target.__VUE_DEVTOOLS_GLOBAL_HOOK__
 const rootInstances = []
 
+// 插入backend脚本，防止多次插入
+hook.injectBackend = async function () {
+  setTimeout(() => {
+    // 再次inject时，直接初始化
+    exBridge.request(api.devtool.shared.init)
+  }, 0)
+
+  return true
+}
+
 export const instanceMap = (target.__VUE_DEVTOOLS_INSTANCE_MAP__ = new Map())
 setInstanceMap(instanceMap)
 export const functionalVnodeMap = (target.__VUE_DEVTOOLS_FUNCTIONAL_VNODE_MAP__ = new Map())
@@ -64,7 +74,6 @@ export function initBackend(_bridge) {
 
 function connect(Vue) {
   initSharedData({
-    bridge,
     exBridge,
     Vue,
   }).then(() => {

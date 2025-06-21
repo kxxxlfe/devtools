@@ -105,7 +105,6 @@ function initApp(shell) {
     }
 
     initSharedData({
-      bridge,
       exBridge,
       Vue,
       persist: true,
