@@ -30,11 +30,12 @@ export const api = {
       setData: `${PLATFORM.web}/shared-data:set`,
     },
     fetchVueDetect: `${PLATFORM.web}/fetchVueDetect`,
+    inspectCtxMenuInst: `${PLATFORM.web}/inspectCtxMenuInst`, // inspect right click el
   },
   devtool: {
     flush: `${PLATFORM.devtool}/flush`,
     updateInstance: `${PLATFORM.devtool}/update-instance`,
-    inspectInstance: `${PLATFORM.devtool}/inspect-instance`,
+    inspectInstance: `${PLATFORM.devtool}/inspect-instance`, // choose node in `Components`
     perf: {
       addMetric: `${PLATFORM.devtool}/perf/add-metric`,
       upsertMetric: `${PLATFORM.devtool}/perf/upsert-metric`,

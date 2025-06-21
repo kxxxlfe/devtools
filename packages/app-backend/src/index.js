@@ -25,6 +25,8 @@ import {
 import SharedData, { init as initSharedData } from '@utils/shared-data'
 import { isBrowser, target } from '@utils/env'
 import { bridge as exBridge, api } from './bridge'
+import { inspectInstance } from './op'
+import { initRightClick } from './contextmenu'
 
 Vue.config.devtools = false // 否则会干扰到页面中的Vue
 
@@ -42,9 +44,6 @@ hook.injectBackend = async function () {
   return true
 }
 
-// 选中组件
-new ComponentSelector(instanceMap)
-
 export const instanceMap = (target.__VUE_DEVTOOLS_INSTANCE_MAP__ = new Map())
 setInstanceMap(instanceMap)
 export const functionalVnodeMap = (target.__VUE_DEVTOOLS_FUNCTIONAL_VNODE_MAP__ = new Map())
@@ -61,6 +60,9 @@ let functionalIds = new Map()
 // Dedupe instances
 // Some instances may be both on a component and on a child abstract/functional component
 const captureIds = new Map()
+
+// 选中组件
+new ComponentSelector(instanceMap)
 
 export function initBackend(_bridge) {
   bridge = _bridge
@@ -90,20 +92,6 @@ function connect(Vue) {
       if (hook.currentTab === 'components') {
         debounceFlush()
       }
-    })
-
-    // Get the instance id that is targeted by context menu
-    bridge.on('get-context-menu-target', () => {
-      const instance = target.__VUE_DEVTOOLS_CONTEXT_MENU_TARGET__
-
-      target.__VUE_DEVTOOLS_CONTEXT_MENU_TARGET__ = null
-      target.__VUE_DEVTOOLS_CONTEXT_MENU_HAS_TARGET__ = false
-
-      if (instance) {
-        inspectInstance(instance)
-      }
-
-      toast('No Vue component was found', 'warn')
     })
 
     // vuex
@@ -581,41 +569,7 @@ export function toast(message, type = 'normal') {
   fn && fn(message, type)
 }
 
-function inspectInstance(instance) {
-  let id = null
-  do {
-    id = instance.__VUE_DEVTOOLS_UID__
-    if (id) {
-      break
-    }
-    instance = instance.$parent
-  } while (instance)
-
-  if (id) {
-    exBridge.send(api.devtool.inspectInstance, id)
-  }
-}
 target.__VUE_DEVTOOLS_INSPECT__ = inspectInstance
-
-function initRightClick() {
-  if (!isBrowser) return
-  // Start recording context menu when Vue is detected
-  // event if Vue devtools are not loaded yet
-  document.addEventListener('contextmenu', event => {
-    const el = event.target
-    if (el) {
-      // Search for parent that "is" a component instance
-      const instance = findRelatedComponent(el)
-      if (instance) {
-        window.__VUE_DEVTOOLS_CONTEXT_MENU_HAS_TARGET__ = true
-        window.__VUE_DEVTOOLS_CONTEXT_MENU_TARGET__ = instance
-        return
-      }
-    }
-    window.__VUE_DEVTOOLS_CONTEXT_MENU_HAS_TARGET__ = null
-    window.__VUE_DEVTOOLS_CONTEXT_MENU_TARGET__ = null
-  })
-}
 
 // exBridge
 exBridge.on(api.web.enterInstance, id => {

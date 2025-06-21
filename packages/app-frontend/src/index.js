@@ -7,6 +7,7 @@ import * as filters from './filters'
 import './plugins'
 import VuexResolve from './views/vuex/resolve'
 import { useEvents } from './views/events/useEvents'
+import { inspectContextMenuInstance } from './views/components/useComponent'
 import { parse } from '@utils/util'
 import { isChrome, initEnv } from '@utils/env'
 import SharedData, { init as initSharedData, destroy as destroySharedData } from '@utils/shared-data'
@@ -37,7 +38,7 @@ if (isChrome) {
 
   chrome.runtime.onMessage.addListener(request => {
     if (request === 'vue-get-context-menu-target') {
-      getContextMenuInstance()
+      inspectContextMenuInstance()
     }
   })
 }
@@ -214,8 +215,4 @@ function initApp(shell) {
       }).$mount('#app')
     })
   })
-}
-
-function getContextMenuInstance() {
-  bridge.send('get-context-menu-target')
 }
