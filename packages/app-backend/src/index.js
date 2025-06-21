@@ -42,6 +42,9 @@ hook.injectBackend = async function () {
   return true
 }
 
+// 选中组件
+new ComponentSelector(instanceMap)
+
 export const instanceMap = (target.__VUE_DEVTOOLS_INSTANCE_MAP__ = new Map())
 setInstanceMap(instanceMap)
 export const functionalVnodeMap = (target.__VUE_DEVTOOLS_FUNCTIONAL_VNODE_MAP__ = new Map())
@@ -78,9 +81,6 @@ function connect(Vue) {
     Vue,
   }).then(() => {
     hook.currentTab = 'components'
-    bridge.on('switch-tab', tab => {
-      hook.currentTab = tab
-    })
 
     // the backend may get injected to the same page multiple times
     // if the user closes and reopens the devtools.
@@ -91,9 +91,6 @@ function connect(Vue) {
         debounceFlush()
       }
     })
-
-    // eslint-disable-next-line no-new
-    new ComponentSelector(bridge, instanceMap)
 
     // Get the instance id that is targeted by context menu
     bridge.on('get-context-menu-target', () => {
@@ -719,4 +716,8 @@ exBridge.on(api.web.setInstanceData, args => {
 exBridge.on(api.web.filterInstance, _filter => {
   filter = _filter.toLowerCase()
   debounceFlush()
+})
+// 更新当前devtools正在使用的功能
+exBridge.on(api.web.updateActiveTab, tab => {
+  hook.currentTab = tab
 })

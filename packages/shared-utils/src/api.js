@@ -19,6 +19,7 @@ export const api = {
     setInstanceData: `${PLATFORM.web}/set-instance-data`,
     filterInstance: `${PLATFORM.web}/filter-data`,
     refresh: `${PLATFORM.web}/refresh`,
+    updateActiveTab: `${PLATFORM.web}/updateActiveTab`,
     pinia: {
       select: `${PLATFORM.web}/pinia/select`,
       editState: `${PLATFORM.web}/pinia/editState`,

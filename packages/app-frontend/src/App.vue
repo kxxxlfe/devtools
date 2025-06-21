@@ -255,7 +255,7 @@ export default {
 
   watch: {
     '$route.name'(tab) {
-      bridge.send('switch-tab', tab)
+      exBridge.send(api.web.updateActiveTab, tab)
       if (tab === 'events') {
         this.resetNewEventCount()
       }

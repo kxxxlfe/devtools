@@ -5,9 +5,8 @@ import { isBrowser } from '@utils/env'
 import { bridge as exBridge, api } from './bridge'
 
 export default class ComponentSelector {
-  constructor(bridge, instanceMap) {
+  constructor(instanceMap) {
     const self = this
-    self.bridge = bridge
     self.instanceMap = instanceMap
     self.bindMethods()
 
