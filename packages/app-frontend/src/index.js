@@ -3,6 +3,7 @@ import AppConnecting from './AppConnecting.vue'
 import App from './App.vue'
 import router from './router'
 import { createStore } from './store'
+import { useApp } from './store/useApp'
 import * as filters from './filters'
 import './plugins'
 import VuexResolve from './views/vuex/resolve'
@@ -95,6 +96,8 @@ export function initDevTools(shell) {
 const { enabled: eventsEnabled } = useEvents()
 
 function initApp(shell) {
+  const { updateHeaderMsg } = useApp()
+
   shell.connect(bridge => {
     window.bridge = bridge
     if (Vue.prototype.hasOwnProperty('$shared')) {
@@ -119,7 +122,7 @@ function initApp(shell) {
       window.store = store
 
       bridge.once('ready', version => {
-        store.commit('SHOW_MESSAGE', 'Ready. Detected Vue ' + version + '.')
+        updateHeaderMsg(`Ready. Detected Vue ${version} .`)
         exBridge.send(api.events.toggleRecording, eventsEnabled.value)
         bridge.send('router:toggle-recording', store.state.router.enabled)
 
@@ -129,7 +132,7 @@ function initApp(shell) {
       })
 
       bridge.once('proxy-fail', () => {
-        store.commit('SHOW_MESSAGE', 'Proxy injection failed.')
+        updateHeaderMsg(`Proxy injection failed.`)
       })
 
       bridge.on('vuex:init', () => {
