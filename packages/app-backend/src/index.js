@@ -38,7 +38,7 @@ const rootInstances = []
 hook.injectBackend = async function () {
   setTimeout(() => {
     // 再次inject时，直接初始化
-    exBridge.request(api.devtool.shared.init)
+    connect(hook.Vue)
   }, 0)
 
   return true
@@ -61,9 +61,6 @@ let functionalIds = new Map()
 // Some instances may be both on a component and on a child abstract/functional component
 const captureIds = new Map()
 
-// 选中组件
-new ComponentSelector(instanceMap)
-
 export function initBackend(_bridge) {
   bridge = _bridge
 
@@ -73,6 +70,9 @@ export function initBackend(_bridge) {
   } else {
     hook.once('init', connect)
   }
+
+  // 选中组件
+  new ComponentSelector(instanceMap)
 
   initRightClick()
 }
