@@ -13,7 +13,7 @@
       <img class="logo" src="./assets/logo.png" alt="Vue" />
       <span class="message-container">
         <transition name="slide-up">
-          <span :key="message" class="message">
+          <span :key="headerMsg" class="message">
             <span class="text">{{ headerMsg }}</span>
 
             <span class="badges">
