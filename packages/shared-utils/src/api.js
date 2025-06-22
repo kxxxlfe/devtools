@@ -31,6 +31,7 @@ export const api = {
     },
     fetchVueDetect: `${PLATFORM.web}/fetchVueDetect`,
     inspectCtxMenuInst: `${PLATFORM.web}/inspectCtxMenuInst`, // inspect right click el
+    log: `${PLATFORM.web}/console/log`,
   },
   devtool: {
     flush: `${PLATFORM.devtool}/flush`,

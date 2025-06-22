@@ -110,8 +110,9 @@ function initApp(shell) {
       Vue,
       persist: true,
     }).then(() => {
+      console.log('huyu', SharedData.logDetected)
       if (SharedData.logDetected) {
-        exBridge.send('log-detected-vue')
+        exBridge.send(api.web.log, { type: 'log-detected-vue' })
       }
 
       const store = createStore()

@@ -4,7 +4,7 @@ import { bridge as exBridge, api } from './bridge'
 
 const internalRE = /^(?:pre-)?hook:/
 
-export function initEventsBackend(Vue, bridge) {
+export function initEventsBackend(Vue) {
   let recording = true
 
   exBridge.send(api.events.reset)
