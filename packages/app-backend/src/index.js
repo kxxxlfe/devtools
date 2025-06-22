@@ -120,7 +120,6 @@ function connect(Vue) {
       }
     }
 
-    bridge.log('backend ready.')
     bridge.send('ready', Vue.version)
 
     setTimeout(() => {
