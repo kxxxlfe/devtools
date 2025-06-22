@@ -1,6 +1,6 @@
 import { isBrowser, target } from '@utils/env'
 import { bridge as exBridge, api } from './bridge'
-import { findRelatedComponent } from './utils'
+import { findRelatedComponent, findRelatedInstanceId } from './utils'
 import { inspectInstance } from './op'
 
 let ctxEl = null
@@ -14,12 +14,13 @@ exBridge.on(api.web.inspectCtxMenuInst, () => {
   // Search for parent that "is" a component instance
   const instance = findRelatedComponent(ctxEl)
   target.__VUE_DEVTOOLS_CONTEXT_MENU_TARGET__ = instance
-  if (!instance) {
+  const relatedInstanceId = findRelatedInstanceId(instance)
+  if (!relatedInstanceId) {
     toast('No Vue component was found', 'warn')
     return null
   }
 
-  inspectInstance(instance)
+  return relatedInstanceId
 })
 
 export function initRightClick() {

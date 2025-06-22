@@ -82,5 +82,8 @@ export const useComponent = function () {
 
 // inspect contextmenu instance
 export async function inspectContextMenuInstance() {
-  exBridge.send(api.web.inspectCtxMenuInst)
+  const id = await exBridge.request(api.web.inspectCtxMenuInst)
+  if (id) {
+    inspectInstance(id)
+  }
 }
