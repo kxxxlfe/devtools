@@ -129,7 +129,7 @@ function connect(Vue) {
       initPiniaBackend(Vue, rootInstances)
 
       // perf
-      initPerfBackend(Vue, bridge, instanceMap)
+      initPerfBackend(Vue, instanceMap)
     }, 0)
   })
 }

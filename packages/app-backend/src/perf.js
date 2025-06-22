@@ -23,13 +23,10 @@ const RENDER_HOOKS = {
 let frames = 0
 let frameTime
 let secondsTimer
-let bridge
 
 let componentMetrics
 
-export function initPerfBackend(Vue, _bridge, instanceMap) {
-  bridge = _bridge
-
+export function initPerfBackend(Vue, instanceMap) {
   // Global mixin
   Vue.mixin({
     beforeCreate() {
