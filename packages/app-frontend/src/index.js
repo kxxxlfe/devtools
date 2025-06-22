@@ -111,7 +111,7 @@ function initApp(shell) {
       persist: true,
     }).then(() => {
       if (SharedData.logDetected) {
-        bridge.send('log-detected-vue')
+        exBridge.send('log-detected-vue')
       }
 
       const store = createStore()
