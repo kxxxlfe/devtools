@@ -1,6 +1,7 @@
 import { stringify } from '@utils/util'
+import { bridge as exBridge, api } from './bridge'
 
-export function initRouterBackend (Vue, bridge, rootInstances) {
+export function initRouterBackend(Vue, bridge, rootInstances) {
   let recording = true
 
   const getSnapshot = () => {
@@ -12,13 +13,13 @@ export function initRouterBackend (Vue, bridge, rootInstances) {
       }
     })
     return stringify({
-      routeChanges
+      routeChanges,
     })
   }
 
   bridge.send('routes:init', getSnapshot())
 
-  bridge.on('router:toggle-recording', enabled => {
+  exBridge.on(api.router.toggleRecording, enabled => {
     recording = enabled
   })
 
@@ -28,25 +29,31 @@ export function initRouterBackend (Vue, bridge, rootInstances) {
     if (router) {
       router.afterEach((to, from) => {
         if (!recording) return
-        bridge.send('router:changed', stringify({
-          to,
-          from,
-          timestamp: Date.now()
-        }))
+        bridge.send(
+          'router:changed',
+          stringify({
+            to,
+            from,
+            timestamp: Date.now(),
+          })
+        )
       })
-      bridge.send('router:init', stringify({
-        mode: router.mode,
-        current: {
-          from: router.history.current,
-          to: router.history.current,
-          timestamp: Date.now()
-        }
-      }))
+      bridge.send(
+        'router:init',
+        stringify({
+          mode: router.mode,
+          current: {
+            from: router.history.current,
+            to: router.history.current,
+            timestamp: Date.now(),
+          },
+        })
+      )
 
       if (router.matcher && router.matcher.addRoutes) {
         const addRoutes = router.matcher.addRoutes
         router.matcher.addRoutes = function (routes) {
-          routes.forEach((item) => {
+          routes.forEach(item => {
             bridge.send('routes:changed', stringify(item))
           })
           addRoutes.call(this, routes)
@@ -56,18 +63,18 @@ export function initRouterBackend (Vue, bridge, rootInstances) {
   })
 }
 
-export function getCustomRouterDetails (router) {
+export function getCustomRouterDetails(router) {
   return {
     _custom: {
       type: 'router',
       display: 'VueRouter',
       value: {
         options: router.options,
-        currentRoute: router.currentRoute
+        currentRoute: router.currentRoute,
       },
       fields: {
-        abstract: true
-      }
-    }
+        abstract: true,
+      },
+    },
   }
 }

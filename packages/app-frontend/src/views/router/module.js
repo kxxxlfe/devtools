@@ -1,4 +1,5 @@
 import * as storage from '@utils/storage'
+import { bridge as exBridge, api } from '@front/bridge'
 
 const ENABLED_KEY = 'EVENTS_ENABLED'
 
@@ -10,11 +11,11 @@ const state = () => ({
   instances: [],
   routeChanges: [],
   inspectedIndex: -1,
-  filter: ''
+  filter: '',
 })
 
 const mutations = {
-  'INIT' (state, payload) {
+  INIT(state, payload) {
     payload.current.id = uid++
     state.instances = []
     state.routeChanges = [payload.current]
@@ -22,27 +23,27 @@ const mutations = {
     state.hasRouter = true
     state.instances.push(payload)
   },
-  'RESET' (state) {
+  RESET(state) {
     state.routeChanges = []
     state.inspectedIndex = -1
   },
-  'CHANGED' (state, payload) {
+  CHANGED(state, payload) {
     payload.id = uid++
     state.routeChanges.push(payload)
     if (!state.filter) {
       state.inspectedIndex = state.routeChanges.length - 1
     }
   },
-  'INSPECT' (state, index) {
+  INSPECT(state, index) {
     state.inspectedIndex = index
   },
-  'UPDATE_FILTER' (state, filter) {
+  UPDATE_FILTER(state, filter) {
     state.filter = filter
   },
-  'TOGGLE' (state) {
-    storage.set(ENABLED_KEY, state.enabled = !state.enabled)
-    bridge.send('router:toggle-recording', state.enabled)
-  }
+  TOGGLE(state) {
+    storage.set(ENABLED_KEY, (state.enabled = !state.enabled))
+    exBridge.send(api.router.toggleRecording, state.enabled)
+  },
 }
 
 const getters = {
@@ -53,12 +54,12 @@ const getters = {
     return state.routeChanges.filter(routeChange => {
       return routeChange.from.fullPath.indexOf(state.filter) > -1 || routeChange.to.fullPath.indexOf(state.filter) > -1
     })
-  }
+  },
 }
 
 export default {
   namespaced: true,
   state,
   mutations,
-  getters
+  getters,
 }

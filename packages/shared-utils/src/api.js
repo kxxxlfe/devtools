@@ -55,6 +55,10 @@ export const api = {
     reset: `${PLATFORM.devtool}/events/reset`,
     triggered: `${PLATFORM.devtool}/events/triggered`,
   },
+  router: {
+    toggleRecording: `${PLATFORM.web}/router/toggleRecording`,
+    init: `${PLATFORM.devtool}/router/init`,
+  },
   back: {
     vueDetectResult: `${PLATFORM.back}/vueDetectResult`, // vue检测完成
   },
