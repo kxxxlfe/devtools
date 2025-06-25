@@ -103,10 +103,6 @@ function connect(Vue) {
       })
     }
 
-    hook.once('router:init', () => {
-      initRouterBackend(hook.Vue, bridge, rootInstances)
-    })
-
     // events
     initEventsBackend(Vue)
 
@@ -130,6 +126,9 @@ function connect(Vue) {
 
       // perf
       initPerfBackend(Vue, instanceMap)
+
+      // router
+      initRouterBackend(hook.Vue, bridge, rootInstances)
     }, 0)
   })
 }
@@ -199,7 +198,6 @@ function scan() {
     }
   }
 
-  hook.emit('router:init')
   flush()
 }
 
