@@ -24,6 +24,7 @@ const internalSharedData = {
   timeFormat: 'default',
   recordVuex: false,
   recordPinia: false,
+  recordRouter: false,
   cacheVuexSnapshotsEvery: 50,
   cacheVuexSnapshotsLimit: 10,
   snapshotLoading: false,
