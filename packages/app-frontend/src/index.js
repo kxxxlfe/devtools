@@ -11,7 +11,7 @@ import { useEvents } from './views/events/useEvents'
 import { inspectContextMenuInstance } from './views/components/useComponent'
 import { parse } from '@utils/util'
 import { isChrome, initEnv } from '@utils/env'
-import SharedData, { init as initSharedData, destroy as destroySharedData } from '@utils/shared-data'
+import SharedData, { init as initSharedData } from '@utils/shared-data'
 import { init as initStorage } from '@utils/storage'
 import { bridge as exBridge, api } from '@front/bridge'
 
@@ -100,13 +100,7 @@ function initApp(shell) {
 
   shell.connect(bridge => {
     window.bridge = bridge
-    if (Vue.prototype.hasOwnProperty('$shared')) {
-      destroySharedData()
-    } else {
-      Object.defineProperty(Vue.prototype, '$shared', {
-        get: () => SharedData,
-      })
-    }
+    Vue.prototype.$shared = SharedData
 
     initSharedData({
       exBridge,

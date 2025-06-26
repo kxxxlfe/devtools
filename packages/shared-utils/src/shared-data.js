@@ -105,8 +105,6 @@ export async function init(params) {
   return promise
 }
 
-export function destroy() {}
-
 function setValue(key, value) {
   // Storage
   if (persist && persisted.includes(key)) {
