@@ -1,6 +1,6 @@
 import { watch } from 'vue'
 import { bridge as exBridge, api } from './bridge'
-import { useSharedData } from '@utils/shared-data'
+import sharedData from '@utils/shared-data'
 import { stringify, set, parse } from '@utils/util'
 import { debounce } from './utils'
 
@@ -10,8 +10,6 @@ let pinia
 const putil = {
   get: key => pinia._s.get(key),
 }
-
-const { sharedData } = useSharedData
 
 export function initPiniaBackend(Vue, rootInstances) {
   pinia = rootInstances[0]?.$pinia
@@ -94,7 +92,7 @@ const makePiniaState = function (key) {
 // store的监听和解除监听
 const mutationListen = {
   onMutation: debounce(() => {
-    if (!sharedData.value.recordPinia) {
+    if (!sharedData.recordPinia) {
       return
     }
     if (!currStoreKey) {
@@ -121,7 +119,7 @@ const mutationListen = {
   },
 }
 watch(
-  () => sharedData.value.recordPinia,
+  () => sharedData.recordPinia,
   value => {
     if (value) {
       mutationListen.sub(currStoreKey)

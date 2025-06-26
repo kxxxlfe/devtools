@@ -69,7 +69,6 @@ export async function init(params) {
 
   // Mandatory params
   exBridge = params.exBridge
-  Vue = params.Vue
   persist = !!params.persist
 
   // Update value from other shared data clients
