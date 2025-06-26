@@ -72,8 +72,8 @@ export async function init(params) {
   persist = !!params.persist
 
   // Update value from other shared data clients
-  api.self = exBridge.plat === PLATFORM.web ? api.web.shared : api.devtool.shared
-  api.other = exBridge.plat === PLATFORM.web ? api.devtool.shared : api.web.shared
+  sapi.self = exBridge.plat === PLATFORM.web ? api.web.shared : api.devtool.shared
+  sapi.other = exBridge.plat === PLATFORM.web ? api.devtool.shared : api.web.shared
   exBridge.on(sapi.self.setData, ({ key, value }) => {
     setValue(key, value)
   })
