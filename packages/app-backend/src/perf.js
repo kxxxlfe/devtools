@@ -1,4 +1,5 @@
-import SharedData, { watch } from '@utils/shared-data'
+import { watch } from 'vue'
+import { useSharedData } from '@utils/shared-data'
 import { getComponentName } from '@utils/util'
 import { bridge as exBridge, api } from './bridge'
 
@@ -26,6 +27,8 @@ let secondsTimer
 
 let componentMetrics
 
+const { sharedData } = useSharedData()
+
 export function initPerfBackend(Vue, instanceMap) {
   // Global mixin
   Vue.mixin({
@@ -37,13 +40,16 @@ export function initPerfBackend(Vue, instanceMap) {
   // Apply to existing components
   instanceMap.forEach(applyHooks)
 
-  watch('recordPerf', value => {
-    if (value) {
-      startRecording()
-    } else {
-      stopRecording()
+  watch(
+    () => sharedData.value.recordPerf,
+    value => {
+      if (value) {
+        startRecording()
+      } else {
+        stopRecording()
+      }
     }
-  })
+  )
 }
 
 function startRecording() {

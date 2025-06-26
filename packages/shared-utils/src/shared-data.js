@@ -1,3 +1,4 @@
+import { ref } from 'vue'
 import * as storage from './storage'
 import { debug } from './util'
 import { api, PLATFORM } from './api'
@@ -16,7 +17,7 @@ Promise.withResolvers =
   }
 
 // Initial state
-const internalSharedData = {
+const internalSharedData = ref({
   openInEditorHost: '/',
   componentNameStyle: 'class',
   theme: 'auto',
@@ -34,7 +35,7 @@ const internalSharedData = {
   vuexNewBackend: false,
   vuexAutoload: false,
   vuexGroupGettersByModule: true,
-}
+})
 
 const persisted = [
   'componentNameStyle',
@@ -57,8 +58,6 @@ let exBridge
 // List of fields to persist to storage (disabled if 'false')
 // This should be unique to each shared data client to prevent conflicts
 let persist = false
-// For reactivity, we wrap the data in a Vue instance
-let vm
 
 export async function init(params) {
   const { promise, resolve } = Promise.withResolvers()
@@ -67,11 +66,6 @@ export async function init(params) {
   exBridge = params.exBridge
   Vue = params.Vue
   persist = !!params.persist
-
-  // Wrapper Vue instance
-  vm = new Vue({
-    data: internalSharedData,
-  })
 
   // Update value from other shared data clients
   const sapi = exBridge.plat === PLATFORM.web ? api.web.shared : api.devtool.shared
@@ -87,7 +81,7 @@ export async function init(params) {
     persisted.forEach(key => {
       const value = storage.get(`shared-data:${key}`)
       if (value !== null) {
-        internalSharedData[key] = value
+        internalSharedData.value[key] = value
       }
     })
 
@@ -95,7 +89,7 @@ export async function init(params) {
     exBridge.on(api.devtool.shared.init, async function () {
       resolve()
       debug('[shared data] Master init complete')
-      return internalSharedData
+      return internalSharedData.value
     })
   }
   // web
@@ -111,16 +105,14 @@ export async function init(params) {
   return promise
 }
 
-export function destroy() {
-  vm.$destroy()
-}
+export function destroy() {}
 
 function setValue(key, value) {
   // Storage
   if (persist && persisted.includes(key)) {
     storage.set(`shared-data:${key}`, value)
   }
-  vm[key] = value
+  internalSharedData.value[key] = value
   // Validate Proxy set trap
   return true
 }
@@ -130,20 +122,18 @@ function sendValue(key, value) {
   exBridge?.send(sapi.setData, { key, value })
 }
 
-export function watch(...args) {
-  vm.$watch(...args)
+export const useSharedData = function () {
+  return { sharedData: internalSharedData }
 }
 
-const proxy = {}
-Object.keys(internalSharedData).forEach(key => {
-  Object.defineProperty(proxy, key, {
-    configurable: false,
-    get: () => vm && vm.$data[key],
-    set: value => {
-      sendValue(key, value)
-      setValue(key, value)
-    },
-  })
+const proxy = new Proxy(internalSharedData, {
+  get(target, prop, receiver) {
+    return internalSharedData.value[prop]
+  },
+  set(target, prop, value, receiver) {
+    sendValue(prop, value)
+    setValue(prop, value)
+  },
 })
 
 export default proxy
