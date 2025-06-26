@@ -53,15 +53,13 @@ const persisted = [
 ]
 
 // ---- INTERNALS ---- //
-
-let Vue
 let exBridge
 // List of fields to persist to storage (disabled if 'false')
 // This should be unique to each shared data client to prevent conflicts
 let persist = false
 
 // api has 'self' and 'other'
-const api = {
+const sapi = {
   self: {},
   other: {},
 }
@@ -77,7 +75,7 @@ export async function init(params) {
   // Update value from other shared data clients
   api.self = exBridge.plat === PLATFORM.web ? api.web.shared : api.devtool.shared
   api.other = exBridge.plat === PLATFORM.web ? api.devtool.shared : api.web.shared
-  exBridge.on(api.self.setData, ({ key, value }) => {
+  exBridge.on(sapi.self.setData, ({ key, value }) => {
     setValue(key, value)
   })
 
@@ -124,7 +122,7 @@ function setValue(key, value) {
 }
 
 function sendValue(key, value) {
-  exBridge?.send(api.other.setData, { key, value })
+  exBridge?.send(sapi.other.setData, { key, value })
 }
 
 export const useSharedData = function () {
