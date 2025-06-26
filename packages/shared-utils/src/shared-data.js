@@ -43,6 +43,7 @@ const persisted = [
   'displayDensity',
   'recordVuex',
   'recordPinia',
+  'recordRouter',
   'editableProps',
   'logDetected',
   'vuexNewBackend',
@@ -59,6 +60,12 @@ let exBridge
 // This should be unique to each shared data client to prevent conflicts
 let persist = false
 
+// api has 'self' and 'other'
+const api = {
+  self: {},
+  other: {},
+}
+
 export async function init(params) {
   const { promise, resolve } = Promise.withResolvers()
 
@@ -68,8 +75,9 @@ export async function init(params) {
   persist = !!params.persist
 
   // Update value from other shared data clients
-  const sapi = exBridge.plat === PLATFORM.web ? api.web.shared : api.devtool.shared
-  exBridge.on(sapi.setData, ({ key, value }) => {
+  api.self = exBridge.plat === PLATFORM.web ? api.web.shared : api.devtool.shared
+  api.other = exBridge.plat === PLATFORM.web ? api.devtool.shared : api.web.shared
+  exBridge.on(api.self.setData, ({ key, value }) => {
     setValue(key, value)
   })
 
@@ -116,8 +124,7 @@ function setValue(key, value) {
 }
 
 function sendValue(key, value) {
-  const sapi = exBridge.plat === PLATFORM.web ? api.devtool.shared : api.web.shared
-  exBridge?.send(sapi.setData, { key, value })
+  exBridge?.send(api.other.setData, { key, value })
 }
 
 export const useSharedData = function () {
