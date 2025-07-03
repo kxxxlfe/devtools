@@ -37,6 +37,7 @@ export const api = {
     flush: `${PLATFORM.devtool}/flush`,
     updateInstance: `${PLATFORM.devtool}/update-instance`,
     inspectInstance: `${PLATFORM.devtool}/inspect-instance`, // choose node in `Components`
+    stopedComponentSelector: `${PLATFORM.devtool}/stoped-component-selector`, // stoped selecting
     perf: {
       addMetric: `${PLATFORM.devtool}/perf/add-metric`,
       upsertMetric: `${PLATFORM.devtool}/perf/upsert-metric`,

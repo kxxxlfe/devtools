@@ -76,7 +76,7 @@ export default class ComponentSelector {
       if (this.selectedInstance) {
         window.__VUE_DEVTOOLS_INSPECT__(this.selectedInstance)
       } else {
-        exBridge.send(api.devtool.stopComponentSelector)
+        exBridge.send(api.devtool.stopedComponentSelector)
       }
       this.stopSelecting()
     }, 180)

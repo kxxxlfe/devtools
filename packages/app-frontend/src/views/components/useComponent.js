@@ -55,6 +55,10 @@ function setSelecting(value) {
     }
   }
 }
+exBridge.on(api.devtool.stopedComponentSelector, function () {
+  isSelecting.value = false
+})
+
 // 点击component树触发
 const selectInstance = async function (id) {
   await exBridge.request(api.web.selectInstance, id)

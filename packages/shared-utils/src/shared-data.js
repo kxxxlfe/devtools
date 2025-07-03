@@ -135,6 +135,7 @@ const proxy = new Proxy(internalSharedData, {
   set(target, prop, value, receiver) {
     sendValue(prop, value)
     setValue(prop, value)
+    return true
   },
 })
 
