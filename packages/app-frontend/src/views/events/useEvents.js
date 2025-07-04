@@ -1,25 +1,19 @@
 import { ref, reactive, computed, toRefs } from 'vue'
 import * as storage from '@utils/storage'
 import { getComponentDisplayName, parse } from '@utils/util'
-import SharedData from '@utils/shared-data'
+import SharedData, { useSharedData } from '@utils/shared-data'
 import { bridge as exBridge, api } from '@front/bridge'
 
-const ENABLED_KEY = 'EVENTS_ENABLED'
 const REGEX_RE = /^\/((?:(?:.*?)(?:\\\/)?)*?)\/(\w*)/
 
 let uid = 0
 
 const state = reactive({
-  enabled: true,
   events: [],
   inspectedIndex: -1,
   newEventCount: 0,
   filter: '',
 })
-;(async () => {
-  await storage.init()
-  state.enabled = storage.get(ENABLED_KEY, true)
-})()
 
 const filteredEvents = computed(() => {
   let searchText = state.filter.toLowerCase()
@@ -45,6 +39,7 @@ const reset = function () {
 }
 
 export const useEvents = function () {
+  const { sharedData, updateSharedData } = useSharedData()
   const inspect = index => {
     if (index < 0) index = 0
     if (index >= filteredEvents.value.length) index = filteredEvents.value.length - 1
@@ -59,15 +54,16 @@ export const useEvents = function () {
     state.filter = filter
   }
 
+  const enabled = computed(() => sharedData.value.recordEvent)
   const toggle = function () {
-    storage.set(ENABLED_KEY, (state.enabled = !state.enabled))
-    exBridge.send(api.events.toggleRecording, state.enabled)
+    updateSharedData({ recordEvent: !enabled.value })
   }
 
   return {
     ...toRefs(state),
     inspect,
     toggle,
+    enabled,
     reset,
     updateFilter,
     filteredEvents,

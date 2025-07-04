@@ -21,9 +21,9 @@ export default {
     EventInspector,
   },
   setup(props, { emit }) {
-    const { enabled } = useEvents()
+    const {} = useEvents()
 
-    return { enabled }
+    return {}
   },
 
   mixins: [Defer()],

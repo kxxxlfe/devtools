@@ -52,7 +52,6 @@ export const api = {
     },
   },
   events: {
-    toggleRecording: `${PLATFORM.web}/events/toggleRecording`,
     reset: `${PLATFORM.devtool}/events/reset`,
     triggered: `${PLATFORM.devtool}/events/triggered`,
   },

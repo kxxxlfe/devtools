@@ -118,7 +118,6 @@ function initApp(shell) {
 
       bridge.once('ready', version => {
         updateHeaderMsg(`Ready. Detected Vue ${version} .`)
-        exBridge.send(api.events.toggleRecording, eventsEnabled.value)
 
         if (isChrome) {
           chrome.runtime.sendMessage('vue-panel-load')
