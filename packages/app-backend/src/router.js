@@ -8,7 +8,7 @@ export function initRouterBackend(Vue, bridge, rootInstances) {
     const routeChanges = []
     rootInstances.forEach(instance => {
       const router = instance._router
-      if (router && router.options && router.options.routes) {
+      if (router?.options?.routes) {
         routeChanges.push(...router.options.routes)
       }
     })
@@ -50,7 +50,7 @@ export function initRouterBackend(Vue, bridge, rootInstances) {
         })
       )
 
-      if (router.matcher && router.matcher.addRoutes) {
+      if (router.matcher?.addRoutes) {
         const addRoutes = router.matcher.addRoutes
         router.matcher.addRoutes = function (routes) {
           routes.forEach(item => {
