@@ -8,6 +8,8 @@ import * as filters from './filters'
 import './plugins'
 import VuexResolve from './views/vuex/resolve'
 import { useEvents } from './views/events/useEvents'
+import './views/routes/useRoutes'
+import './views/router/useRouter'
 import { inspectContextMenuInstance } from './views/components/useComponent'
 import { parse } from '@utils/util'
 import { isChrome, initEnv } from '@utils/env'
@@ -117,7 +119,6 @@ function initApp(shell) {
       bridge.once('ready', version => {
         updateHeaderMsg(`Ready. Detected Vue ${version} .`)
         exBridge.send(api.events.toggleRecording, eventsEnabled.value)
-        exBridge.send(api.router.toggleRecording, store.state.router.enabled)
 
         if (isChrome) {
           chrome.runtime.sendMessage('vue-panel-load')
@@ -159,22 +160,6 @@ function initApp(shell) {
         requestAnimationFrame(() => {
           SharedData.snapshotLoading = false
         })
-      })
-
-      bridge.on('router:init', payload => {
-        store.commit('router/INIT', parse(payload))
-      })
-
-      bridge.on('router:changed', payload => {
-        store.commit('router/CHANGED', parse(payload))
-      })
-
-      bridge.on('routes:init', payload => {
-        store.commit('routes/INIT', parse(payload))
-      })
-
-      bridge.on('routes:changed', payload => {
-        store.commit('routes/CHANGED', parse(payload))
       })
 
       initEnv(Vue)

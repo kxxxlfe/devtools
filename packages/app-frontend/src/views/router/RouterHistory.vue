@@ -56,10 +56,17 @@ import { UNDEFINED } from '@utils/util'
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 
+import { useRouter } from './useRouter'
+
 export default {
   components: {
     ScrollPane,
     ActionHeader,
+  },
+  setup(props, { emit }) {
+    const { toggleRecording } = useRouter()
+
+    return { toggleRecording }
   },
   computed: {
     filter: {
@@ -81,7 +88,6 @@ export default {
     ...mapMutations('router', {
       inspect: 'INSPECT',
       reset: 'RESET',
-      toggleRecording: 'TOGGLE',
     }),
     isNotEmpty(value) {
       return !!value && value !== UNDEFINED

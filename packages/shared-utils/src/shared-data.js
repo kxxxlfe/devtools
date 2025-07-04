@@ -125,7 +125,14 @@ function sendValue(key, value) {
 }
 
 export const useSharedData = function () {
-  return { sharedData: internalSharedData }
+  const updateSharedData = function (obj) {
+    Object.keys(obj).forEach(key => {
+      const value = obj[key]
+      sendValue(key, value)
+      setValue(key, value)
+    })
+  }
+  return { sharedData: internalSharedData, updateSharedData }
 }
 
 const proxy = new Proxy(internalSharedData, {

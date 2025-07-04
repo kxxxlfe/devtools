@@ -1,12 +1,9 @@
 import * as storage from '@utils/storage'
 import { bridge as exBridge, api } from '@front/bridge'
 
-const ENABLED_KEY = 'EVENTS_ENABLED'
-
 let uid = 0
 
 const state = () => ({
-  enabled: storage.get(ENABLED_KEY, true),
   hasRouter: false,
   instances: [],
   routeChanges: [],
@@ -39,10 +36,6 @@ const mutations = {
   },
   UPDATE_FILTER(state, filter) {
     state.filter = filter
-  },
-  TOGGLE(state) {
-    storage.set(ENABLED_KEY, (state.enabled = !state.enabled))
-    exBridge.send(api.router.toggleRecording, state.enabled)
   },
 }
 

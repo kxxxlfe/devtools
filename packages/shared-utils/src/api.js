@@ -59,6 +59,11 @@ export const api = {
   router: {
     toggleRecording: `${PLATFORM.web}/router/toggleRecording`,
     init: `${PLATFORM.devtool}/router/init`,
+    changed: `${PLATFORM.devtool}/router/changed`,
+  },
+  routes: {
+    init: `${PLATFORM.devtool}/routes/init`,
+    changed: `${PLATFORM.devtool}/routes/changed`,
   },
   back: {
     vueDetectResult: `${PLATFORM.back}/vueDetectResult`, // vue检测完成

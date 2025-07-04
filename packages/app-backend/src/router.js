@@ -1,9 +1,8 @@
 import { stringify } from '@utils/util'
 import { bridge as exBridge, api } from './bridge'
+import sharedData from '@utils/shared-data'
 
 export function initRouterBackend(Vue, bridge, rootInstances) {
-  let recording = true
-
   const getSnapshot = () => {
     const routeChanges = []
     rootInstances.forEach(instance => {
@@ -17,20 +16,16 @@ export function initRouterBackend(Vue, bridge, rootInstances) {
     })
   }
 
-  bridge.send('routes:init', getSnapshot())
-
-  exBridge.on(api.router.toggleRecording, enabled => {
-    recording = enabled
-  })
+  exBridge.send(api.routes.init, getSnapshot())
 
   rootInstances.forEach(instance => {
     const router = instance._router
 
     if (router) {
       router.afterEach((to, from) => {
-        if (!recording) return
-        bridge.send(
-          'router:changed',
+        if (!sharedData.recordRouter) return
+        exBridge.send(
+          api.router.changed,
           stringify({
             to,
             from,
@@ -38,8 +33,8 @@ export function initRouterBackend(Vue, bridge, rootInstances) {
           })
         )
       })
-      bridge.send(
-        'router:init',
+      exBridge.send(
+        api.router.init,
         stringify({
           mode: router.mode,
           current: {
@@ -54,7 +49,7 @@ export function initRouterBackend(Vue, bridge, rootInstances) {
         const addRoutes = router.matcher.addRoutes
         router.matcher.addRoutes = function (routes) {
           routes.forEach(item => {
-            bridge.send('routes:changed', stringify(item))
+            exBridge.send(api.routes.changed, stringify(item))
           })
           addRoutes.call(this, routes)
         }
