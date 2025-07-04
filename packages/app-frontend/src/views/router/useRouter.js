@@ -2,6 +2,7 @@
 import { ref, computed, set } from 'vue'
 import { bridge as exBridge, api } from '@front/bridge'
 import { useSharedData } from '@utils/shared-data'
+import { parse } from '@utils/util'
 
 // router
 exBridge.on(api.router.init, payload => {
@@ -16,8 +17,12 @@ export const useRouter = function () {
   const { updateSharedData, sharedData } = useSharedData()
 
   const toggleRecording = function () {
-    updateSharedData({ recordRouter: !sharedData.value.recordRouter })
+    updateSharedData({ recordRouter: !recordRouter.value })
   }
 
-  return { toggleRecording }
+  const recordRouter = computed(() => {
+    return sharedData.value.recordRouter
+  })
+
+  return { toggleRecording, recordRouter }
 }

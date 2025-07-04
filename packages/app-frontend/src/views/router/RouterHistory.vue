@@ -10,8 +10,8 @@
         <span>Clear</span>
       </a>
       <a class="button toggle-recording" @click="toggleRecording">
-        <VueIcon :class="{ enabled }" class="small" icon="lens" />
-        <span>{{ enabled ? 'Recording' : 'Paused' }}</span>
+        <VueIcon :class="{ enabled: recordRouter }" class="small" icon="lens" />
+        <span>{{ recordRouter ? 'Recording' : 'Paused' }}</span>
       </a>
     </action-header>
     <RecycleScroller
@@ -25,7 +25,7 @@
     >
       <div v-if="filteredRoutes.length === 0" slot="after-container" class="no-routes">
         No route transitions found
-        <span v-if="!enabled">
+        <span v-if="!recordRouter">
           <br />
           (Recording is paused)
         </span>
@@ -64,9 +64,9 @@ export default {
     ActionHeader,
   },
   setup(props, { emit }) {
-    const { toggleRecording } = useRouter()
+    const { toggleRecording, recordRouter } = useRouter()
 
-    return { toggleRecording }
+    return { toggleRecording, recordRouter }
   },
   computed: {
     filter: {
@@ -81,7 +81,7 @@ export default {
       const pref = this.$shared.displayDensity
       return (pref === 'auto' && this.totalCount > 12) || pref === 'high'
     },
-    ...mapState('router', ['enabled', 'routeChanges', 'inspectedIndex']),
+    ...mapState('router', ['routeChanges', 'inspectedIndex']),
     ...mapGetters('router', ['filteredRoutes']),
   },
   methods: {
