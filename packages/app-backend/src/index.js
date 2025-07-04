@@ -128,7 +128,7 @@ function connect(Vue) {
       initPerfBackend(Vue, instanceMap)
 
       // router
-      initRouterBackend(hook.Vue, bridge, rootInstances)
+      initRouterBackend(hook.Vue, rootInstances)
     }, 0)
   })
 }
