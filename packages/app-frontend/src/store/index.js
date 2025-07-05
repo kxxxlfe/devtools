@@ -9,18 +9,8 @@ Vue.use(Vuex)
 
 export function createStore() {
   const store = new Vuex.Store({
-    state: () => ({
-      message: '',
-      view: 'vertical',
-    }),
-    mutations: {
-      SHOW_MESSAGE(state, message) {
-        state.message = message
-      },
-      SWITCH_VIEW(state, view) {
-        state.view = view
-      },
-    },
+    state: () => ({}),
+    mutations: {},
     modules: {
       vuex,
       router,

@@ -13,8 +13,8 @@
       <img class="logo" src="./assets/logo.png" alt="Vue" />
       <span class="message-container">
         <transition name="slide-up">
-          <span :key="message" class="message">
-            <span class="text">{{ message }}</span>
+          <span :key="headerMsg" class="message">
+            <span class="text">{{ headerMsg }}</span>
 
             <span class="badges">
               <span v-if="isBeta" class="badge">beta devtools</span>
@@ -144,7 +144,6 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
 import { SPECIAL_TOKENS } from '@utils/util'
 import { get, set } from '@utils/storage'
 import { bridge as exBridge, api } from '@front/bridge'
@@ -154,6 +153,7 @@ import { SETTINGS_VERSION_ID, SETTINGS_VERSION } from '@front/views/settings/Set
 import { useComponent } from './views/components/useComponent'
 import { useComponentTree } from './views/components/module'
 import { useEvents } from './views/events/useEvents'
+import { useApp } from './store/useApp'
 
 export default {
   name: 'App',
@@ -166,7 +166,15 @@ export default {
     const { freshComponentData } = useComponent()
     const { totalCount } = useComponentTree()
     const { resetNewEventCount, newEventCount } = useEvents()
-    return { freshComponentData, totalComponentCount: totalCount, resetNewEventCount, newEventCount }
+    const { headerMsg, updateView } = useApp()
+    return {
+      freshComponentData,
+      totalComponentCount: totalCount,
+      resetNewEventCount,
+      newEventCount,
+      headerMsg,
+      updateView,
+    }
   },
 
   mixins: [
@@ -223,11 +231,6 @@ export default {
   },
 
   computed: {
-    ...mapState({
-      message: state => state.message,
-      view: state => state.view,
-    }),
-
     specialTokens() {
       return SPECIAL_TOKENS
     },
@@ -255,7 +258,7 @@ export default {
 
   watch: {
     '$route.name'(tab) {
-      bridge.send('switch-tab', tab)
+      exBridge.send(api.web.updateActiveTab, tab)
       if (tab === 'events') {
         this.resetNewEventCount()
       }
@@ -294,7 +297,7 @@ export default {
     },
 
     switchView(mediaQueryEvent) {
-      this.$store.commit('SWITCH_VIEW', mediaQueryEvent.matches ? 'vertical' : 'horizontal')
+      updateView(mediaQueryEvent.matches ? 'vertical' : 'horizontal')
     },
   },
 }

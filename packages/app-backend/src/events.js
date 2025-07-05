@@ -1,17 +1,12 @@
 import { stringify } from '@utils/util'
 import { getInstanceName } from './process'
 import { bridge as exBridge, api } from './bridge'
+import sharedData from '@utils/shared-data'
 
 const internalRE = /^(?:pre-)?hook:/
 
-export function initEventsBackend(Vue, bridge) {
-  let recording = true
-
+export function initEventsBackend(Vue) {
   exBridge.send(api.events.reset)
-
-  exBridge.on(api.events.toggleRecording, enabled => {
-    recording = enabled
-  })
 
   function logEvent(vm, type, eventName, payload) {
     // The string check is important for compat with 1.x where the first
@@ -38,7 +33,7 @@ export function initEventsBackend(Vue, bridge) {
     if (original) {
       Vue.prototype[method] = function (...args) {
         const res = original.apply(this, args)
-        if (recording) {
+        if (sharedData.recordEvent) {
           logEvent(this, method, args[0], args.slice(1))
         }
         return res

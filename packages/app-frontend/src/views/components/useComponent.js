@@ -15,7 +15,7 @@ const { ensurePaneShown } = useDevPanelStatus()
 const { toggleInstance, instancesMap, flush } = useComponentTree()
 
 // web点击dom触发，inspectInstance
-exBridge.on(api.devtool.inspectInstance, id => {
+const inspectInstance = id => {
   ensurePaneShown(() => {
     selectInstance(id)
     const { currentRoute } = router
@@ -30,7 +30,8 @@ exBridge.on(api.devtool.inspectInstance, id => {
         parent: true,
       })
   })
-})
+}
+exBridge.on(api.devtool.inspectInstance, inspectInstance)
 exBridge.on(api.devtool.updateInstance, ({ id, instance }) => {
   ensurePaneShown(() => {
     set(inspected.map.value, id, parse(instance))
@@ -54,6 +55,10 @@ function setSelecting(value) {
     }
   }
 }
+exBridge.on(api.devtool.stopedComponentSelector, function () {
+  isSelecting.value = false
+})
+
 // 点击component树触发
 const selectInstance = async function (id) {
   await exBridge.request(api.web.selectInstance, id)
@@ -77,4 +82,12 @@ export const useComponent = function () {
     return inspected.map.value[inspected.id.value] || {}
   })
   return { isSelecting, setSelecting, selectInstance, freshComponentData, inspectedInstance, inspected }
+}
+
+// inspect contextmenu instance
+export async function inspectContextMenuInstance() {
+  const id = await exBridge.request(api.web.inspectCtxMenuInst)
+  if (id) {
+    inspectInstance(id)
+  }
 }

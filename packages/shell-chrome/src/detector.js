@@ -1,11 +1,8 @@
-const detector = e => {
-  if (e?.source === window && e?.data?.vueDetected) {
-    chrome.runtime.sendMessage(e.data)
-    window.removeEventListener('message', detector)
-  }
-}
+import { ContentBridge } from '@yuhufe/browser-bridge'
+import { PLATFORM } from '@utils/api'
 
-window.addEventListener('message', detector)
+// 用于bridge转发
+new ContentBridge({ platWeb: PLATFORM.web })
 
 const script = document.createElement('script')
 script.src = chrome.runtime.getURL('build/detector-exec.js')

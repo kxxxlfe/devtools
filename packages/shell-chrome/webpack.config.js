@@ -12,6 +12,7 @@ module.exports = createConfig({
     detector: './src/detector.js',
     'hook-exec': './src/hook-exec.js',
     'detector-exec': './src/detector-exec.js',
+    popup: './popups/popup.js',
   },
   output: {
     path: path.join(__dirname, 'build'),

@@ -1,4 +1,5 @@
-import SharedData, { watch } from '@utils/shared-data'
+import { watch } from 'vue'
+import SharedData from '@utils/shared-data'
 import { getComponentName } from '@utils/util'
 import { bridge as exBridge, api } from './bridge'
 
@@ -23,13 +24,10 @@ const RENDER_HOOKS = {
 let frames = 0
 let frameTime
 let secondsTimer
-let bridge
 
 let componentMetrics
 
-export function initPerfBackend(Vue, _bridge, instanceMap) {
-  bridge = _bridge
-
+export function initPerfBackend(Vue, instanceMap) {
   // Global mixin
   Vue.mixin({
     beforeCreate() {
@@ -40,13 +38,16 @@ export function initPerfBackend(Vue, _bridge, instanceMap) {
   // Apply to existing components
   instanceMap.forEach(applyHooks)
 
-  watch('recordPerf', value => {
-    if (value) {
-      startRecording()
-    } else {
-      stopRecording()
+  watch(
+    () => SharedData.recordPerf,
+    value => {
+      if (value) {
+        startRecording()
+      } else {
+        stopRecording()
+      }
     }
-  })
+  )
 }
 
 function startRecording() {

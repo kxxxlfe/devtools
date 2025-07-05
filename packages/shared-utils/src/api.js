@@ -3,6 +3,7 @@ import { Plat } from '@yuhufe/browser-bridge'
 export const PLATFORM = {
   web: 'vueDevtoolsWeb',
   devtool: Plat.devtool,
+  back: Plat.background,
 }
 
 export const api = {
@@ -18,6 +19,7 @@ export const api = {
     setInstanceData: `${PLATFORM.web}/set-instance-data`,
     filterInstance: `${PLATFORM.web}/filter-data`,
     refresh: `${PLATFORM.web}/refresh`,
+    updateActiveTab: `${PLATFORM.web}/updateActiveTab`,
     pinia: {
       select: `${PLATFORM.web}/pinia/select`,
       editState: `${PLATFORM.web}/pinia/editState`,
@@ -27,11 +29,15 @@ export const api = {
       loadComplete: `${PLATFORM.web}/shared-data:load-complete`,
       setData: `${PLATFORM.web}/shared-data:set`,
     },
+    fetchVueDetect: `${PLATFORM.web}/fetchVueDetect`,
+    inspectCtxMenuInst: `${PLATFORM.web}/inspectCtxMenuInst`, // inspect right click el
+    log: `${PLATFORM.web}/console/log`,
   },
   devtool: {
     flush: `${PLATFORM.devtool}/flush`,
     updateInstance: `${PLATFORM.devtool}/update-instance`,
-    inspectInstance: `${PLATFORM.devtool}/inspect-instance`,
+    inspectInstance: `${PLATFORM.devtool}/inspect-instance`, // choose node in `Components`
+    stopedComponentSelector: `${PLATFORM.devtool}/stoped-component-selector`, // stoped selecting
     perf: {
       addMetric: `${PLATFORM.devtool}/perf/add-metric`,
       upsertMetric: `${PLATFORM.devtool}/perf/upsert-metric`,
@@ -46,8 +52,19 @@ export const api = {
     },
   },
   events: {
-    toggleRecording: `${PLATFORM.web}/events/toggleRecording`,
     reset: `${PLATFORM.devtool}/events/reset`,
     triggered: `${PLATFORM.devtool}/events/triggered`,
+  },
+  router: {
+    toggleRecording: `${PLATFORM.web}/router/toggleRecording`,
+    init: `${PLATFORM.devtool}/router/init`,
+    changed: `${PLATFORM.devtool}/router/changed`,
+  },
+  routes: {
+    init: `${PLATFORM.devtool}/routes/init`,
+    changed: `${PLATFORM.devtool}/routes/changed`,
+  },
+  back: {
+    vueDetectResult: `${PLATFORM.back}/vueDetectResult`, // vue检测完成
   },
 }

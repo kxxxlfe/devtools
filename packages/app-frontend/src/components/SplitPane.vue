@@ -1,68 +1,51 @@
 <template>
-  <div
-    :class="classes"
-    class="split-pane"
-    @mousemove="dragMove"
-    @mouseup="dragEnd"
-    @mouseleave="dragEnd"
-  >
-    <div
-      :style="leftStyles"
-      class="left top"
-    >
+  <div :class="classes" class="split-pane" @mousemove="dragMove" @mouseup="dragEnd" @mouseleave="dragEnd">
+    <div :style="leftStyles" class="left top">
       <slot name="left" />
-      <div
-        class="dragger"
-        @mousedown.prevent="dragStart"
-      />
+      <div class="dragger" @mousedown.prevent="dragStart" />
     </div>
-    <div
-      :style="rightStyles"
-      class="right bottom"
-    >
+    <div :style="rightStyles" class="right bottom">
       <slot name="right" />
     </div>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { useApp } from '../store/useApp'
 
 export default {
-  data () {
+  setup(props, { emit }) {
+    const { view } = useApp()
+
+    return { view }
+  },
+  data() {
     return {
       split: 50,
-      dragging: false
+      dragging: false,
     }
   },
 
   computed: {
-    ...mapState([
-      'view'
-    ]),
-
-    leftStyles () {
+    leftStyles() {
       const obj = {
-        [this.view === 'vertical' ? 'width' : 'height']: `${this.boundSplit}%`
+        [this.view === 'vertical' ? 'width' : 'height']: `${this.boundSplit}%`,
       }
       return obj
     },
 
-    rightStyles () {
+    rightStyles() {
       const obj = {
-        [this.view === 'vertical' ? 'width' : 'height']: `${100 - this.boundSplit}%`
+        [this.view === 'vertical' ? 'width' : 'height']: `${100 - this.boundSplit}%`,
       }
       return obj
     },
 
-    classes () {
-      return [
-        { dragging: this.dragging },
-        this.view
-      ]
+    classes() {
+      return [{ dragging: this.dragging }, this.view]
     },
 
-    boundSplit () {
+    boundSplit() {
       const split = this.split
       if (split < 20) {
         return 20
@@ -71,17 +54,17 @@ export default {
       } else {
         return split
       }
-    }
+    },
   },
 
   methods: {
-    dragStart (e) {
+    dragStart(e) {
       this.dragging = true
       this.startPosition = this.view === 'vertical' ? e.pageX : e.pageY
       this.startSplit = this.boundSplit
     },
 
-    dragMove (e) {
+    dragMove(e) {
       if (this.dragging) {
         let position
         let totalSize
@@ -93,14 +76,14 @@ export default {
           totalSize = this.$el.offsetHeight
         }
         const dPosition = position - this.startPosition
-        this.split = this.startSplit + ~~(dPosition / totalSize * 100)
+        this.split = this.startSplit + ~~((dPosition / totalSize) * 100)
       }
     },
 
-    dragEnd () {
+    dragEnd() {
       this.dragging = false
-    }
-  }
+    },
+  },
 }
 </script>
 

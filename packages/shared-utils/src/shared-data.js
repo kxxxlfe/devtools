@@ -1,3 +1,4 @@
+import { ref } from 'vue'
 import * as storage from './storage'
 import { debug } from './util'
 import { api, PLATFORM } from './api'
@@ -16,7 +17,7 @@ Promise.withResolvers =
   }
 
 // Initial state
-const internalSharedData = {
+const internalSharedData = ref({
   openInEditorHost: '/',
   componentNameStyle: 'class',
   theme: 'auto',
@@ -24,16 +25,18 @@ const internalSharedData = {
   timeFormat: 'default',
   recordVuex: false,
   recordPinia: false,
+  recordRouter: false,
+  recordEvent: false,
+  recordPerf: false,
   cacheVuexSnapshotsEvery: 50,
   cacheVuexSnapshotsLimit: 10,
   snapshotLoading: false,
-  recordPerf: false,
   editableProps: false,
   logDetected: true,
   vuexNewBackend: false,
   vuexAutoload: false,
   vuexGroupGettersByModule: true,
-}
+})
 
 const persisted = [
   'componentNameStyle',
@@ -41,6 +44,8 @@ const persisted = [
   'displayDensity',
   'recordVuex',
   'recordPinia',
+  'recordRouter',
+  'recordEvent',
   'editableProps',
   'logDetected',
   'vuexNewBackend',
@@ -50,31 +55,28 @@ const persisted = [
 ]
 
 // ---- INTERNALS ---- //
-
-let Vue
 let exBridge
 // List of fields to persist to storage (disabled if 'false')
 // This should be unique to each shared data client to prevent conflicts
 let persist = false
-// For reactivity, we wrap the data in a Vue instance
-let vm
+
+// api has 'self' and 'other'
+const sapi = {
+  self: {},
+  other: {},
+}
 
 export async function init(params) {
   const { promise, resolve } = Promise.withResolvers()
 
   // Mandatory params
   exBridge = params.exBridge
-  Vue = params.Vue
   persist = !!params.persist
 
-  // Wrapper Vue instance
-  vm = new Vue({
-    data: internalSharedData,
-  })
-
   // Update value from other shared data clients
-  const sapi = exBridge.plat === PLATFORM.web ? api.web.shared : api.devtool.shared
-  exBridge.on(sapi.setData, ({ key, value }) => {
+  sapi.self = exBridge.plat === PLATFORM.web ? api.web.shared : api.devtool.shared
+  sapi.other = exBridge.plat === PLATFORM.web ? api.devtool.shared : api.web.shared
+  exBridge.on(sapi.self.setData, ({ key, value }) => {
     setValue(key, value)
   })
 
@@ -86,7 +88,7 @@ export async function init(params) {
     persisted.forEach(key => {
       const value = storage.get(`shared-data:${key}`)
       if (value !== null) {
-        internalSharedData[key] = value
+        internalSharedData.value[key] = value
       }
     })
 
@@ -94,7 +96,7 @@ export async function init(params) {
     exBridge.on(api.devtool.shared.init, async function () {
       resolve()
       debug('[shared data] Master init complete')
-      return internalSharedData
+      return internalSharedData.value
     })
   }
   // web
@@ -110,39 +112,40 @@ export async function init(params) {
   return promise
 }
 
-export function destroy() {
-  vm.$destroy()
-}
-
 function setValue(key, value) {
   // Storage
   if (persist && persisted.includes(key)) {
     storage.set(`shared-data:${key}`, value)
   }
-  vm[key] = value
+  internalSharedData.value[key] = value
   // Validate Proxy set trap
   return true
 }
 
 function sendValue(key, value) {
-  const sapi = exBridge.plat === PLATFORM.web ? api.devtool.shared : api.web.shared
-  exBridge?.send(sapi.setData, { key, value })
+  exBridge?.send(sapi.other.setData, { key, value })
 }
 
-export function watch(...args) {
-  vm.$watch(...args)
-}
-
-const proxy = {}
-Object.keys(internalSharedData).forEach(key => {
-  Object.defineProperty(proxy, key, {
-    configurable: false,
-    get: () => vm && vm.$data[key],
-    set: value => {
+export const useSharedData = function () {
+  const updateSharedData = function (obj) {
+    Object.keys(obj).forEach(key => {
+      const value = obj[key]
       sendValue(key, value)
       setValue(key, value)
-    },
-  })
+    })
+  }
+  return { sharedData: internalSharedData, updateSharedData }
+}
+
+const proxy = new Proxy(internalSharedData, {
+  get(target, prop, receiver) {
+    return internalSharedData.value[prop]
+  },
+  set(target, prop, value, receiver) {
+    sendValue(prop, value)
+    setValue(prop, value)
+    return true
+  },
 })
 
 export default proxy

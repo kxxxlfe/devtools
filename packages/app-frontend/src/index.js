@@ -3,13 +3,17 @@ import AppConnecting from './AppConnecting.vue'
 import App from './App.vue'
 import router from './router'
 import { createStore } from './store'
+import { useApp } from './store/useApp'
 import * as filters from './filters'
 import './plugins'
 import VuexResolve from './views/vuex/resolve'
 import { useEvents } from './views/events/useEvents'
+import './views/routes/useRoutes'
+import './views/router/useRouter'
+import { inspectContextMenuInstance } from './views/components/useComponent'
 import { parse } from '@utils/util'
 import { isChrome, initEnv } from '@utils/env'
-import SharedData, { init as initSharedData, destroy as destroySharedData } from '@utils/shared-data'
+import SharedData, { init as initSharedData } from '@utils/shared-data'
 import { init as initStorage } from '@utils/storage'
 import { bridge as exBridge, api } from '@front/bridge'
 
@@ -37,7 +41,7 @@ if (isChrome) {
 
   chrome.runtime.onMessage.addListener(request => {
     if (request === 'vue-get-context-menu-target') {
-      getContextMenuInstance()
+      inspectContextMenuInstance()
     }
   })
 }
@@ -94,33 +98,26 @@ export function initDevTools(shell) {
 const { enabled: eventsEnabled } = useEvents()
 
 function initApp(shell) {
+  const { updateHeaderMsg } = useApp()
+
   shell.connect(bridge => {
     window.bridge = bridge
-    if (Vue.prototype.hasOwnProperty('$shared')) {
-      destroySharedData()
-    } else {
-      Object.defineProperty(Vue.prototype, '$shared', {
-        get: () => SharedData,
-      })
-    }
+    Vue.prototype.$shared = SharedData
 
     initSharedData({
-      bridge,
       exBridge,
       Vue,
       persist: true,
     }).then(() => {
       if (SharedData.logDetected) {
-        bridge.send('log-detected-vue')
+        exBridge.send(api.web.log, { type: 'log-detected-vue' })
       }
 
       const store = createStore()
       window.store = store
 
       bridge.once('ready', version => {
-        store.commit('SHOW_MESSAGE', 'Ready. Detected Vue ' + version + '.')
-        exBridge.send(api.events.toggleRecording, eventsEnabled.value)
-        bridge.send('router:toggle-recording', store.state.router.enabled)
+        updateHeaderMsg(`Ready. Detected Vue ${version} .`)
 
         if (isChrome) {
           chrome.runtime.sendMessage('vue-panel-load')
@@ -128,7 +125,7 @@ function initApp(shell) {
       })
 
       bridge.once('proxy-fail', () => {
-        store.commit('SHOW_MESSAGE', 'Proxy injection failed.')
+        updateHeaderMsg(`Proxy injection failed.`)
       })
 
       bridge.on('vuex:init', () => {
@@ -162,22 +159,6 @@ function initApp(shell) {
         requestAnimationFrame(() => {
           SharedData.snapshotLoading = false
         })
-      })
-
-      bridge.on('router:init', payload => {
-        store.commit('router/INIT', parse(payload))
-      })
-
-      bridge.on('router:changed', payload => {
-        store.commit('router/CHANGED', parse(payload))
-      })
-
-      bridge.on('routes:init', payload => {
-        store.commit('routes/INIT', parse(payload))
-      })
-
-      bridge.on('routes:changed', payload => {
-        store.commit('routes/CHANGED', parse(payload))
       })
 
       initEnv(Vue)
@@ -215,8 +196,4 @@ function initApp(shell) {
       }).$mount('#app')
     })
   })
-}
-
-function getContextMenuInstance() {
-  bridge.send('get-context-menu-target')
 }

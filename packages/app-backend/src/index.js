@@ -25,12 +25,24 @@ import {
 import SharedData, { init as initSharedData } from '@utils/shared-data'
 import { isBrowser, target } from '@utils/env'
 import { bridge as exBridge, api } from './bridge'
+import { inspectInstance } from './op'
+import { initRightClick } from './contextmenu'
 
 Vue.config.devtools = false // 否则会干扰到页面中的Vue
 
 // hook should have been injected before this executes.
 const hook = target.__VUE_DEVTOOLS_GLOBAL_HOOK__
 const rootInstances = []
+
+// 插入backend脚本，防止多次插入
+hook.injectBackend = async function () {
+  setTimeout(() => {
+    // 再次inject时，直接初始化
+    connect(hook.Vue)
+  }, 0)
+
+  return true
+}
 
 export const instanceMap = (target.__VUE_DEVTOOLS_INSTANCE_MAP__ = new Map())
 setInstanceMap(instanceMap)
@@ -59,19 +71,18 @@ export function initBackend(_bridge) {
     hook.once('init', connect)
   }
 
+  // 选中组件
+  new ComponentSelector(instanceMap)
+
   initRightClick()
 }
 
 function connect(Vue) {
   initSharedData({
-    bridge,
     exBridge,
     Vue,
   }).then(() => {
     hook.currentTab = 'components'
-    bridge.on('switch-tab', tab => {
-      hook.currentTab = tab
-    })
 
     // the backend may get injected to the same page multiple times
     // if the user closes and reopens the devtools.
@@ -83,23 +94,6 @@ function connect(Vue) {
       }
     })
 
-    // eslint-disable-next-line no-new
-    new ComponentSelector(bridge, instanceMap)
-
-    // Get the instance id that is targeted by context menu
-    bridge.on('get-context-menu-target', () => {
-      const instance = target.__VUE_DEVTOOLS_CONTEXT_MENU_TARGET__
-
-      target.__VUE_DEVTOOLS_CONTEXT_MENU_TARGET__ = null
-      target.__VUE_DEVTOOLS_CONTEXT_MENU_HAS_TARGET__ = false
-
-      if (instance) {
-        inspectInstance(instance)
-      }
-
-      toast('No Vue component was found', 'warn')
-    })
-
     // vuex
     if (hook.store) {
       initVuexBackend(hook, bridge, hook.store.commit === undefined)
@@ -109,12 +103,8 @@ function connect(Vue) {
       })
     }
 
-    hook.once('router:init', () => {
-      initRouterBackend(hook.Vue, bridge, rootInstances)
-    })
-
     // events
-    initEventsBackend(Vue, bridge)
+    initEventsBackend(Vue)
 
     // User project devtools config
     if (target.hasOwnProperty('VUE_DEVTOOLS_CONFIG')) {
@@ -126,16 +116,7 @@ function connect(Vue) {
       }
     }
 
-    bridge.log('backend ready.')
     bridge.send('ready', Vue.version)
-    bridge.on('log-detected-vue', () => {
-      console.log(
-        `%c vue-devtools %c Detected Vue v${Vue.version} %c`,
-        'background:#35495e ; padding: 1px; border-radius: 3px 0 0 3px;  color: #fff',
-        'background:#41b883 ; padding: 1px; border-radius: 0 3px 3px 0;  color: #fff',
-        'background:transparent'
-      )
-    })
 
     setTimeout(() => {
       scan()
@@ -144,7 +125,10 @@ function connect(Vue) {
       initPiniaBackend(Vue, rootInstances)
 
       // perf
-      initPerfBackend(Vue, bridge, instanceMap)
+      initPerfBackend(Vue, instanceMap)
+
+      // router
+      initRouterBackend(hook.Vue, rootInstances)
     }, 0)
   })
 }
@@ -214,7 +198,6 @@ function scan() {
     }
   }
 
-  hook.emit('router:init')
   flush()
 }
 
@@ -575,41 +558,7 @@ export function toast(message, type = 'normal') {
   fn && fn(message, type)
 }
 
-function inspectInstance(instance) {
-  let id = null
-  do {
-    id = instance.__VUE_DEVTOOLS_UID__
-    if (id) {
-      break
-    }
-    instance = instance.$parent
-  } while (instance)
-
-  if (id) {
-    exBridge.send(api.devtool.inspectInstance, id)
-  }
-}
 target.__VUE_DEVTOOLS_INSPECT__ = inspectInstance
-
-function initRightClick() {
-  if (!isBrowser) return
-  // Start recording context menu when Vue is detected
-  // event if Vue devtools are not loaded yet
-  document.addEventListener('contextmenu', event => {
-    const el = event.target
-    if (el) {
-      // Search for parent that "is" a component instance
-      const instance = findRelatedComponent(el)
-      if (instance) {
-        window.__VUE_DEVTOOLS_CONTEXT_MENU_HAS_TARGET__ = true
-        window.__VUE_DEVTOOLS_CONTEXT_MENU_TARGET__ = instance
-        return
-      }
-    }
-    window.__VUE_DEVTOOLS_CONTEXT_MENU_HAS_TARGET__ = null
-    window.__VUE_DEVTOOLS_CONTEXT_MENU_TARGET__ = null
-  })
-}
 
 // exBridge
 exBridge.on(api.web.enterInstance, id => {
@@ -710,4 +659,19 @@ exBridge.on(api.web.setInstanceData, args => {
 exBridge.on(api.web.filterInstance, _filter => {
   filter = _filter.toLowerCase()
   debounceFlush()
+})
+// 更新当前devtools正在使用的功能
+exBridge.on(api.web.updateActiveTab, tab => {
+  hook.currentTab = tab
+})
+// print vue info
+exBridge.on(api.web.log, ({ type } = {}) => {
+  if (type === 'log-detected-vue') {
+    console.log(
+      `%c vue-devtools %c Detected Vue v${hook.Vue?.version} %c`,
+      'background:#35495e ; padding: 1px; border-radius: 3px 0 0 3px;  color: #fff',
+      'background:#41b883 ; padding: 1px; border-radius: 0 3px 3px 0;  color: #fff',
+      'background:transparent'
+    )
+  }
 })

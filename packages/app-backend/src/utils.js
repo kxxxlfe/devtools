@@ -5,6 +5,18 @@ export function findRelatedComponent(el) {
   return el?.__vue__
 }
 
+// 找到带id的instance
+export function findRelatedInstance(instance) {
+  while (instance && !instance.__VUE_DEVTOOLS_UID__) {
+    instance = instance.$parent
+  }
+  return instance
+}
+
+export function findRelatedInstanceId(instance) {
+  return findRelatedInstance(instance)?.__VUE_DEVTOOLS_UID__
+}
+
 export const debounce = function (func, timer) {
   let debounceTimer = null
   return function (...args) {

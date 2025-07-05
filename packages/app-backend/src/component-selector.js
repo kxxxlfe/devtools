@@ -1,13 +1,14 @@
-import { throttle } from 'lodash-es'
+import { throttle, debounce } from 'lodash-es'
 import { highlight, unHighlight } from './highlighter'
 import { findRelatedComponent } from './utils'
 import { isBrowser } from '@utils/env'
 import { bridge as exBridge, api } from './bridge'
 
+const isTouch = 'ontouchstart' in window
+
 export default class ComponentSelector {
-  constructor(bridge, instanceMap) {
+  constructor(instanceMap) {
     const self = this
-    self.bridge = bridge
     self.instanceMap = instanceMap
     self.bindMethods()
 
@@ -21,14 +22,15 @@ export default class ComponentSelector {
   startSelecting() {
     if (!isBrowser) return
     this.stopSelecting() // 防止重复绑定
-    window.addEventListener('mouseover', this.elementMouseOver, true)
+    window.addEventListener('pointerover', this.elementMouseOver, true)
     window.addEventListener('pointerdown', this.elementClicked, true)
+    window.addEventListener('touchdown', this.cancelEvent, true)
     window.addEventListener('click', this.cancelEvent, true)
-    window.addEventListener('mouseout', this.cancelEvent, true)
-    window.addEventListener('mouseenter', this.cancelEvent, true)
-    window.addEventListener('mouseleave', this.cancelEvent, true)
-    window.addEventListener('mousedown', this.cancelEvent, true)
-    window.addEventListener('mouseup', this.cancelEvent, true)
+    window.addEventListener('pointerout', this.cancelEvent, true)
+    window.addEventListener('pointerenter', this.cancelEvent, true)
+    window.addEventListener('pointerleave', this.cancelEvent, true)
+    // window.addEventListener('mousedown', this.cancelEvent, true)
+    window.addEventListener('pointerup', this.cancelEvent, true)
   }
 
   /**
@@ -36,14 +38,15 @@ export default class ComponentSelector {
    */
   stopSelecting() {
     if (!isBrowser) return
-    window.removeEventListener('mouseover', this.elementMouseOver, true)
+    window.removeEventListener('pointerover', this.elementMouseOver, true)
     window.removeEventListener('pointerdown', this.elementClicked, true)
+    window.removeEventListener('touchdown', this.cancelEvent, true)
     window.removeEventListener('click', this.cancelEvent, true)
-    window.removeEventListener('mouseout', this.cancelEvent, true)
-    window.removeEventListener('mouseenter', this.cancelEvent, true)
-    window.removeEventListener('mouseleave', this.cancelEvent, true)
-    window.removeEventListener('mousedown', this.cancelEvent, true)
-    window.removeEventListener('mouseup', this.cancelEvent, true)
+    window.removeEventListener('pointerout', this.cancelEvent, true)
+    window.removeEventListener('pointerenter', this.cancelEvent, true)
+    window.removeEventListener('pointerleave', this.cancelEvent, true)
+    // window.removeEventListener('mousedown', this.cancelEvent, true)
+    window.removeEventListener('pointerup', this.cancelEvent, true)
 
     unHighlight()
   }
@@ -73,15 +76,21 @@ export default class ComponentSelector {
   elementClicked(e) {
     this.cancelEvent(e)
 
-    setTimeout(() => {
+    this.chooseInstance()
+  }
+
+  // device mode has delay
+  chooseInstance = debounce(
+    () => {
       if (this.selectedInstance) {
         window.__VUE_DEVTOOLS_INSPECT__(this.selectedInstance)
       } else {
-        exBridge.send(api.devtool.stopComponentSelector)
+        exBridge.send(api.devtool.stopedComponentSelector)
       }
       this.stopSelecting()
-    }, 180)
-  }
+    },
+    isTouch ? 400 : 200
+  )
 
   /**
    * Cancel a mouse event

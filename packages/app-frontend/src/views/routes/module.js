@@ -1,30 +1,25 @@
-import * as storage from '@utils/storage'
-
-const ENABLED_KEY = 'EVENTS_ENABLED'
-
 const state = () => ({
-  enabled: storage.get(ENABLED_KEY, true),
   hasRouter: false,
   routeChanges: [],
   inspectedIndex: -1,
-  filter: ''
+  filter: '',
 })
 
 const mutations = {
-  INIT (state, payload) {
+  INIT(state, payload) {
     state.inspectedIndex = -1
     state.hasRouter = true
     state.routeChanges = payload.routeChanges
   },
-  CHANGED (state, payload) {
+  CHANGED(state, payload) {
     state.routeChanges.push(payload)
   },
-  INSPECT (state, index) {
+  INSPECT(state, index) {
     state.inspectedIndex = index
   },
-  UPDATE_FILTER (state, filter) {
+  UPDATE_FILTER(state, filter) {
     state.filter = filter
-  }
+  },
 }
 
 const getters = {
@@ -40,22 +35,20 @@ const getters = {
     return state.routeChanges[state.inspectedIndex]
   },
   activeRoute: (state, getters, rootState) => {
-    return state.routeChanges.find(
-      change => rootState.router.routeChanges.find(
-        historyChange => historyChange.to.path === change.path
-      )
+    return state.routeChanges.find(change =>
+      rootState.router.routeChanges.find(historyChange => historyChange.to.path === change.path)
     )
   },
   filteredRoutes: state => {
     return state.routeChanges.filter(routeChange => {
       return routeChange.path.indexOf(state.filter) > -1
     })
-  }
+  },
 }
 
 export default {
   namespaced: true,
   state,
   mutations,
-  getters
+  getters,
 }

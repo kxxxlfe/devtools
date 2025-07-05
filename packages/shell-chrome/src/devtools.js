@@ -72,6 +72,9 @@ initDevTools({
 async function injectScript(scriptName) {
   const src = `
     (function() {
+      if (globalThis.__VUE_DEVTOOLS_GLOBAL_HOOK__?.injectBackend?.()) {
+        return
+      }
       var script = document.constructor.prototype.createElement.call(document, 'script');
       script.src = "${scriptName}";
       document.documentElement.appendChild(script);
