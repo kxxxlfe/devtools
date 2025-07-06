@@ -4,11 +4,13 @@ import { detectVue } from '@utils/tools'
 
 let detectRes = {}
 const initDetectRes = function ({ Vue, ...others }) {
+  const devtoolsForceEnabled = localStorage.getItem('_VUE_DEVTOOLS_FORCE_ENABLED') === 'true'
   detectRes = {
     ...others,
     devtoolsEnabled: Vue?.config.devtools,
     vueVersion: Vue?.version,
     vueDetected: !!Vue,
+    devtoolsForceEnabled,
   }
 }
 
@@ -47,6 +49,11 @@ function detect(win) {
 
 bridge.on(api.web.fetchVueDetect, function () {
   return detectRes
+})
+
+bridge.on(api.web.changeDevtoolsEnable, function (isEnable) {
+  detectRes.devtoolsForceEnabled = isEnable
+  localStorage.setItem('_VUE_DEVTOOLS_FORCE_ENABLED', isEnable)
 })
 
 // inject the hook

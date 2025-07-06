@@ -30,6 +30,7 @@ export const api = {
       setData: `${PLATFORM.web}/shared-data:set`,
     },
     fetchVueDetect: `${PLATFORM.web}/fetchVueDetect`,
+    changeDevtoolsEnable: `${PLATFORM.web}/changeDevtoolsEnable`, // force devtools enable
     inspectCtxMenuInst: `${PLATFORM.web}/inspectCtxMenuInst`, // inspect right click el
     log: `${PLATFORM.web}/console/log`,
   },
