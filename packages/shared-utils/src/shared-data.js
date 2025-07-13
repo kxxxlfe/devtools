@@ -102,7 +102,7 @@ export async function init(params) {
   // web
   else {
     // 初始化时获取devtool数据，同步到自身
-    const devtoolSharedData = await exBridge.request(api.devtool.shared.init)
+    const devtoolSharedData = await exBridge.request(api.devtool.shared.init, {}, { trace: true })
     Object.entries(devtoolSharedData).forEach(([key, value]) => {
       setValue(key, value)
     })
