@@ -167,6 +167,10 @@ export default {
     const { totalCount } = useComponentTree()
     const { resetNewEventCount, newEventCount } = useEvents()
     const { headerMsg, updateView } = useApp()
+
+    function switchView(mediaQueryEvent) {
+      updateView(mediaQueryEvent.matches ? 'vertical' : 'horizontal')
+    }
     return {
       freshComponentData,
       totalComponentCount: totalCount,
@@ -174,6 +178,7 @@ export default {
       newEventCount,
       headerMsg,
       updateView,
+      switchView,
     }
   },
 
@@ -294,10 +299,6 @@ export default {
       if (this.totalComponentCount === 0) {
         this.refresh()
       }
-    },
-
-    switchView(mediaQueryEvent) {
-      updateView(mediaQueryEvent.matches ? 'vertical' : 'horizontal')
     },
   },
 }
