@@ -14,7 +14,7 @@ import router from './router'
 import TransitionExample from './TransitionExample.vue'
 import Router from './router/Router.vue'
 
-Vue.config.devtools = false
+Vue.config.devtools = true
 
 window.VUE_DEVTOOLS_CONFIG = {
   openInEditorHost: '/',

@@ -1,8 +1,10 @@
 import { Plat } from '@yuhufe/browser-bridge'
 
+const isDev = globalThis.isShellDev
+
 export const PLATFORM = {
-  web: 'vueDevtoolsWeb',
-  devtool: Plat.devtool,
+  web: isDev ? 'Dev_vueDevtoolsWeb' : 'vueDevtoolsWeb',
+  devtool: isDev ? `Dev_${Plat.devtool}` : Plat.devtool,
   back: Plat.background,
 }
 
