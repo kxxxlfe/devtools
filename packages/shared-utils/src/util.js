@@ -598,14 +598,11 @@ function compare(value, searchTerm) {
 }
 
 export function sortByKey(state) {
-  return (
-    state &&
-    state.slice().sort((a, b) => {
-      if (a.key < b.key) return -1
-      if (a.key > b.key) return 1
-      return 0
-    })
-  )
+  return state?.slice().sort((a, b) => {
+    if (a.key < b.key) return -1
+    if (a.key > b.key) return 1
+    return 0
+  })
 }
 
 export function set(object, path, value, cb = null) {

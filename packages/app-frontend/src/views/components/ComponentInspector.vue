@@ -29,10 +29,10 @@
       <section v-if="!hasTarget" class="notice">
         <div>Select a component instance to inspect.</div>
       </section>
-      <div v-else-if="!target.state || !target.state.length" class="notice">
+      <div v-else-if="!target.state?.length" class="notice">
         <div>This instance has no reactive state.</div>
       </div>
-      <section v-else class="data">
+      <section v-else-if="filteredState" class="data">
         <state-inspector :state="filteredState" class="component-state-inspector" @edit="editComponentData" />
       </section>
     </template>
@@ -40,7 +40,8 @@
 </template>
 
 <script>
-import groupBy from 'lodash/groupBy'
+import { ref, computed } from 'vue'
+import { debounce, groupBy } from 'lodash-es'
 import { bridge as exBridge, api } from '@front/bridge'
 
 import ScrollPane from '@front/components/ScrollPane.vue'
@@ -48,6 +49,7 @@ import ActionHeader from '@front/components/ActionHeader.vue'
 import StateInspector from '@front/components/StateInspector.vue'
 import { searchDeepInObject, sortByKey, openInEditor, getComponentDisplayName } from '@utils/util'
 import { useComponent } from './useComponent'
+import { onBeforeMount } from 'vue'
 
 export default {
   components: {
@@ -60,9 +62,9 @@ export default {
 
   setup(props, { emit }) {
     const { inspectedInstance, inspected } = useComponent()
-    const hasTarget = function () {
+    const hasTarget = computed(function () {
       return !!inspectedInstance.value?.id
-    }
+    })
 
     function editComponentData(args) {
       exBridge.send(api.web.setInstanceData, {
@@ -71,34 +73,37 @@ export default {
       })
     }
 
-    return { loading: inspected.loading, target: inspectedInstance, hasTarget, editComponentData }
-  },
+    const filter = ref('')
+    const filteredState = computed(() => {
+      if (!hasTarget.value) {
+        return null
+      }
 
-  data() {
+      const states = inspectedInstance.value.state.filter(el => {
+        return searchDeepInObject(
+          {
+            [el.key]: el.value,
+          },
+          filter.value
+        )
+      })
+
+      return groupBy(sortByKey(states), 'type')
+    })
+
     return {
-      filter: '',
+      loading: inspected.loading,
+      target: inspectedInstance,
+      hasTarget,
+      editComponentData,
+      filter,
+      filteredState,
     }
   },
 
   computed: {
     targetName() {
       return getComponentDisplayName(this.target.name, this.$shared.componentNameStyle)
-    },
-
-    filteredState() {
-      return groupBy(
-        sortByKey(
-          this.target.state.filter(el => {
-            return searchDeepInObject(
-              {
-                [el.key]: el.value,
-              },
-              this.filter
-            )
-          })
-        ),
-        'type'
-      )
     },
 
     // Checks if the file is actually a path (e.g. '/path/to/file.vue'), or

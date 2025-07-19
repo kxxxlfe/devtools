@@ -2,7 +2,7 @@
   <div>
     <split-pane>
       <component-tree v-if="defer(2)" slot="left" :instances="instances" />
-      <component-inspector v-if="defer(3)" slot="right" />
+      <component-inspector v-if="defer(3)" slot="right" :key="inspectedId" />
     </split-pane>
   </div>
 </template>
@@ -34,13 +34,10 @@ export default {
 
   setup(props, { emit }) {
     const { inspectedInstance, inspected } = useComponent()
-    const hasTarget = function () {
-      return !!inspectedInstance.value?.id
-    }
 
     const { instances } = useComponentTree()
 
-    return { instances, loading: inspected.loading, target: inspectedInstance, hasTarget }
+    return { instances, loading: inspected.loading, inspectedId: inspected.id, target: inspectedInstance }
   },
 
   extends: superDef,
