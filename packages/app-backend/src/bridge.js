@@ -1,7 +1,7 @@
 import { WebBridge, Plat, IFrameBridge } from '@yuhufe/browser-bridge'
-import { PLATFORM, api } from '@utils/api'
+import { PLATFORM, api, detectDev } from '@utils/api'
 
-export const bridge = window.isShellDev
+export const bridge = detectDev('backend')
   ? new IFrameBridge({ frameKey: PLATFORM.web })
   : new WebBridge({ plat: PLATFORM.web })
 bridge.Plat = Plat

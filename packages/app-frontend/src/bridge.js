@@ -1,8 +1,8 @@
 import { DevtoolBridge, IFrameTopBridge, Plat } from '@yuhufe/browser-bridge'
-import { PLATFORM, api } from '@utils/api'
+import { PLATFORM, api, detectDev } from '@utils/api'
 
 const isWebEnv = location.href.startsWith('http')
-export const bridge = window.isShellDev
+export const bridge = detectDev('frontend')
   ? new IFrameTopBridge({
       plat: PLATFORM.devtool,
       frameKey: PLATFORM.web,
