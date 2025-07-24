@@ -1,3 +1,4 @@
+import { watch } from 'vue'
 import { stringify, parse, set, get } from '@utils/util'
 import SharedData from '@utils/shared-data'
 import Vue from 'vue'
@@ -206,11 +207,14 @@ class VuexBackend {
    * Reset vuex backend
    */
   reset(stateSnapshot = null) {
-    if (SharedData.vuexNewBackend) {
-      this.baseStateSnapshot = stateSnapshot || clone(this.initialState)
-    } else {
-      this.legacyBaseSnapshot = this.stringifyStore()
+    if (SharedData.recordVuex) {
+      if (SharedData.vuexNewBackend) {
+        this.baseStateSnapshot = stateSnapshot || clone(this.initialState)
+      } else {
+        this.legacyBaseSnapshot = this.stringifyStore()
+      }
     }
+
     this.mutations = []
     this.resetSnapshotCache()
   }
@@ -265,15 +269,18 @@ class VuexBackend {
     }
 
     const key = path.join('/')
-    const moduleInfo = (this.registeredModules[key] = this.allTimeModules[key] = {
-      path,
-      module: fakeModule,
-      options: {
-        ...options,
-        preserveState: false,
-      },
-      state: SharedData.vuexNewBackend ? clone(state) : null,
-    })
+    const moduleInfo =
+      (this.registeredModules[key] =
+      this.allTimeModules[key] =
+        {
+          path,
+          module: fakeModule,
+          options: {
+            ...options,
+            preserveState: false,
+          },
+          state: SharedData.vuexNewBackend ? clone(state) : null,
+        })
 
     if (SharedData.recordVuex) {
       this.addMutation(
@@ -617,9 +624,18 @@ class VuexBackend {
   }
 }
 
+// 打开开关后再进行记录
+let vuexBackend
+watch(
+  () => SharedData.recordVuex,
+  function (n, o) {
+    if (n && !o) {
+      vuexBackend?.reset()
+    }
+  }
+)
 export function initVuexBackend(hook, bridge, isLegacy) {
-  // eslint-disable-next-line no-new
-  new VuexBackend(hook, bridge, isLegacy)
+  vuexBackend = new VuexBackend(hook, bridge, isLegacy)
 }
 
 function getCatchedGetters(store) {
