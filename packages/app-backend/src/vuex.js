@@ -4,12 +4,13 @@ import SharedData from '@utils/shared-data'
 import Vue from 'vue'
 import clone from './clone'
 import { debounce } from './utils'
+import { bridge as exBridge, api } from './bridge'
 
 const isProd = process.env.NODE_ENV === 'production'
 
 class VuexBackend {
   constructor(hook, bridge, isLegacy) {
-    bridge.send('vuex:init')
+    exBridge.send(api.vuex.init)
 
     this.hook = hook
     this.bridge = bridge
@@ -159,7 +160,7 @@ class VuexBackend {
     this.initialState = parsed
     this.hook.emit('vuex:travel-to-state', parsed)
     this.reset()
-    this.bridge.send('vuex:init')
+    exBridge.send(api.vuex.init)
     this.onInspectState(-1)
   }
 

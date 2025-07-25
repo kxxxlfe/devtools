@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import { getCurrentInstance } from 'vue'
+import { getCurrentInstance, watch } from 'vue'
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 import StateInspector from '@front/components/StateInspector.vue'
@@ -78,6 +78,8 @@ import debounce from 'lodash/debounce'
 import groupBy from 'lodash/groupBy'
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import { mutationBuffer } from './module'
+import { useVuex } from './useVuex'
+import { useSharedData } from '@utils/shared-data'
 
 export default {
   components: {
@@ -94,6 +96,19 @@ export default {
 
   setup(props, { emit }) {
     const ctx = getCurrentInstance()?.proxy
+    const { sharedData } = useSharedData()
+
+    const { hasVuex } = useVuex()
+    watch(
+      () => hasVuex.value,
+      function (n, o) {
+        if (n && !o) {
+          if (sharedData.value.vuexAutoload) {
+            ctx.loadState()
+          }
+        }
+      }
+    )
 
     function editVuex({ path, field, ...args }) {
       const rootName = path.split('.')[0]
@@ -226,13 +241,10 @@ export default {
     if (this.isOnlyMutationPayload && this.$shared.vuexAutoload) {
       this.loadState()
     }
-
-    bridge.on('vuex:init', this.onVuexInit)
   },
 
   destroyed() {
     bridge.off('vuex:mutation', this.onMutation)
-    bridge.off('vuex:init', this.onVuexInit)
   },
 
   methods: {
@@ -320,12 +332,6 @@ export default {
         } else {
           this.loadState()
         }
-      }
-    },
-
-    onVuexInit() {
-      if (this.$shared.vuexAutoload) {
-        this.loadState()
       }
     },
   },

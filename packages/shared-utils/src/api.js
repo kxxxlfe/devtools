@@ -86,6 +86,9 @@ function makeAPI() {
     back: {
       vueDetectResult: `${PLATFORM.back}/vueDetectResult`, // vue检测完成
     },
+    vuex: {
+      init: `${PLATFORM.devtool}/vuex/init`,
+    },
   }
 }
 
