@@ -27,8 +27,8 @@ export function initRouterBackend(Vue, rootInstances) {
         exBridge.send(
           api.router.changed,
           stringify({
-            to,
-            from,
+            to: clipRoute(to),
+            from: clipRoute(from),
             timestamp: Date.now(),
           })
         )
@@ -38,8 +38,8 @@ export function initRouterBackend(Vue, rootInstances) {
         stringify({
           mode: router.mode,
           current: {
-            from: router.history.current,
-            to: router.history.current,
+            from: clipRoute(router.history.current),
+            to: clipRoute(router.history.current),
             timestamp: Date.now(),
           },
         })
@@ -56,6 +56,24 @@ export function initRouterBackend(Vue, rootInstances) {
       }
     }
   })
+}
+
+// 序列化route需要剪枝
+const clipRoute = function (route) {
+  if (!route) {
+    return route
+  }
+  return {
+    ...route,
+    matched: route.matched?.map(m => {
+      return {
+        ...m,
+        components: undefined,
+        instances: undefined,
+        parent: clipRoute(m.parent),
+      }
+    }),
+  }
 }
 
 export function getCustomRouterDetails(router) {
