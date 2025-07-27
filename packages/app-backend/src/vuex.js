@@ -86,7 +86,7 @@ class VuexBackend {
     bridge.on('vuex:commit', this.onCommit.bind(this))
     bridge.on('vuex:revert', this.onRevert.bind(this))
     bridge.on('vuex:import-state', this.onImportState.bind(this))
-    bridge.on('vuex:inspect-state', this.onInspectState.bind(this))
+    exBridge.on(api.vuex.inspectState, this.onInspectState.bind(this))
     bridge.on('vuex:edit-state', this.onEditState.bind(this))
   }
 
@@ -105,7 +105,7 @@ class VuexBackend {
   onTravelToState({ index, apply }) {
     const snapshot = this.replayMutations(index)
     const state = clone(this.lastState)
-    this.bridge.send('vuex:inspected-state', {
+    exBridge.send(api.vuex.inspectedState, {
       index,
       snapshot,
     })
@@ -170,7 +170,7 @@ class VuexBackend {
    */
   onInspectState(index) {
     const snapshot = this.replayMutations(index)
-    this.bridge.send('vuex:inspected-state', {
+    exBridge.send(api.vuex.inspectedState, {
       index,
       snapshot,
     })
@@ -184,7 +184,7 @@ class VuexBackend {
     this.store._committing = true
     set(this.store.state, path, parsedValue)
     this.store._committing = false
-    this.bridge.send('vuex:inspected-state', {
+    exBridge.send(api.vuex.inspectedState, {
       index,
       snapshot: this.getStoreSnapshot(),
     })
@@ -396,7 +396,7 @@ class VuexBackend {
       ...options,
     })
 
-    this.bridge.send('vuex:mutation', {
+    exBridge.send(api.vuex.mutation, {
       mutation: {
         type: type,
         payload: stringify(payload),

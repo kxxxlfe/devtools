@@ -1,22 +1,27 @@
+import { bridge as exBridge, api } from '@front/bridge'
 import { snapshotsCache } from './cache'
 import Resolve from './resolve'
 import SharedData from '@utils/shared-data'
 import debounce from 'lodash/debounce'
 import { mutationBuffer } from './module'
 
-export function receiveMutation ({ commit }, entry) {
+export function receiveMutation({ commit }, entry) {
   mutationBuffer.push(entry)
   receiveMutations(commit)
 }
 
-export const receiveMutations = debounce(commit => {
-  commit('RECEIVE_MUTATIONS', mutationBuffer)
-  mutationBuffer.length = 0
-}, 300, {
-  maxWait: 1000
-})
+export const receiveMutations = debounce(
+  commit => {
+    commit('RECEIVE_MUTATIONS', mutationBuffer)
+    mutationBuffer.length = 0
+  },
+  300,
+  {
+    maxWait: 1000,
+  }
+)
 
-export function commitAll ({ commit, state }) {
+export function commitAll({ commit, state }) {
   if (state.history.length > 0) {
     travelTo(state, commit, state.history.length - 1).then(() => {
       snapshotsCache.reset()
@@ -26,7 +31,7 @@ export function commitAll ({ commit, state }) {
   }
 }
 
-export function revertAll ({ commit, state }) {
+export function revertAll({ commit, state }) {
   if (state.history.length > 0) {
     travelTo(state, commit, -1).then(() => {
       snapshotsCache.reset()
@@ -36,7 +41,7 @@ export function revertAll ({ commit, state }) {
   }
 }
 
-export function commit ({ commit, state }, entry) {
+export function commit({ commit, state }, entry) {
   const index = state.history.indexOf(entry)
   if (index > -1) {
     travelTo(state, commit, index, false).then(() => {
@@ -48,7 +53,7 @@ export function commit ({ commit, state }, entry) {
   }
 }
 
-export function revert ({ commit, state }, entry) {
+export function revert({ commit, state }, entry) {
   const index = state.history.indexOf(entry)
   if (index > -1) {
     travelTo(state, commit, index - 1).then(() => {
@@ -59,10 +64,8 @@ export function revert ({ commit, state }, entry) {
   }
 }
 
-export function inspect ({ commit, getters }, entryOrIndex) {
-  let index = typeof entryOrIndex === 'number'
-    ? entryOrIndex
-    : getters.filteredHistory.indexOf(entryOrIndex)
+export function inspect({ commit, getters }, entryOrIndex) {
+  let index = typeof entryOrIndex === 'number' ? entryOrIndex : getters.filteredHistory.indexOf(entryOrIndex)
   if (index < -1) index = -1
   if (index >= getters.filteredHistory.length) index = getters.filteredHistory.length - 1
   commit('INSPECT', index)
@@ -75,29 +78,29 @@ export function inspect ({ commit, getters }, entryOrIndex) {
   } else {
     SharedData.snapshotLoading = true
     commit('UPDATE_INSPECTED_STATE', null)
-    bridge.send('vuex:inspect-state', mutationIndex)
+    exBridge.send(api.vuex.inspectState, mutationIndex)
   }
 }
 
-export function timeTravelTo ({ state, commit }, entry) {
+export function timeTravelTo({ state, commit }, entry) {
   return travelTo(state, commit, state.history.indexOf(entry))
 }
 
-export function updateFilter ({ commit }, filter) {
+export function updateFilter({ commit }, filter) {
   commit('UPDATE_FILTER', filter)
 }
 
-export function editState ({ state }, { path, args }) {
+export function editState({ state }, { path, args }) {
   if (state.inspectedIndex !== -1) snapshotsCache.del(state.inspectedIndex)
   bridge.send('vuex:edit-state', {
     index: state.inspectedIndex,
     path,
-    ...args
+    ...args,
   })
 }
 
-function travelTo (state, commit, index, apply = true) {
-  return new Promise((resolve) => {
+function travelTo(state, commit, index, apply = true) {
+  return new Promise(resolve => {
     Resolve.travel = resolve
     const { inspectedIndex } = state
 

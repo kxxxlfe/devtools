@@ -88,6 +88,9 @@ function makeAPI() {
     },
     vuex: {
       init: `${PLATFORM.devtool}/vuex/init`,
+      inspectState: `${PLATFORM.web}/vuex/inspectState`,
+      inspectedState: `${PLATFORM.devtool}/vuex/inspectedState`,
+      mutation: `${PLATFORM.devtool}/vuex/mutation`,
     },
   }
 }
