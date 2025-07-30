@@ -18,6 +18,7 @@ const webpackConfig = createConfig({
   devtool: 'cheap-module-source-map',
   devServer: {
     hot: true,
+    port: 6789,
     static: {
       directory: path.join(__dirname), // 确保指向包含index.html的目录
     },

@@ -1,18 +1,9 @@
 <template>
   <scroll-pane>
-    <div
-      v-if="activeRouteChange"
-      slot="scroll"
-    >
+    <div v-if="activeRouteChange" slot="scroll">
       <state-inspector :state="{ from, to }" />
     </div>
-    <div
-      v-else
-      slot="scroll"
-      class="no-route-data"
-    >
-      No route transition selected
-    </div>
+    <div v-else slot="scroll" class="no-route-data">No route transition selected</div>
   </scroll-pane>
 </template>
 
@@ -25,24 +16,22 @@ import { UNDEFINED } from '@utils/util'
 export default {
   components: {
     ScrollPane,
-    StateInspector
+    StateInspector,
   },
   computed: {
-    ...mapGetters('router', [
-      'activeRouteChange'
-    ]),
-    to () {
+    ...mapGetters('router', ['activeRouteChange']),
+    to() {
       return this.sanitizeRouteData(this.activeRouteChange.to)
     },
-    from () {
+    from() {
       return this.sanitizeRouteData(this.activeRouteChange.from)
-    }
+    },
   },
   methods: {
-    sanitizeRouteData (routeData) {
+    sanitizeRouteData(routeData) {
       const data = {
         path: routeData.path,
-        fullPath: routeData.fullPath
+        fullPath: routeData.fullPath,
       }
       if (routeData.redirectedFrom) {
         data.redirectedFrom = routeData.redirectedFrom
@@ -56,34 +45,32 @@ export default {
       if (routeData.name && routeData.name !== UNDEFINED) {
         data.name = routeData.name
       }
-      if (routeData.hash && routeData.hash !== '') {
+      if (routeData.hash) {
         data.hash = routeData.hash
       }
       if (routeData.meta && !this.isEmptyObject(routeData.meta)) {
         data.meta = routeData.meta
       }
-      if (routeData.matched && routeData.matched.length > 0) {
+      if (routeData.matched?.length > 0) {
         data.matched = this.sanitizeMatched(routeData.matched)
       }
       return data
     },
-    isEmptyObject (obj) {
+    isEmptyObject(obj) {
       return Object.keys(obj).length === 0
     },
-    sanitizeMatched (matched) {
-      const result = []
-      for (let i = 0; i < matched.length; i++) {
-        const obj = {
-          path: matched[i].path
+    sanitizeMatched(matched) {
+      return matched.map(item => {
+        const res = {
+          path: item.path,
         }
-        if (matched[i].props && !this.isEmptyObject(matched[i].props)) {
-          obj.props = matched[i].props
+        if (item.props && !this.isEmptyObject(item.props)) {
+          res.props = item.props
         }
-        result.push(obj)
-      }
-      return result
-    }
-  }
+        return res
+      })
+    },
+  },
 }
 </script>
 

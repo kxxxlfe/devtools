@@ -1,10 +1,10 @@
-import { set, ref, computed, nextTick } from 'vue'
+import { set, ref, shallowRef, computed, nextTick } from 'vue'
 
 // 树形相关use
 const scrollToExpanded = ref(null)
 const expansionMap = ref({})
-const instances = ref([])
-const instancesMap = ref({})
+const instances = shallowRef([])
+const instancesMap = shallowRef({})
 const updateExpand = function ({ id, expanded, scrollTo = null } = {}) {
   set(expansionMap.value, id, expanded)
   scrollToExpanded.value = scrollTo
@@ -75,8 +75,8 @@ export const useComponentTree = function () {
     payload.instances.forEach(walk)
 
     // Mutations
-    instances.value = Object.freeze(payload.instances)
-    instancesMap.value = Object.freeze(map)
+    instances.value = payload.instances
+    instancesMap.value = map
 
     if (process.env.NODE_ENV !== 'production') {
       nextTick(() => {

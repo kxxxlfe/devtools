@@ -29,12 +29,12 @@
         <span>Revert All</span>
       </a>
       <a
-        v-tooltip="$t(`VuexHistory.${$shared.recordVuex ? 'stopRecording' : 'startRecording'}.tooltip`)"
+        v-tooltip="$t(`VuexHistory.${sharedData.recordVuex ? 'stopRecording' : 'startRecording'}.tooltip`)"
         class="button toggle-recording"
         @click="toggleRecording"
       >
-        <VueIcon :class="{ enabled: $shared.recordVuex }" class="small" icon="lens" />
-        <span>{{ $shared.recordVuex ? 'Recording' : 'Paused' }}</span>
+        <VueIcon :class="{ enabled: sharedData.recordVuex }" class="small" icon="lens" />
+        <span>{{ sharedData.recordVuex ? 'Recording' : 'Paused' }}</span>
       </a>
     </action-header>
     <RecycleScroller
@@ -71,7 +71,7 @@
           <span v-if="activeIndex === -1" class="label active">active</span>
           <span v-if="inspectedIndex === -1" class="label inspected">inspected</span>
           <span class="time">
-            {{ lastCommit | formatTime($shared.timeFormat) }}
+            {{ lastCommit | formatTime(sharedData.timeFormat) }}
           </span>
         </div>
         <div
@@ -125,7 +125,7 @@
           <span v-if="isActive(index, entry)" class="label active">active</span>
           <span v-if="isInspected(index, entry)" class="label inspected">inspected</span>
           <span v-tooltip="entry.timestamp" class="time">
-            {{ entry.timestamp | formatTime($shared.timeFormat) }}
+            {{ entry.timestamp | formatTime(sharedData.timeFormat) }}
           </span>
         </div>
       </template>
@@ -134,12 +134,14 @@
 </template>
 
 <script>
+import { computed, getCurrentInstance } from 'vue'
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 
 import Keyboard, { UP, DOWN, DEL, BACKSPACE, ENTER } from '@front/mixins/keyboard'
 import EntryList from '@front/mixins/entry-list'
 import { mapState, mapGetters, mapActions } from 'vuex'
+import { useSharedData } from '@utils/shared-data'
 import { focusInput } from '@utils/util'
 
 export default {
@@ -147,6 +149,24 @@ export default {
     ActionHeader,
     ScrollPane,
   },
+
+  setup(props, { emit }) {
+    const ctx = getCurrentInstance()?.proxy
+    const { sharedData, updateSharedData } = useSharedData()
+
+    const highDensity = computed(() => {
+      const pref = sharedData.value.displayDensity
+      return (pref === 'auto' && ctx.filteredHistory.length > 7) || pref === 'high'
+    })
+
+    function toggleRecording() {
+      updateSharedData({
+        recordVuex: !sharedData.value.recordVuex,
+      })
+    }
+    return { sharedData, highDensity, toggleRecording }
+  },
+
   mixins: [
     Keyboard({
       onKeyDown({ key, modifiers }) {
@@ -203,11 +223,6 @@ export default {
         this.$store.dispatch('vuex/inspect', filter ? -1 : this.history.length - 1)
       },
     },
-
-    highDensity() {
-      const pref = this.$shared.displayDensity
-      return (pref === 'auto' && this.filteredHistory.length > 7) || pref === 'high'
-    },
   },
 
   methods: {
@@ -223,10 +238,6 @@ export default {
 
     isSpecial(entry) {
       return entry.options.registerModule || entry.options.unregisterModule
-    },
-
-    toggleRecording() {
-      this.$shared.recordVuex = !this.$shared.recordVuex
     },
   },
 }

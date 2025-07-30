@@ -14,8 +14,10 @@ import router from './router'
 import TransitionExample from './TransitionExample.vue'
 import Router from './router/Router.vue'
 
+Vue.config.devtools = true
+
 window.VUE_DEVTOOLS_CONFIG = {
-  openInEditorHost: '/'
+  openInEditorHost: '/',
 }
 
 const items = []
@@ -32,10 +34,10 @@ const app = new Vue({
   data: {
     obj: {
       items: items,
-      circular
-    }
+      circular,
+    },
   },
-  render (h) {
+  render(h) {
     return h('div', null, [
       h(Counter2_7),
       h(Counter),
@@ -47,9 +49,9 @@ const app = new Vue({
       h(TransitionExample),
       h(VuexObject),
       h(Init),
-      h(RefTester)
+      h(RefTester),
     ])
-  }
+  },
 })
 
 window.addEventListener('load', () => {
@@ -63,9 +65,9 @@ if (ce.attachShadow) {
 
   const ceVM = new Vue({
     name: 'Shadow',
-    render (h) {
+    render(h) {
       return h('h2', 'Inside Shadow DOM!')
-    }
+    },
   }).$mount()
 
   shadowRoot.appendChild(ceVM.$el)

@@ -11,11 +11,12 @@ let uid = 0
 export const mutationBuffer = []
 
 const state = {
-  hasVuex: false,
   base: null, // type Snapshot = { state: {}, getters: {} }
   inspectedIndex: -1,
   activeIndex: -1,
-  history: [/* { mutation, timestamp, snapshot } */],
+  history: [
+    /* { mutation, timestamp, snapshot } */
+  ],
   initialCommit: Date.now(),
   lastCommit: Date.now(),
   filter: '',
@@ -23,17 +24,11 @@ const state = {
   filterRegexInvalid: false,
   inspectedState: null,
   lastReceivedState: null,
-  inspectedModule: null
+  inspectedModule: null,
 }
 
 const mutations = {
-  'INIT' (state) {
-    state.hasVuex = true
-    snapshotsCache.reset()
-    reset(state)
-  },
-
-  'RECEIVE_MUTATIONS' (state, entries) {
+  RECEIVE_MUTATIONS(state, entries) {
     const inspectingLastMutation = state.inspectedIndex === state.history.length - 1
     for (const entry of entries) {
       entry.id = uid++
@@ -48,17 +43,17 @@ const mutations = {
     }
   },
 
-  'COMMIT_ALL' (state) {
+  COMMIT_ALL(state) {
     state.base = state.lastReceivedState
     state.lastCommit = Date.now()
     reset(state)
   },
 
-  'REVERT_ALL' (state) {
+  REVERT_ALL(state) {
     reset(state)
   },
 
-  'COMMIT' (state, index) {
+  COMMIT(state, index) {
     state.base = state.lastReceivedState
     state.lastCommit = Date.now()
     state.history = state.history.slice(index + 1)
@@ -68,33 +63,33 @@ const mutations = {
     state.inspectedIndex = -1
   },
 
-  'REVERT' (state, index) {
+  REVERT(state, index) {
     state.history = state.history.slice(0, index)
     state.inspectedIndex = state.history.length - 1
   },
 
-  'INSPECT' (state, index) {
+  INSPECT(state, index) {
     state.inspectedIndex = index
   },
 
-  'UPDATE_INSPECTED_STATE' (state, value) {
+  UPDATE_INSPECTED_STATE(state, value) {
     state.inspectedState = parseStoreState(value)
   },
 
-  'RECEIVE_STATE' (state, { index, snapshot }) {
+  RECEIVE_STATE(state, { index, snapshot }) {
     state.lastReceivedState = parseStoreState(snapshot)
     snapshotsCache.set(index, snapshot)
   },
 
-  'UPDATE_BASE_STATE' (state, value) {
+  UPDATE_BASE_STATE(state, value) {
     state.base = parseStoreState(value)
   },
 
-  'TIME_TRAVEL' (state, index) {
+  TIME_TRAVEL(state, index) {
     state.activeIndex = index
   },
 
-  'UPDATE_FILTER' (state, filter) {
+  UPDATE_FILTER(state, filter) {
     state.filter = filter
     const regexParts = filter.match(REGEX_RE)
     if (regexParts !== null) {
@@ -113,12 +108,12 @@ const mutations = {
     }
   },
 
-  'INSPECTED_MODULE' (state, module) {
+  INSPECTED_MODULE(state, module) {
     state.inspectedModule = module
-  }
+  },
 }
 
-function reset (state) {
+export function reset(state) {
   state.history = []
   state.inspectedIndex = state.activeIndex = -1
   state.inspectedState = null
@@ -126,29 +121,29 @@ function reset (state) {
   SharedData.snapshotLoading = false
 }
 
-function escapeStringForRegExp (str) {
+function escapeStringForRegExp(str) {
   return str.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')
 }
 
 const getters = {
-  inspectedEntry ({ inspectedIndex }, { filteredHistory }) {
+  inspectedEntry({ inspectedIndex }, { filteredHistory }) {
     return filteredHistory[inspectedIndex]
   },
 
-  inspectedState ({ base, inspectedState, inspectedModule }, { inspectedEntry }) {
+  inspectedState({ base, inspectedState, inspectedModule }, { inspectedEntry }) {
     const data = inspectedEntry ? inspectedState : base
     return processInspectedState({ entry: inspectedEntry, data, inspectedModule })
   },
 
-  inspectedLastState ({ lastReceivedState, inspectedModule }, { inspectedEntry }) {
+  inspectedLastState({ lastReceivedState, inspectedModule }, { inspectedEntry }) {
     return processInspectedState({ entry: inspectedEntry, data: lastReceivedState, inspectedModule })
   },
 
-  filteredHistory ({ history, filterRegex }) {
+  filteredHistory({ history, filterRegex }) {
     return history.filter(entry => filterRegex.test(entry.mutation.type))
   },
 
-  absoluteInspectedIndex ({ history, inspectedIndex }, { filteredHistory }) {
+  absoluteInspectedIndex({ history, inspectedIndex }, { filteredHistory }) {
     const entry = filteredHistory[inspectedIndex]
     if (entry) {
       return history.indexOf(entry)
@@ -156,34 +151,34 @@ const getters = {
     return -1
   },
 
-  modules ({ base, inspectedIndex, inspectedState }, getters) {
+  modules({ base, inspectedIndex, inspectedState }, getters) {
     const entry = getters.filteredHistory[inspectedIndex]
     const data = entry ? inspectedState : base
     if (data) {
       return data.modules
     }
     return []
-  }
+  },
 }
 
-function parseStoreState (state) {
+function parseStoreState(state) {
   const data = parse(state)
   if (data) {
     return {
       state: data.state,
       getters: Object.freeze(data.getters),
-      modules: Object.freeze(data.modules)
+      modules: Object.freeze(data.modules),
     }
   }
 }
 
-function processInspectedState ({ entry, data, inspectedModule }) {
+function processInspectedState({ entry, data, inspectedModule }) {
   const res = {}
 
   if (entry) {
     res.mutation = {
       type: entry.mutation.type,
-      payload: entry.mutation.payload ? parse(entry.mutation.payload) : undefined
+      payload: entry.mutation.payload ? parse(entry.mutation.payload) : undefined,
     }
   }
 
@@ -216,8 +211,8 @@ function processInspectedState ({ entry, data, inspectedModule }) {
         parent = parent[part] = parent[part] || {
           _custom: {
             value: {},
-            abstract: true
-          }
+            abstract: true,
+          },
         }
         parent = parent._custom.value
       }
@@ -234,5 +229,5 @@ export default {
   state,
   mutations,
   actions,
-  getters
+  getters,
 }

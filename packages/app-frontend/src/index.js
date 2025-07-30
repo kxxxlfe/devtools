@@ -10,6 +10,7 @@ import VuexResolve from './views/vuex/resolve'
 import { useEvents } from './views/events/useEvents'
 import './views/routes/useRoutes'
 import './views/router/useRouter'
+import './views/vuex/useVuex'
 import { inspectContextMenuInstance } from './views/components/useComponent'
 import { parse } from '@utils/util'
 import { isChrome, initEnv } from '@utils/env'
@@ -126,10 +127,6 @@ function initApp(shell) {
 
       bridge.once('proxy-fail', () => {
         updateHeaderMsg(`Proxy injection failed.`)
-      })
-
-      bridge.on('vuex:init', () => {
-        store.commit('vuex/INIT')
       })
 
       bridge.on('vuex:mutation', payload => {

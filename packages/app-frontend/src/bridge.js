@@ -1,7 +1,14 @@
-import { DevtoolBridge, Plat } from '@yuhufe/browser-bridge'
-import { PLATFORM, api } from '@utils/api'
+import { DevtoolBridge, IFrameTopBridge, Plat } from '@yuhufe/browser-bridge'
+import { PLATFORM, api, detectDev } from '@utils/api'
 
-export const bridge = new DevtoolBridge()
+const isWebEnv = location.href.startsWith('http')
+export const bridge = detectDev('frontend')
+  ? new IFrameTopBridge({
+      plat: PLATFORM.devtool,
+      frameKey: PLATFORM.web,
+      frameEl: () => document.querySelector('#target'),
+    })
+  : new DevtoolBridge({ plat: PLATFORM.devtool })
 bridge.Plat = Plat
 
 export { api }

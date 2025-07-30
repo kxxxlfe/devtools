@@ -1,10 +1,10 @@
-import { ref } from 'vue'
+import { ref, shallowRef } from 'vue'
 import { bridge as exBridge, api } from '@front/bridge'
 import { parse } from '@utils/util'
 
 const stores = ref([])
 const currStoreKey = ref('')
-const inspectedState = ref({})
+const inspectedState = shallowRef({})
 exBridge.on(api.devtool.pinia.init, function ({ storeList }) {
   stores.value = storeList
 })
