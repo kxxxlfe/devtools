@@ -88,7 +88,7 @@ export function unHighlight(id) {
  */
 
 export function getInstanceOrVnodeRect(instance) {
-  const el = instance.$el || instance.elm
+  let el = instance.$el || instance.elm
   if (!isBrowser) {
     // TODO: Find position from instance or a vnode (for functional components).
 
@@ -99,7 +99,13 @@ export function getInstanceOrVnodeRect(instance) {
   }
   if (instance._isFragment) {
     return getFragmentRect(instance)
-  } else if (el.nodeType === 1) {
+  }
+
+  if (el.nodeType === 1) {
+    // similar with fragment
+    if (getComputedStyle(el).display === 'contents') {
+      el = el.firstChild
+    }
     return el.getBoundingClientRect()
   }
 }
