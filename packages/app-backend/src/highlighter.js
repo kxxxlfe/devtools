@@ -1,5 +1,6 @@
 import { inDoc, getComponentName, getComponentDisplayName } from '@utils/util'
 import SharedData from '@utils/shared-data'
+import { checkVisibility } from '@/utils/tools'
 import { isBrowser, target } from '@utils/env'
 import { getInstanceName } from './process'
 
@@ -102,11 +103,12 @@ export function getInstanceOrVnodeRect(instance) {
   }
 
   if (el.nodeType === 1) {
-    // similar with fragment
-    if (getComputedStyle(el).display === 'contents') {
-      el = el.firstChild
+    // such as `display: contents`
+    if (!checkVisibility(el)) {
+      el = Array.prototype.find.call(el.children, elm => elm.nodeType === 1)
     }
-    return el.getBoundingClientRect()
+
+    return el?.getBoundingClientRect()
   }
 }
 
