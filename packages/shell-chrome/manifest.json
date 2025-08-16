@@ -35,7 +35,7 @@
   "background": {
     "service_worker": "build/service-worker.js"
   },
-  "permissions": ["contextMenus", "storage", "scripting", "tabs"],
+  "permissions": ["contextMenus", "storage", "scripting", "tabs", "webNavigation"],
   "host_permissions": ["<all_urls>"],
   "content_scripts": [
     {

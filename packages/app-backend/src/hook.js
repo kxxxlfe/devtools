@@ -12,11 +12,13 @@
 export function installHook(target) {
   let listeners = {}
 
-  if (Object.keys(target?.__VUE_DEVTOOLS_GLOBAL_HOOK__ || {}).length) {
+  // 提前注入的是空的hook，也需要初始化
+  if (target.__VUE_DEVTOOLS_GLOBAL_HOOK__?._buffer) {
     return
   }
 
-  const hook = {
+  const hook = target.__VUE_DEVTOOLS_GLOBAL_HOOK__ || {}
+  Object.assign(hook, {
     Vue: null,
 
     _buffer: [],
@@ -85,7 +87,7 @@ export function installHook(target) {
         this._buffer.push(allArgs)
       }
     },
-  }
+  })
 
   hook.once('init', Vue => {
     hook.Vue = Vue
