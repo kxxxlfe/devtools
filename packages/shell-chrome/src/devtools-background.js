@@ -39,8 +39,6 @@ function createPanelIfHasVue() {
 chrome.runtime.onMessage.addListener(request => {
   if (request === 'vue-panel-load') {
     onPanelLoad()
-  } else if (request.vueToast) {
-    toast(request.vueToast)
   } else if (request.vueContextMenu) {
     onContextMenu(request.vueContextMenu)
   }
