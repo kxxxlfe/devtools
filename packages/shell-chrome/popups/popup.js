@@ -34,7 +34,7 @@ enableEl.addEventListener('change', () => {
 })
 const initEnable = function ({ vueDetected, nuxtDetected, devtoolsEnabled, devtoolsForceEnabled }) {
   const showForceEnable = vueDetected && !devtoolsEnabled
-  enableWrapper.style.display = showForceEnable ? '' : 'none'
+  enableWrapper.style.display = showForceEnable ? 'inline-flex' : 'none'
   enableEl.checked = !!devtoolsForceEnabled
 }
 
