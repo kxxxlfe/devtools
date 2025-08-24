@@ -11,7 +11,7 @@ const checkVueInterval = setInterval(createPanelIfHasVue, 1000)
 createPanelIfHasVue()
 
 function createPanelIfHasVue() {
-  if (created || checkCount++ > 10) {
+  if (created || checkCount++ > 20) {
     clearInterval(checkVueInterval)
     return
   }
