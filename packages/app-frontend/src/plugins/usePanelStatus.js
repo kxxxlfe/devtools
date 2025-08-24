@@ -1,7 +1,25 @@
 import { isChrome } from '@utils/env'
+import SharedData from '@utils/shared-data'
 
 let panelShown = true
 let pendingAction = null
+
+const updateActive = function () {
+  const isActive = () => {
+    if (!panelShown) {
+      return false
+    }
+
+    if (globalThis.document?.visibilityState !== 'visible') {
+      return false
+    }
+
+    return true
+  }
+
+  SharedData.devtoolPageActive = isActive()
+}
+
 // Capture and log devtool errors when running as actual extension
 // so that we can debug it by inspecting the background page.
 // We do want the errors to be thrown in the dev shell though.
@@ -15,16 +33,9 @@ if (isChrome) {
   })
 }
 
-function ensurePaneShown(cb) {
-  if (panelShown) {
-    cb()
-  } else {
-    pendingAction = cb
-  }
-}
-
 function onPanelShown() {
   panelShown = true
+  updateActive()
   if (pendingAction) {
     pendingAction()
     pendingAction = null
@@ -33,9 +44,15 @@ function onPanelShown() {
 
 function onPanelHidden() {
   panelShown = false
+  updateActive()
 }
+
+// document.visible
+globalThis.document?.addEventListener('visibilitychange', function () {
+  updateActive()
+})
 
 // panel状态
 export const useDevPanelStatus = function () {
-  return { ensurePaneShown }
+  return {}
 }

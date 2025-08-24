@@ -1,7 +1,7 @@
 import { ref, shallowRef, computed, set } from 'vue'
 import { bridge as exBridge, api } from '@front/bridge'
 import { parse, parseFlatted } from '@utils/util'
-import { useDevPanelStatus } from '../../plugins/usePanelStatus'
+import { whenDevtoolActive } from '@utils/devpage'
 import router from '../../router'
 import { useComponentTree } from './module'
 
@@ -11,12 +11,11 @@ const inspected = {
   curr: shallowRef(null),
   loading: ref(false),
 }
-const { ensurePaneShown } = useDevPanelStatus()
 const { toggleInstance, instancesMap, flush } = useComponentTree()
 
 // web点击dom触发，inspectInstance
 const inspectInstance = id => {
-  ensurePaneShown(() => {
+  whenDevtoolActive(() => {
     selectInstance(id)
     const { currentRoute } = router
     if (currentRoute?.name !== 'components') {
@@ -33,7 +32,7 @@ const inspectInstance = id => {
 }
 exBridge.on(api.devtool.inspectInstance, inspectInstance)
 exBridge.on(api.devtool.updateInstance, ({ id, instance }) => {
-  ensurePaneShown(() => {
+  whenDevtoolActive(() => {
     inspected.curr.value = parse(instance)
     inspected.id.value = id
   })
@@ -94,7 +93,7 @@ export async function inspectContextMenuInstance() {
 
 chrome.runtime.onMessage.addListener(request => {
   if (request.vueContextMenu?.id === 'vue-inspect-instance') {
-    ensurePaneShown(async () => {
+    whenDevtoolActive(async () => {
       const id = await exBridge.request(api.web.inspectCtxMenuInst)
       if (id) {
         inspectInstance(id)
