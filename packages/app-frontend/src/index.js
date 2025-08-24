@@ -113,10 +113,6 @@ function initApp(shell) {
 
       bridge.once('ready', version => {
         updateHeaderMsg(`Ready. Detected Vue ${version} .`)
-
-        if (isChrome) {
-          chrome.runtime.sendMessage('vue-panel-load')
-        }
       })
 
       bridge.once('proxy-fail', () => {

@@ -3,7 +3,6 @@
 // Vue presence on the page. If yes, create the Vue panel; otherwise poll
 // for 10 seconds.
 
-let panelLoaded = false
 let created = false
 let checkCount = 0
 
@@ -16,7 +15,6 @@ function createPanelIfHasVue() {
     clearInterval(checkVueInterval)
     return
   }
-  panelLoaded = false
   chrome.devtools.inspectedWindow.eval('!!(window.__VUE_DEVTOOLS_GLOBAL_HOOK__.Vue)', function (hasVue) {
     if (!hasVue || created) {
       return
@@ -33,12 +31,6 @@ function createPanelIfHasVue() {
 
 // Runtime messages
 
-chrome.runtime.onMessage.addListener(request => {
-  if (request === 'vue-panel-load') {
-    panelLoaded = true
-  }
-})
-
 // Page context menu entry
 // Execute pending action when Vue panel is ready
 
@@ -50,27 +42,4 @@ function onPanelShown() {
 
 function onPanelHidden() {
   chrome.runtime.sendMessage('vue-panel-hidden')
-}
-
-// Toasts
-
-const toastMessages = {
-  'open-devtools': { message: 'Open Vue devtools to see component details', type: 'normal' },
-  'component-not-found': { message: 'No Vue component was found', type: 'warn' },
-}
-
-function toast(id) {
-  if (!Object.keys(toastMessages).includes(id)) return
-
-  const { message, type } = toastMessages[id]
-
-  const src = `(function() {
-    __VUE_DEVTOOLS_TOAST__(\`${message}\`, '${type}');
-  })()`
-
-  chrome.devtools.inspectedWindow.eval(src, function (res, err) {
-    if (err) {
-      console.log(err)
-    }
-  })
 }
