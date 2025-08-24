@@ -4,8 +4,6 @@
 // for 10 seconds.
 
 let panelLoaded = false
-let panelShown = false
-let pendingAction
 let created = false
 let checkCount = 0
 
@@ -19,7 +17,6 @@ function createPanelIfHasVue() {
     return
   }
   panelLoaded = false
-  panelShown = false
   chrome.devtools.inspectedWindow.eval('!!(window.__VUE_DEVTOOLS_GLOBAL_HOOK__.Vue)', function (hasVue) {
     if (!hasVue || created) {
       return
@@ -38,35 +35,21 @@ function createPanelIfHasVue() {
 
 chrome.runtime.onMessage.addListener(request => {
   if (request === 'vue-panel-load') {
-    onPanelLoad()
+    panelLoaded = true
   }
 })
 
 // Page context menu entry
-
-function executePendingAction() {
-  pendingAction && pendingAction()
-  pendingAction = null
-}
-
 // Execute pending action when Vue panel is ready
-
-function onPanelLoad() {
-  executePendingAction()
-  panelLoaded = true
-}
 
 // Manage panel visibility
 
 function onPanelShown() {
   chrome.runtime.sendMessage('vue-panel-shown')
-  panelShown = true
-  panelLoaded && executePendingAction()
 }
 
 function onPanelHidden() {
   chrome.runtime.sendMessage('vue-panel-hidden')
-  panelShown = false
 }
 
 // Toasts
