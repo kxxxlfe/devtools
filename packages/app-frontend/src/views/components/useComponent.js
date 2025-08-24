@@ -91,3 +91,14 @@ export async function inspectContextMenuInstance() {
     inspectInstance(id)
   }
 }
+
+chrome.runtime.onMessage.addListener(request => {
+  if (request.vueContextMenu?.id === 'vue-inspect-instance') {
+    ensurePaneShown(async () => {
+      const id = await exBridge.request(api.web.inspectCtxMenuInst)
+      if (id) {
+        inspectInstance(id)
+      }
+    })
+  }
+})

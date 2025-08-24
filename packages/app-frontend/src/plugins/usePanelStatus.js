@@ -1,6 +1,6 @@
 import { isChrome } from '@utils/env'
 
-let panelShown = !isChrome
+let panelShown = true
 let pendingAction = null
 // Capture and log devtool errors when running as actual extension
 // so that we can debug it by inspecting the background page.

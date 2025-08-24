@@ -39,32 +39,10 @@ function createPanelIfHasVue() {
 chrome.runtime.onMessage.addListener(request => {
   if (request === 'vue-panel-load') {
     onPanelLoad()
-  } else if (request.vueContextMenu) {
-    onContextMenu(request.vueContextMenu)
   }
 })
 
 // Page context menu entry
-
-function onContextMenu({ id }) {
-  if (id === 'vue-inspect-instance') {
-    panelAction(() => {
-      chrome.runtime.sendMessage('vue-get-context-menu-target')
-    }, 'open-devtools')
-  }
-}
-
-// Action that may execute immediatly
-// or later when the Vue panel is ready
-
-function panelAction(cb, message = null) {
-  if (created && panelLoaded && panelShown) {
-    cb()
-  } else {
-    pendingAction = cb
-    message && toast(message)
-  }
-}
 
 function executePendingAction() {
   pendingAction && pendingAction()
