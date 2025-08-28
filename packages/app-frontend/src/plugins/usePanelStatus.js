@@ -1,5 +1,6 @@
 import { isChrome } from '@utils/env'
 import SharedData from '@utils/shared-data'
+import { bridge, api } from '../bridge'
 
 let panelShown = true
 let pendingAction = null
@@ -49,6 +50,14 @@ function onPanelHidden() {
 
 // document.visible
 globalThis.document?.addEventListener('visibilitychange', function () {
+  updateActive()
+})
+// onHide和onShow不成对，怀疑是长时间锁屏会触发hide
+globalThis.document?.addEventListener('pointerdown', function () {
+  if (panelShown) {
+    return
+  }
+  panelShown = true
   updateActive()
 })
 
