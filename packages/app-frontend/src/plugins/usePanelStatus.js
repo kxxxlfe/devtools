@@ -1,6 +1,5 @@
 import { isChrome } from '@utils/env'
 import SharedData from '@utils/shared-data'
-import { bridge, api } from '../bridge'
 
 let panelShown = true
 let pendingAction = null
