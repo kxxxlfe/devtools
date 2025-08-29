@@ -23,6 +23,7 @@ import {
   kebabize,
 } from '@utils/util'
 import SharedData, { init as initSharedData } from '@utils/shared-data'
+import { whenDevtoolActive } from '@utils/devpage'
 import { isBrowser, target } from '@utils/env'
 import { bridge as exBridge, api } from './bridge'
 import { inspectInstance } from './op'
@@ -256,7 +257,9 @@ function flush() {
   exBridge.send(api.devtool.flush, payload)
 }
 
-const debounceFlush = debounce(flush, 200)
+const debounceFlush = debounce(() => {
+  whenDevtoolActive(flush)
+}, 200)
 
 /**
  * Iterate through an array of instances and flatten it into

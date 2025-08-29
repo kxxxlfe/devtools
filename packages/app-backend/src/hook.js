@@ -9,29 +9,31 @@
  * @param {Window|global} target
  */
 
-export function installHook (target) {
+export function installHook(target) {
   let listeners = {}
 
-  if (target.hasOwnProperty('__VUE_DEVTOOLS_GLOBAL_HOOK__')) return
+  // 提前注入的是空的hook，也需要初始化
+  if (target.__VUE_DEVTOOLS_GLOBAL_HOOK__?._buffer) {
+    return
+  }
 
-  const hook = {
+  const hook = target.__VUE_DEVTOOLS_GLOBAL_HOOK__ || {}
+  Object.assign(hook, {
     Vue: null,
 
     _buffer: [],
 
-    _replayBuffer (event) {
+    _replayBuffer(event) {
       let buffer = this._buffer
       this._buffer = []
 
       for (let i = 0, l = buffer.length; i < l; i++) {
         let allArgs = buffer[i]
-        allArgs[0] === event
-          ? this.emit.apply(this, allArgs)
-          : this._buffer.push(allArgs)
+        allArgs[0] === event ? this.emit.apply(this, allArgs) : this._buffer.push(allArgs)
       }
     },
 
-    on (event, fn) {
+    on(event, fn) {
       const $event = '$' + event
       if (listeners[$event]) {
         listeners[$event].push(fn)
@@ -41,15 +43,15 @@ export function installHook (target) {
       }
     },
 
-    once (event, fn) {
-      function on () {
+    once(event, fn) {
+      function on() {
         this.off(event, on)
         fn.apply(this, arguments)
       }
       this.on(event, on)
     },
 
-    off (event, fn) {
+    off(event, fn) {
       event = '$' + event
       if (!arguments.length) {
         listeners = {}
@@ -71,7 +73,7 @@ export function installHook (target) {
       }
     },
 
-    emit (event) {
+    emit(event) {
       const $event = '$' + event
       let cbs = listeners[$event]
       if (cbs) {
@@ -84,8 +86,8 @@ export function installHook (target) {
         const allArgs = [].slice.call(arguments)
         this._buffer.push(allArgs)
       }
-    }
-  }
+    },
+  })
 
   hook.once('init', Vue => {
     hook.Vue = Vue
@@ -116,7 +118,7 @@ export function installHook (target) {
         if (process.env.NODE_ENV !== 'production') console.log('early register module', path, module, options)
       }
       origUnregister = store.unregisterModule.bind(store)
-      store.unregisterModule = (path) => {
+      store.unregisterModule = path => {
         if (typeof path === 'string') path = [path]
         const key = path.join('/')
         const index = hook.storeModules.findIndex(m => m.path.join('/') === key)
@@ -136,9 +138,9 @@ export function installHook (target) {
   })
 
   Object.defineProperty(target, '__VUE_DEVTOOLS_GLOBAL_HOOK__', {
-    get () {
+    get() {
       return hook
-    }
+    },
   })
 
   // Clone deep utility for cloning initial state of the store
@@ -154,7 +156,7 @@ export function installHook (target) {
     getOwnPropertyDescriptor,
     getOwnPropertyNames,
     getOwnPropertySymbols,
-    getPrototypeOf
+    getPrototypeOf,
   } = Object
   const { hasOwnProperty, propertyIsEnumerable } = Object.prototype
 
@@ -168,7 +170,7 @@ export function installHook (target) {
    */
   const SUPPORTS = {
     SYMBOL_PROPERTIES: typeof getOwnPropertySymbols === 'function',
-    WEAKSET: typeof WeakSet === 'function'
+    WEAKSET: typeof WeakSet === 'function',
   }
 
   /**
@@ -185,8 +187,8 @@ export function installHook (target) {
     }
 
     const object = create({
-      add: (value) => object._values.push(value),
-      has: (value) => !!~object._values.indexOf(value)
+      add: value => object._values.push(value),
+      has: value => !!~object._values.indexOf(value),
     })
 
     object._values = []
@@ -239,12 +241,7 @@ export function installHook (target) {
    * @param handleCopy the function that handles copying the object
    * @returns the copied object
    */
-  const getObjectCloneLoose = (
-    object,
-    realm,
-    handleCopy,
-    cache
-  ) => {
+  const getObjectCloneLoose = (object, realm, handleCopy, cache) => {
     const clone = getCleanClone(object, realm)
 
     for (const key in object) {
@@ -282,12 +279,7 @@ export function installHook (target) {
    * @param handleCopy the function that handles copying the object
    * @returns the copied object
    */
-  const getObjectCloneStrict = (
-    object,
-    realm,
-    handleCopy,
-    cache
-  ) => {
+  const getObjectCloneStrict = (object, realm, handleCopy, cache) => {
     const clone = getCleanClone(object, realm)
 
     const properties = SUPPORTS.SYMBOL_PROPERTIES
@@ -295,11 +287,7 @@ export function installHook (target) {
       : getOwnPropertyNames(object)
 
     if (properties.length) {
-      for (
-        let index = 0, property, descriptor;
-        index < properties.length;
-        index++
-      ) {
+      for (let index = 0, property, descriptor; index < properties.length; index++) {
         property = properties[index]
 
         if (property !== 'callee' && property !== 'caller') {
@@ -324,7 +312,7 @@ export function installHook (target) {
    * @param regExp the regexp to get the flags of
    * @returns the flags for the regexp
    */
-  const getRegExpFlags = (regExp) => {
+  const getRegExpFlags = regExp => {
     let flags = ''
 
     if (regExp.global) {
@@ -389,14 +377,12 @@ export function installHook (target) {
    * @param [options.realm] the realm (this) object the object is copied from
    * @returns the copied object
    */
-  function clone (object, options) {
+  function clone(object, options) {
     // manually coalesced instead of default parameters for performance
     const isStrict = !!(options && options.isStrict)
     const realm = (options && options.realm) || GLOBAL_THIS
 
-    const getObjectClone = isStrict
-      ? getObjectCloneStrict
-      : getObjectCloneLoose
+    const getObjectClone = isStrict ? getObjectCloneStrict : getObjectCloneLoose
 
     /**
      * @function handleCopy
@@ -407,10 +393,7 @@ export function installHook (target) {
      * @param object the object to copy
      * @returns the copied object
      */
-    const handleCopy = (
-      object,
-      cache
-    ) => {
+    const handleCopy = (object, cache) => {
       if (!object || typeof object !== 'object' || cache.has(object)) {
         return object
       }
@@ -456,10 +439,7 @@ export function installHook (target) {
 
       // regexps
       if (object instanceof realm.RegExp) {
-        clone = new Constructor(
-          object.source,
-          object.flags || getRegExpFlags(object)
-        )
+        clone = new Constructor(object.source, object.flags || getRegExpFlags(object))
 
         clone.lastIndex = object.lastIndex
 
@@ -485,7 +465,7 @@ export function installHook (target) {
 
         clone = new Constructor()
 
-        object.forEach((value) => {
+        object.forEach(value => {
           clone.add(handleCopy(value, cache))
         })
 
@@ -494,9 +474,7 @@ export function installHook (target) {
 
       // buffers (node-only)
       if (realm.Buffer && realm.Buffer.isBuffer(object)) {
-        clone = realm.Buffer.allocUnsafe
-          ? realm.Buffer.allocUnsafe(object.length)
-          : new Constructor(object.length)
+        clone = realm.Buffer.allocUnsafe ? realm.Buffer.allocUnsafe(object.length) : new Constructor(object.length)
 
         object.copy(clone)
 

@@ -2,7 +2,6 @@ import { ref } from 'vue'
 import * as storage from './storage'
 import { debug } from './util'
 import { api, PLATFORM } from './api'
-import { waitTime } from '@utils/tools'
 
 Promise.withResolvers =
   Promise.withResolvers ||
@@ -36,6 +35,7 @@ const internalSharedData = ref({
   vuexNewBackend: false,
   vuexAutoload: false,
   vuexGroupGettersByModule: true,
+  devtoolPageActive: true, // devtool page is alive
 })
 
 const persisted = [

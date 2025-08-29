@@ -1,5 +1,6 @@
 import { inDoc, getComponentName, getComponentDisplayName } from '@utils/util'
 import SharedData from '@utils/shared-data'
+import { checkVisibility } from '@utils/tools'
 import { isBrowser, target } from '@utils/env'
 import { getInstanceName } from './process'
 
@@ -88,7 +89,7 @@ export function unHighlight(id) {
  */
 
 export function getInstanceOrVnodeRect(instance) {
-  const el = instance.$el || instance.elm
+  let el = instance.$el || instance.elm
   if (!isBrowser) {
     // TODO: Find position from instance or a vnode (for functional components).
 
@@ -99,8 +100,15 @@ export function getInstanceOrVnodeRect(instance) {
   }
   if (instance._isFragment) {
     return getFragmentRect(instance)
-  } else if (el.nodeType === 1) {
-    return el.getBoundingClientRect()
+  }
+
+  if (el.nodeType === 1) {
+    // such as `display: contents`
+    if (!checkVisibility(el)) {
+      el = Array.prototype.find.call(el.children, elm => elm.nodeType === 1)
+    }
+
+    return el?.getBoundingClientRect()
   }
 }
 
