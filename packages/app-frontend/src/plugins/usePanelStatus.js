@@ -51,6 +51,14 @@ function onPanelHidden() {
 globalThis.document?.addEventListener('visibilitychange', function () {
   updateActive()
 })
+// onHide和onShow不成对，怀疑是长时间锁屏会触发hide
+globalThis.document?.addEventListener('pointerdown', function () {
+  if (panelShown) {
+    return
+  }
+  panelShown = true
+  updateActive()
+})
 
 // panel状态
 export const useDevPanelStatus = function () {
