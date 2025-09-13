@@ -6,13 +6,13 @@ import { createStore } from './store'
 import { useApp } from './store/useApp'
 import * as filters from './filters'
 import './plugins'
+import './plugins/usePanelStatus'
 import VuexResolve from './views/vuex/resolve'
 import { useEvents } from './views/events/useEvents'
 import './views/routes/useRoutes'
 import './views/router/useRouter'
 import './views/vuex/useVuex'
-import { inspectContextMenuInstance } from './views/components/useComponent'
-import { parse } from '@utils/util'
+import './views/components/useComponent'
 import { isChrome, initEnv } from '@utils/env'
 import SharedData, { init as initSharedData } from '@utils/shared-data'
 import { init as initStorage } from '@utils/storage'
@@ -39,12 +39,6 @@ if (isChrome) {
       component: vm.$options.name || vm.$options._componentTag || 'anonymous',
     })
   }
-
-  chrome.runtime.onMessage.addListener(request => {
-    if (request === 'vue-get-context-menu-target') {
-      inspectContextMenuInstance()
-    }
-  })
 }
 
 Vue.options.renderError = (h, e) => {
@@ -119,10 +113,6 @@ function initApp(shell) {
 
       bridge.once('ready', version => {
         updateHeaderMsg(`Ready. Detected Vue ${version} .`)
-
-        if (isChrome) {
-          chrome.runtime.sendMessage('vue-panel-load')
-        }
       })
 
       bridge.once('proxy-fail', () => {

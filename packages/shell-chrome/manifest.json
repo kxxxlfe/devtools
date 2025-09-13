@@ -1,7 +1,7 @@
 {
   "name": "Vue2.7 devtools",
-  "version": "5.4.12",
-  "version_name": "5.4.12",
+  "version": "5.4.14",
+  "version_name": "5.4.14",
   "description": "base on vue.js devtools 5.3.4",
   "manifest_version": 3,
   "icons": {
@@ -35,7 +35,7 @@
   "background": {
     "service_worker": "build/service-worker.js"
   },
-  "permissions": ["contextMenus", "storage", "scripting", "tabs"],
+  "permissions": ["contextMenus", "storage", "scripting", "tabs", "webNavigation"],
   "host_permissions": ["<all_urls>"],
   "content_scripts": [
     {

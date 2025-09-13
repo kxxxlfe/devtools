@@ -66,3 +66,16 @@ export const detectVue = function ({ times = 1000 } = {}) {
 
   return Vue
 }
+
+// `checkVisibility` polyfill, not consider parent visibility
+export function checkVisibility(el) {
+  if (!el) {
+    return false
+  }
+  if (el.checkVisibility) {
+    return el.checkVisibility()
+  }
+
+  const rect = el.getBoundingClientRect()
+  return rect.width === 0 && rect.height === 0
+}

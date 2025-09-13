@@ -21,6 +21,7 @@ const enableDevtools = function (Vue) {
   const hook = globalThis.__VUE_DEVTOOLS_GLOBAL_HOOK__
   if (!hook.Vue) {
     hook.Vue = Vue
+    hook.emit('init', Vue)
   }
 }
 
