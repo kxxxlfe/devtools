@@ -60,8 +60,8 @@ importers:
         specifier: workspace:*
         version: link:../shared-utils
       '@yuhufe/browser-bridge':
-        specifier: ^0.1.1
-        version: 0.1.1(lodash-es@4.17.21)
+        specifier: ^0.1.2
+        version: 0.1.2(lodash-es@4.17.21)
       vue:
         specifier: ^2.7.16
         version: 2.7.16
@@ -75,8 +75,8 @@ importers:
         specifier: ^0.11.5
         version: 0.11.6(vue@2.7.16)
       '@yuhufe/browser-bridge':
-        specifier: ^0.1.1
-        version: 0.1.1(lodash-es@4.17.21)
+        specifier: ^0.1.2
+        version: 0.1.2(lodash-es@4.17.21)
       circular-json-es6:
         specifier: ^2.0.2
         version: 2.0.2
@@ -159,8 +159,8 @@ importers:
   packages/shared-utils:
     dependencies:
       '@yuhufe/browser-bridge':
-        specifier: ^0.1.1
-        version: 0.1.1(lodash-es@4.17.21)
+        specifier: ^0.1.2
+        version: 0.1.2(lodash-es@4.17.21)
       events:
         specifier: 3.3.0
         version: 3.3.0
@@ -186,8 +186,8 @@ importers:
         specifier: workspace:*
         version: link:../shared-utils
       '@yuhufe/browser-bridge':
-        specifier: ^0.1.1
-        version: 0.1.1(lodash-es@4.17.21)
+        specifier: ^0.1.2
+        version: 0.1.2(lodash-es@4.17.21)
     devDependencies:
       '@vue-devtools/build-tools':
         specifier: workspace:*
@@ -524,8 +524,8 @@ packages:
   '@xtuc/long@4.2.2':
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
 
-  '@yuhufe/browser-bridge@0.1.1':
-    resolution: {integrity: sha512-11+rXHpn0J+eHiNvjaj0rapF2pgenX6vX575BMmRBkYL6mrm9zsi4WeiuNj1ILs5+yUszx9msXSiIth9qimngA==}
+  '@yuhufe/browser-bridge@0.1.2':
+    resolution: {integrity: sha512-O5lSpnykVmmgUfTSQZRImghTH4p3kIPgmWduIjg3cDuJWyA/og+508J3LOcnpFdeYmLQsZpxNPXosWSOIjRI1A==}
     peerDependencies:
       lodash-es: ^4.17.21
 
@@ -4088,7 +4088,7 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
-  '@yuhufe/browser-bridge@0.1.1(lodash-es@4.17.21)':
+  '@yuhufe/browser-bridge@0.1.2(lodash-es@4.17.21)':
     dependencies:
       lodash-es: 4.17.21
 

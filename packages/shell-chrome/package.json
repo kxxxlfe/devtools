@@ -10,7 +10,7 @@
     "@vue-devtools/app-backend": "workspace:*",
     "@vue-devtools/app-frontend": "workspace:*",
     "@vue-devtools/shared-utils": "workspace:*",
-    "@yuhufe/browser-bridge": "^0.1.1"
+    "@yuhufe/browser-bridge": "^0.1.2"
   },
   "devDependencies": {
     "@vue-devtools/build-tools": "workspace:*",
