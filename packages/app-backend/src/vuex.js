@@ -103,12 +103,15 @@ class VuexBackend {
    * Time-travel to the state of a specific mutation (by index)
    */
   onTravelToState({ index, apply }) {
-    const snapshot = this.replayMutations(index)
     const state = clone(this.lastState)
-    exBridge.send(api.vuex.inspectedState, {
-      index,
-      snapshot,
-    })
+    exBridge.send(
+      api.vuex.inspectedState,
+      {
+        index,
+        snapshot: this.replayMutations(index),
+      },
+      { chunk: { size: exBridge.CHUNK_SIZE } }
+    )
     if (apply) {
       this.ensureRegisteredModules(this.mutations[index])
       this.hook.emit('vuex:travel-to-state', state)
@@ -169,11 +172,14 @@ class VuexBackend {
    * Else replays the mutations up to the <index> mutation.
    */
   onInspectState(index) {
-    const snapshot = this.replayMutations(index)
-    exBridge.send(api.vuex.inspectedState, {
-      index,
-      snapshot,
-    })
+    exBridge.send(
+      api.vuex.inspectedState,
+      {
+        index,
+        snapshot: this.replayMutations(index),
+      },
+      { chunk: { size: exBridge.CHUNK_SIZE } }
+    )
   }
 
   onEditState({ index, value, path }) {
@@ -184,10 +190,14 @@ class VuexBackend {
     this.store._committing = true
     set(this.store.state, path, parsedValue)
     this.store._committing = false
-    exBridge.send(api.vuex.inspectedState, {
-      index,
-      snapshot: this.getStoreSnapshot(),
-    })
+    exBridge.send(
+      api.vuex.inspectedState,
+      {
+        index,
+        snapshot: this.getStoreSnapshot(),
+      },
+      { chunk: { size: exBridge.CHUNK_SIZE } }
+    )
     this.cacheStateSnapshot(index, true)
   }
 
@@ -253,35 +263,35 @@ class VuexBackend {
 
     if (SharedData.vuexNewBackend) {
       // Ensure all children state are cloned
-      const replaceNestedStates = nestedModule => {
-        if (nestedModule.modules) {
-          Object.keys(nestedModule.modules).forEach(key => {
-            const child = nestedModule.modules[key]
-            let state = {}
-            if (child.state) {
-              state = typeof child.state === 'function' ? child.state() : child.state
-            }
-            child.state = clone(state)
-            replaceNestedStates(child)
-          })
+      const tranverseModule = function (rootModule, callback) {
+        if (!rootModule.modules) {
+          return
         }
+        Object.entries(rootModule.modules).forEach(([modKey, currModule]) => {
+          callback({ currModule, modKey })
+        })
       }
-      replaceNestedStates(fakeModule)
+      tranverseModule(fakeModule, function ({ currModule, modKey }) {
+        let state = {}
+        if (currModule.state) {
+          state = typeof currModule.state === 'function' ? currModule.state() : currModule.state
+        }
+        currModule.state = clone(state)
+      })
     }
 
     const key = path.join('/')
-    const moduleInfo =
-      (this.registeredModules[key] =
-      this.allTimeModules[key] =
-        {
-          path,
-          module: fakeModule,
-          options: {
-            ...options,
-            preserveState: false,
-          },
-          state: SharedData.vuexNewBackend ? clone(state) : null,
-        })
+    const moduleInfo = {
+      path,
+      module: fakeModule,
+      options: {
+        ...options,
+        preserveState: false,
+      },
+      state: SharedData.vuexNewBackend ? clone(state) : null,
+    }
+    this.registeredModules[key] = moduleInfo
+    this.allTimeModules[key] = moduleInfo
 
     if (SharedData.recordVuex) {
       this.addMutation(
@@ -396,15 +406,19 @@ class VuexBackend {
       ...options,
     })
 
-    exBridge.send(api.vuex.mutation, {
-      mutation: {
-        type: type,
-        payload: stringify(payload),
-        index,
+    exBridge.send(
+      api.vuex.mutation,
+      {
+        mutation: {
+          type: type,
+          payload: stringify(payload),
+          index,
+        },
+        timestamp: Date.now(),
+        options,
       },
-      timestamp: Date.now(),
-      options,
-    })
+      { chunk: { size: exBridge.CHUNK_SIZE } }
+    )
   }
 
   /**
@@ -637,6 +651,7 @@ watch(
 )
 export function initVuexBackend(hook, bridge, isLegacy) {
   vuexBackend = new VuexBackend(hook, bridge, isLegacy)
+  window.vuexBackend = vuexBackend
 }
 
 function getCatchedGetters(store) {
