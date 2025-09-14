@@ -430,8 +430,63 @@ class VuexBackend {
       const snapshot = index === -1 ? this.legacyBaseSnapshot : this.mutations[index].snapshot
       this.lastState = parse(snapshot, true).state
       return snapshot
+    } else {
+      return this.replayMutationsNew(index)
+    }
+  }
+  replayMutationsNew(index) {}
+
+  cacheStateSnapshot(index, permanent = false) {
+    this.removeCachedStateSnapshot(index)
+    this.stateSnapshotCache.push({
+      index,
+      state: clone(this.store.state),
+      permanent,
+    })
+    if (!isProd) console.log('cached snapshot', index)
+    // Delete old cached snapshots
+    if (this.stateSnapshotCache.filter(s => !s.permanent).length > SharedData.cacheVuexSnapshotsLimit) {
+      const i = this.stateSnapshotCache.findIndex(s => !s.permanent)
+      if (i !== -1) {
+        if (!isProd) console.log('clean cached snapshot', this.stateSnapshotCache[i].index)
+        this.stateSnapshotCache.splice(i, 1)
+      }
+    }
+  }
+
+  removeCachedStateSnapshot(index) {
+    const i = this.stateSnapshotCache.findIndex(s => s.idex === index)
+    if (i !== -1) this.stateSnapshotCache.splice(i, 1)
+  }
+
+  /**
+   * Get the serialized state and getters from the store
+   */
+  getStoreSnapshot(stateSnapshot = null) {
+    let originalVm
+    if (stateSnapshot) {
+      originalVm = this.store._vm
+      this.store._vm = this.snapshotsVm
+      this.store.replaceState(clone(stateSnapshot))
     }
 
+    const result = this.stringifyStore()
+
+    if (stateSnapshot) {
+      // Restore user state
+      this.store._vm = originalVm
+    }
+
+    return result
+  }
+}
+
+// 新版代码挪到这里，比较长
+class VuexBackendNew extends VuexBackend {
+  constructor(...args) {
+    super(...args)
+  }
+  replayMutationsNew(index) {
     const originalVm = this.store._vm
     const originalState = clone(this.store.state)
     this.store._vm = this.snapshotsVm
@@ -593,50 +648,6 @@ class VuexBackend {
 
     return result
   }
-
-  cacheStateSnapshot(index, permanent = false) {
-    this.removeCachedStateSnapshot(index)
-    this.stateSnapshotCache.push({
-      index,
-      state: clone(this.store.state),
-      permanent,
-    })
-    if (!isProd) console.log('cached snapshot', index)
-    // Delete old cached snapshots
-    if (this.stateSnapshotCache.filter(s => !s.permanent).length > SharedData.cacheVuexSnapshotsLimit) {
-      const i = this.stateSnapshotCache.findIndex(s => !s.permanent)
-      if (i !== -1) {
-        if (!isProd) console.log('clean cached snapshot', this.stateSnapshotCache[i].index)
-        this.stateSnapshotCache.splice(i, 1)
-      }
-    }
-  }
-
-  removeCachedStateSnapshot(index) {
-    const i = this.stateSnapshotCache.findIndex(s => s.idex === index)
-    if (i !== -1) this.stateSnapshotCache.splice(i, 1)
-  }
-
-  /**
-   * Get the serialized state and getters from the store
-   */
-  getStoreSnapshot(stateSnapshot = null) {
-    let originalVm
-    if (stateSnapshot) {
-      originalVm = this.store._vm
-      this.store._vm = this.snapshotsVm
-      this.store.replaceState(clone(stateSnapshot))
-    }
-
-    const result = this.stringifyStore()
-
-    if (stateSnapshot) {
-      // Restore user state
-      this.store._vm = originalVm
-    }
-
-    return result
-  }
 }
 
 // 打开开关后再进行记录
@@ -650,7 +661,7 @@ watch(
   }
 )
 export function initVuexBackend(hook, bridge, isLegacy) {
-  vuexBackend = new VuexBackend(hook, bridge, isLegacy)
+  vuexBackend = new VuexBackendNew(hook, bridge, isLegacy)
   window.vuexBackend = vuexBackend
 }
 
