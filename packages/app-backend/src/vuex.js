@@ -197,7 +197,7 @@ class VuexBackend {
   reset() {
     if (SharedData.recordVuex) {
       if (!SharedData.vuexNewBackend) {
-        this.legacyBaseSnapshot = { info: cloneDeep(this.snapshotStore()) }
+        this.legacyBaseSnapshot = { info: this.snapshotStore() }
       }
     }
 
@@ -342,16 +342,18 @@ class VuexBackend {
   }
 
   stringifyStore() {
-    return stringify(this.snapshotStore())
+    return stringify(this.snapshotStore(false))
   }
-  snapshotStore() {
-    return {
+  snapshotStore(needClone = true) {
+    const snapshot = {
       state: this.store.state,
       getters: getCatchedGetters(this.store),
       modules: Object.keys(this.store._modulesNamespaceMap || {})
         .map(m => m.substr(0, m.length - 1))
         .sort(),
     }
+
+    return needClone ? cloneDeep(snapshot) : snapshot
   }
 
   /**
@@ -368,7 +370,7 @@ class VuexBackend {
       registeredModules: Object.keys(this.registeredModules),
       ...options,
       snap: {
-        info: cloneDeep(this.snapshotStore()),
+        info: this.snapshotStore(),
         str: '',
       },
     })
