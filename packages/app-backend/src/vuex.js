@@ -1,7 +1,7 @@
-import { watch } from 'vue'
+import Vue, { watch } from 'vue'
+import { cloneDeep } from 'lodash-es'
 import { stringify, parse, set, get } from '@utils/util'
 import SharedData from '@utils/shared-data'
-import Vue from 'vue'
 import clone from './clone'
 import { debounce } from './utils'
 import { bridge as exBridge, api } from './bridge'
@@ -27,10 +27,6 @@ class VuexBackend {
     /** Internal store vm for mutation replaying */
     this.snapshotsVm = null
 
-    /** Initial snapshot */
-    this.baseStateSnapshot = null
-    /** Snapshot cache */
-    this.stateSnapshotCache = null
     /** Mutation history */
     this.mutations = null
     /** Last replayed state */
@@ -40,7 +36,7 @@ class VuexBackend {
     /** All dynamic modules ever registered, useful for mutation replaying */
     this.allTimeModules = {}
     /** Legacy base state */
-    this.legacyBaseSnapshot = null
+    this.legacyBaseSnapshot = { info: null, str: '' }
 
     // First-time snapshot VM creation
     this.resetSnapshotsVm()
@@ -86,7 +82,7 @@ class VuexBackend {
     bridge.on('vuex:commit', this.onCommit.bind(this))
     bridge.on('vuex:revert', this.onRevert.bind(this))
     bridge.on('vuex:import-state', this.onImportState.bind(this))
-    bridge.on('vuex:inspect-state', this.onInspectState.bind(this))
+    exBridge.on(api.vuex.inspectState, this.onInspectState.bind(this))
     bridge.on('vuex:edit-state', this.onEditState.bind(this))
   }
 
@@ -103,11 +99,10 @@ class VuexBackend {
    * Time-travel to the state of a specific mutation (by index)
    */
   onTravelToState({ index, apply }) {
-    const snapshot = this.replayMutations(index)
     const state = clone(this.lastState)
-    this.bridge.send('vuex:inspected-state', {
+    sendChunk(api.vuex.inspectedState, {
       index,
-      snapshot,
+      snapshot: this.replayMutations(index),
     })
     if (apply) {
       this.ensureRegisteredModules(this.mutations[index])
@@ -129,12 +124,7 @@ class VuexBackend {
    * ⚠️ State should be time-traveled to before executing this
    */
   onCommit(index) {
-    if (SharedData.vuexNewBackend) {
-      this.baseStateSnapshot = this.lastState
-    } else {
-      this.legacyBaseSnapshot = this.mutations[index].snapshot
-    }
-    this.resetSnapshotCache()
+    this.legacyBaseSnapshot = this.mutations[index].snap
     this.mutations = this.mutations.slice(index + 1)
     this.mutations.forEach((mutation, index) => {
       mutation.index = index
@@ -147,7 +137,6 @@ class VuexBackend {
    * ⚠️ State should be time-traveled to before executing this
    */
   onRevert(index) {
-    this.resetSnapshotCache()
     this.ensureRegisteredModules(this.mutations[index - 1])
     this.mutations = this.mutations.slice(0, index)
   }
@@ -169,10 +158,9 @@ class VuexBackend {
    * Else replays the mutations up to the <index> mutation.
    */
   onInspectState(index) {
-    const snapshot = this.replayMutations(index)
-    this.bridge.send('vuex:inspected-state', {
+    sendChunk(api.vuex.inspectedState, {
       index,
-      snapshot,
+      snapshot: this.replayMutations(index),
     })
   }
 
@@ -184,11 +172,10 @@ class VuexBackend {
     this.store._committing = true
     set(this.store.state, path, parsedValue)
     this.store._committing = false
-    this.bridge.send('vuex:inspected-state', {
+    sendChunk(api.vuex.inspectedState, {
       index,
-      snapshot: this.getStoreSnapshot(),
+      snapshot: this.stringifyStore(),
     })
-    this.cacheStateSnapshot(index, true)
   }
 
   /**
@@ -207,27 +194,14 @@ class VuexBackend {
   /**
    * Reset vuex backend
    */
-  reset(stateSnapshot = null) {
+  reset() {
     if (SharedData.recordVuex) {
-      if (SharedData.vuexNewBackend) {
-        this.baseStateSnapshot = stateSnapshot || clone(this.initialState)
-      } else {
-        this.legacyBaseSnapshot = this.stringifyStore()
+      if (!SharedData.vuexNewBackend) {
+        this.legacyBaseSnapshot = { info: this.snapshotStore() }
       }
     }
 
     this.mutations = []
-    this.resetSnapshotCache()
-  }
-
-  resetSnapshotCache() {
-    this.stateSnapshotCache = [
-      {
-        index: -1,
-        state: this.baseStateSnapshot,
-        permanent: true,
-      },
-    ]
   }
 
   /**
@@ -253,35 +227,35 @@ class VuexBackend {
 
     if (SharedData.vuexNewBackend) {
       // Ensure all children state are cloned
-      const replaceNestedStates = nestedModule => {
-        if (nestedModule.modules) {
-          Object.keys(nestedModule.modules).forEach(key => {
-            const child = nestedModule.modules[key]
-            let state = {}
-            if (child.state) {
-              state = typeof child.state === 'function' ? child.state() : child.state
-            }
-            child.state = clone(state)
-            replaceNestedStates(child)
-          })
+      const tranverseModule = function (rootModule, callback) {
+        if (!rootModule.modules) {
+          return
         }
+        Object.entries(rootModule.modules).forEach(([modKey, currModule]) => {
+          callback({ currModule, modKey })
+        })
       }
-      replaceNestedStates(fakeModule)
+      tranverseModule(fakeModule, function ({ currModule, modKey }) {
+        let state = {}
+        if (currModule.state) {
+          state = typeof currModule.state === 'function' ? currModule.state() : currModule.state
+        }
+        currModule.state = clone(state)
+      })
     }
 
     const key = path.join('/')
-    const moduleInfo =
-      (this.registeredModules[key] =
-      this.allTimeModules[key] =
-        {
-          path,
-          module: fakeModule,
-          options: {
-            ...options,
-            preserveState: false,
-          },
-          state: SharedData.vuexNewBackend ? clone(state) : null,
-        })
+    const moduleInfo = {
+      path,
+      module: fakeModule,
+      options: {
+        ...options,
+        preserveState: false,
+      },
+      state: SharedData.vuexNewBackend ? clone(state) : null,
+    }
+    this.registeredModules[key] = moduleInfo
+    this.allTimeModules[key] = moduleInfo
 
     if (SharedData.recordVuex) {
       this.addMutation(
@@ -368,13 +342,18 @@ class VuexBackend {
   }
 
   stringifyStore() {
-    return stringify({
+    return stringify(this.snapshotStore(false))
+  }
+  snapshotStore(needClone = true) {
+    const snapshot = {
       state: this.store.state,
       getters: getCatchedGetters(this.store),
       modules: Object.keys(this.store._modulesNamespaceMap || {})
         .map(m => m.substr(0, m.length - 1))
         .sort(),
-    })
+    }
+
+    return needClone ? cloneDeep(snapshot) : snapshot
   }
 
   /**
@@ -383,10 +362,6 @@ class VuexBackend {
   addMutation(type, payload, options = {}) {
     const index = this.mutations.length
 
-    if (!SharedData.vuexNewBackend) {
-      options.snapshot = this.stringifyStore()
-    }
-
     this.mutations.push({
       type,
       payload: SharedData.vuexNewBackend ? clone(payload) : null,
@@ -394,9 +369,13 @@ class VuexBackend {
       handlers: this.store._mutations[type],
       registeredModules: Object.keys(this.registeredModules),
       ...options,
+      snap: {
+        info: this.snapshotStore(),
+        str: '',
+      },
     })
 
-    this.bridge.send('vuex:mutation', {
+    sendChunk(api.vuex.mutation, {
       mutation: {
         type: type,
         payload: stringify(payload),
@@ -412,12 +391,59 @@ class VuexBackend {
    * to re-create what the vuex state should be at this point
    */
   replayMutations(index) {
-    if (!SharedData.vuexNewBackend) {
-      const snapshot = index === -1 ? this.legacyBaseSnapshot : this.mutations[index].snapshot
-      this.lastState = parse(snapshot, true).state
-      return snapshot
+    const snap = index === -1 ? this.legacyBaseSnapshot : this.mutations[index].snap
+    if (!snap.str) {
+      snap.str = stringify(snap.info)
+      snap.parsedInfo = parse(snap.str, true)
     }
+    this.lastState = snap.parsedInfo.state
+    return snap.str
+  }
+}
 
+// 新版代码挪到这里，比较长
+class VuexBackendNew extends VuexBackend {
+  constructor(...args) {
+    super(...args)
+    /** Initial snapshot */
+    this.baseStateSnapshot = null
+    /** Snapshot cache */
+    this.stateSnapshotCache = null
+  }
+
+  onCommit(...args) {
+    super.onCommit(...args)
+    if (SharedData.vuexNewBackend) {
+      this.baseStateSnapshot = this.lastState
+    }
+    this.resetSnapshotCache()
+  }
+  onRevert(...args) {
+    super.onRevert(...args)
+    this.resetSnapshotCache()
+  }
+  onEditState({ index, value, path }) {
+    super.onEditState({ index, value, path })
+    this.cacheStateSnapshot(index, true)
+  }
+  reset(stateSnapshot = null) {
+    super.reset()
+    if (SharedData.recordVuex) {
+      if (SharedData.vuexNewBackend) {
+        this.baseStateSnapshot = stateSnapshot || clone(this.initialState)
+      }
+    }
+    this.resetSnapshotCache()
+  }
+
+  replayMutations(index) {
+    if (!SharedData.vuexNewBackend) {
+      return super.replayMutations(index)
+    } else {
+      return this.replayMutationsNew(index)
+    }
+  }
+  replayMutationsNew(index) {
     const originalVm = this.store._vm
     const originalState = clone(this.store.state)
     this.store._vm = this.snapshotsVm
@@ -580,6 +606,16 @@ class VuexBackend {
     return result
   }
 
+  resetSnapshotCache() {
+    this.stateSnapshotCache = [
+      {
+        index: -1,
+        state: this.baseStateSnapshot,
+        permanent: true,
+      },
+    ]
+  }
+
   cacheStateSnapshot(index, permanent = false) {
     this.removeCachedStateSnapshot(index)
     this.stateSnapshotCache.push({
@@ -602,27 +638,6 @@ class VuexBackend {
     const i = this.stateSnapshotCache.findIndex(s => s.idex === index)
     if (i !== -1) this.stateSnapshotCache.splice(i, 1)
   }
-
-  /**
-   * Get the serialized state and getters from the store
-   */
-  getStoreSnapshot(stateSnapshot = null) {
-    let originalVm
-    if (stateSnapshot) {
-      originalVm = this.store._vm
-      this.store._vm = this.snapshotsVm
-      this.store.replaceState(clone(stateSnapshot))
-    }
-
-    const result = this.stringifyStore()
-
-    if (stateSnapshot) {
-      // Restore user state
-      this.store._vm = originalVm
-    }
-
-    return result
-  }
 }
 
 // 打开开关后再进行记录
@@ -636,7 +651,8 @@ watch(
   }
 )
 export function initVuexBackend(hook, bridge, isLegacy) {
-  vuexBackend = new VuexBackend(hook, bridge, isLegacy)
+  vuexBackend = new VuexBackendNew(hook, bridge, isLegacy)
+  window.vuexBackend = vuexBackend
 }
 
 function getCatchedGetters(store) {
@@ -675,4 +691,9 @@ export function getCustomStoreDetails(store) {
       },
     },
   }
+}
+
+// 发送数据量大，使用chunk
+const sendChunk = function (path, params) {
+  return exBridge.send(path, params, { chunk: { size: exBridge.CHUNK_SIZE } })
 }

@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import { DevtoolBridge, IFrameTopBridge, Plat } from '@yuhufe/browser-bridge'
 import { PLATFORM, api, detectDev } from '@utils/api'
 
@@ -12,6 +13,8 @@ export const bridge = detectDev('frontend')
 bridge.Plat = Plat
 
 export { api }
+
+export const eventBus = new Vue()
 
 // window.devtoolBridge = bridge
 // window.test = async function () {

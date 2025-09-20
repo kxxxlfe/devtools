@@ -119,35 +119,6 @@ function initApp(shell) {
         updateHeaderMsg(`Proxy injection failed.`)
       })
 
-      bridge.on('vuex:mutation', payload => {
-        store.dispatch('vuex/receiveMutation', payload)
-      })
-
-      bridge.on('vuex:inspected-state', ({ index, snapshot }) => {
-        store.commit('vuex/RECEIVE_STATE', { index, snapshot })
-
-        if (index === -1) {
-          store.commit('vuex/UPDATE_BASE_STATE', snapshot)
-        } else if (store.getters['vuex/absoluteInspectedIndex'] === index) {
-          store.commit('vuex/UPDATE_INSPECTED_STATE', snapshot)
-        } else {
-          console.log(
-            'vuex:inspected-state wrong index',
-            index,
-            'expected:',
-            store.getters['vuex/absoluteInspectedIndex']
-          )
-        }
-
-        if (VuexResolve.travel) {
-          VuexResolve.travel(snapshot)
-        }
-
-        requestAnimationFrame(() => {
-          SharedData.snapshotLoading = false
-        })
-      })
-
       initEnv(Vue)
 
       if (app) {

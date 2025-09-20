@@ -69,14 +69,15 @@
 
 <script>
 import { getCurrentInstance, watch } from 'vue'
+import { debounce, groupBy } from 'lodash-es'
+import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+
+import { bridge as exBridge, api, eventBus } from '@front/bridge'
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 import StateInspector from '@front/components/StateInspector.vue'
 
 import { searchDeepInObject, sortByKey, parse, copyToClipboard } from '@utils/util'
-import debounce from 'lodash/debounce'
-import groupBy from 'lodash/groupBy'
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import { mutationBuffer } from './module'
 import { useVuex } from './useVuex'
 import { useSharedData } from '@utils/shared-data'
@@ -237,14 +238,14 @@ export default {
   },
 
   mounted() {
-    bridge.on('vuex:mutation', this.onMutation)
+    eventBus.$on('onVuexMutation', this.onMutation)
     if (this.isOnlyMutationPayload && this.$shared.vuexAutoload) {
       this.loadState()
     }
   },
 
   destroyed() {
-    bridge.off('vuex:mutation', this.onMutation)
+    eventBus.$off('onVuexMutation', this.onMutation)
   },
 
   methods: {
