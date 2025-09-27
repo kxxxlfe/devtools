@@ -1,6 +1,6 @@
 import Vue, { watch } from 'vue'
 import { cloneDeep } from 'lodash-es'
-import { stringify, parse, set, get } from '@utils/util'
+import { stringify, parse, set, get, cloneVueData } from '@utils/util'
 import SharedData from '@utils/shared-data'
 import clone from './clone'
 import { debounce } from './utils'
@@ -174,7 +174,7 @@ class VuexBackend {
     this.store._committing = false
     sendChunk(api.vuex.inspectedState, {
       index,
-      snapshot: this.stringifyStore(),
+      snapshot: stringify(this.snapshotStore()),
     })
   }
 
@@ -341,10 +341,7 @@ class VuexBackend {
     return !!this.store._modules.get(path)
   }
 
-  stringifyStore() {
-    return stringify(this.snapshotStore(false))
-  }
-  snapshotStore(needClone = true) {
+  snapshotStore() {
     const snapshot = {
       state: this.store.state,
       getters: getCatchedGetters(this.store),
@@ -353,7 +350,7 @@ class VuexBackend {
         .sort(),
     }
 
-    return needClone ? cloneDeep(snapshot) : snapshot
+    return cloneVueData(snapshot)
   }
 
   /**
@@ -394,9 +391,8 @@ class VuexBackend {
     const snap = index === -1 ? this.legacyBaseSnapshot : this.mutations[index].snap
     if (!snap.str) {
       snap.str = stringify(snap.info)
-      snap.parsedInfo = parse(snap.str, true)
     }
-    this.lastState = snap.parsedInfo.state
+    this.lastState = snap.info.state
     return snap.str
   }
 }
@@ -578,7 +574,7 @@ class VuexBackendNew extends VuexBackend {
 
     this.lastState = resultState
 
-    const result = this.stringifyStore()
+    const result = stringify(this.snapshotStore())
 
     // Restore user state
     tempAddedModules

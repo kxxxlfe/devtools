@@ -190,7 +190,7 @@ export function stringifyFlatted(data) {
   return result
 }
 
-export function cloneView(data) {
+export function cloneVueData(data) {
   const processReplace = function (value, key) {
     return replacer(key, value)
   }
