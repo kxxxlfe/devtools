@@ -1,6 +1,7 @@
 import { ref, shallowRef, computed, set } from 'vue'
 import { bridge as exBridge, api } from '@front/bridge'
 import { parse, parseFlatted } from '@utils/util'
+import { isChrome } from '@utils/env'
 import { whenDevtoolActive } from '@utils/devpage'
 import router from '../../router'
 import { useComponentTree } from './module'
@@ -91,13 +92,14 @@ export async function inspectContextMenuInstance() {
   }
 }
 
-chrome.runtime.onMessage.addListener(request => {
-  if (request.vueContextMenu?.id === 'vue-inspect-instance') {
-    whenDevtoolActive(async () => {
-      const id = await exBridge.request(api.web.inspectCtxMenuInst)
-      if (id) {
-        inspectInstance(id)
-      }
-    })
-  }
-})
+isChrome &&
+  chrome.runtime.onMessage.addListener(request => {
+    if (request.vueContextMenu?.id === 'vue-inspect-instance') {
+      whenDevtoolActive(async () => {
+        const id = await exBridge.request(api.web.inspectCtxMenuInst)
+        if (id) {
+          inspectInstance(id)
+        }
+      })
+    }
+  })
