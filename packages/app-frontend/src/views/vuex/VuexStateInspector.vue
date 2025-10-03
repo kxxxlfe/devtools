@@ -99,7 +99,7 @@ export default {
     const ctx = getCurrentInstance()?.proxy
     const { sharedData } = useSharedData()
 
-    const { hasVuex } = useVuex()
+    const { hasVuex, lastReceivedState } = useVuex()
     watch(
       () => hasVuex.value,
       function (n, o) {
@@ -125,7 +125,7 @@ export default {
         args,
       })
     }
-    return { editVuex }
+    return { editVuex, lastReceivedState }
   },
 
   data() {
@@ -141,7 +141,7 @@ export default {
   },
 
   computed: {
-    ...mapState('vuex', ['activeIndex', 'inspectedIndex', 'lastReceivedState', 'inspectedModule', 'history']),
+    ...mapState('vuex', ['activeIndex', 'inspectedIndex', 'inspectedModule', 'history']),
 
     ...mapGetters('vuex', ['inspectedState', 'inspectedLastState', 'filteredHistory', 'inspectedEntry', 'modules']),
 

@@ -10,7 +10,7 @@ let uid = 0
 
 export const mutationBuffer = []
 
-const { inspectedState } = useVuex()
+const { inspectedState, lastReceivedState, parseStoreState } = useVuex()
 
 const state = {
   base: null, // type Snapshot = { state: {}, getters: {} }
@@ -24,7 +24,6 @@ const state = {
   filter: '',
   filterRegex: ANY_RE,
   filterRegexInvalid: false,
-  lastReceivedState: null,
   inspectedModule: null,
 }
 
@@ -45,7 +44,7 @@ const mutations = {
   },
 
   COMMIT_ALL(state) {
-    state.base = state.lastReceivedState
+    state.base = lastReceivedState.value
     state.lastCommit = Date.now()
     reset(state)
   },
@@ -55,7 +54,7 @@ const mutations = {
   },
 
   COMMIT(state, index) {
-    state.base = state.lastReceivedState
+    state.base = lastReceivedState.value
     state.lastCommit = Date.now()
     state.history = state.history.slice(index + 1)
     state.history.forEach(({ mutation }, index) => {
@@ -75,11 +74,6 @@ const mutations = {
 
   UPDATE_INSPECTED_STATE(state, value) {
     inspectedState.value = parseStoreState(value)
-  },
-
-  RECEIVE_STATE(state, { index, snapshot }) {
-    state.lastReceivedState = parseStoreState(snapshot)
-    snapshotsCache.set(index, snapshot)
   },
 
   UPDATE_BASE_STATE(state, value) {
@@ -136,8 +130,8 @@ const getters = {
     return processInspectedState({ entry: inspectedEntry, data, inspectedModule })
   },
 
-  inspectedLastState({ lastReceivedState, inspectedModule }, { inspectedEntry }) {
-    return processInspectedState({ entry: inspectedEntry, data: lastReceivedState, inspectedModule })
+  inspectedLastState({ inspectedModule }, { inspectedEntry }) {
+    return processInspectedState({ entry: inspectedEntry, data: lastReceivedState.value, inspectedModule })
   },
 
   filteredHistory({ history, filterRegex }) {
@@ -160,17 +154,6 @@ const getters = {
     }
     return []
   },
-}
-
-function parseStoreState(state) {
-  const data = parse(state)
-  if (data) {
-    return {
-      state: data.state,
-      getters: Object.freeze(data.getters),
-      modules: Object.freeze(data.modules),
-    }
-  }
 }
 
 function processInspectedState({ entry, data, inspectedModule }) {

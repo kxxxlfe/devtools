@@ -20,7 +20,9 @@ exBridge.on(api.vuex.mutation, payload => {
 
 exBridge.on(api.vuex.inspectedState, ({ index, snapshot }) => {
   const store = window.store
-  store.commit('vuex/RECEIVE_STATE', { index, snapshot })
+  // RECEIVE_STATE
+  lastReceivedState.value = parseStoreState(snapshot)
+  snapshotsCache.set(index, snapshot)
 
   if (index === -1) {
     store.commit('vuex/UPDATE_BASE_STATE', snapshot)
@@ -37,9 +39,19 @@ exBridge.on(api.vuex.inspectedState, ({ index, snapshot }) => {
   })
 })
 
-// 当前状态
-const inspectedState = shallowRef(null)
+const inspectedState = shallowRef(null) // 当前状态
+const lastReceivedState = shallowRef(null)
+function parseStoreState(state) {
+  const data = parse(state)
+  if (data) {
+    return {
+      state: data.state,
+      getters: Object.freeze(data.getters),
+      modules: Object.freeze(data.modules),
+    }
+  }
+}
 
 export const useVuex = function () {
-  return { hasVuex, inspectedState }
+  return { hasVuex, inspectedState, lastReceivedState, parseStoreState }
 }
