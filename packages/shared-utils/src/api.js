@@ -90,6 +90,7 @@ function makeAPI() {
       init: `${PLATFORM.devtool}/vuex/init`,
       inspectState: `${PLATFORM.web}/vuex/inspectState`,
       inspectedState: `${PLATFORM.devtool}/vuex/inspectedState`,
+      importState: `${PLATFORM.web}/vuex/importState`,
       mutation: `${PLATFORM.devtool}/vuex/mutation`,
     },
   }
