@@ -2,6 +2,7 @@ import { parse, get } from '@utils/util'
 import * as actions from './actions'
 import { snapshotsCache } from './cache'
 import SharedData from '@utils/shared-data'
+import { useVuex } from './useVuex'
 
 const REGEX_RE = /^\/((?:(?:.*?)(?:\\\/)?)*?)\/(\w*)/
 const ANY_RE = new RegExp('.*', 'i')
@@ -9,6 +10,8 @@ const ANY_RE = new RegExp('.*', 'i')
 let uid = 0
 
 export const mutationBuffer = []
+
+const { inspectedState } = useVuex()
 
 const state = {
   base: null, // type Snapshot = { state: {}, getters: {} }
@@ -22,7 +25,6 @@ const state = {
   filter: '',
   filterRegex: ANY_RE,
   filterRegexInvalid: false,
-  inspectedState: null,
   lastReceivedState: null,
   inspectedModule: null,
 }
@@ -38,7 +40,7 @@ const mutations = {
       state.activeIndex = state.history.length - 1
       if (inspectingLastMutation) {
         state.inspectedIndex = state.activeIndex
-        state.inspectedState = null
+        inspectedState.value = null
       }
     }
   },
@@ -73,7 +75,7 @@ const mutations = {
   },
 
   UPDATE_INSPECTED_STATE(state, value) {
-    state.inspectedState = parseStoreState(value)
+    inspectedState.value = parseStoreState(value)
   },
 
   RECEIVE_STATE(state, { index, snapshot }) {
@@ -116,7 +118,7 @@ const mutations = {
 export function reset(state) {
   state.history = []
   state.inspectedIndex = state.activeIndex = -1
-  state.inspectedState = null
+  inspectedState.value = null
   state.activeIndex = -1
   SharedData.snapshotLoading = false
 }
@@ -130,8 +132,8 @@ const getters = {
     return filteredHistory[inspectedIndex]
   },
 
-  inspectedState({ base, inspectedState, inspectedModule }, { inspectedEntry }) {
-    const data = inspectedEntry ? inspectedState : base
+  inspectedState({ base, inspectedModule }, { inspectedEntry }) {
+    const data = inspectedEntry ? inspectedState.value : base
     return processInspectedState({ entry: inspectedEntry, data, inspectedModule })
   },
 
@@ -151,9 +153,9 @@ const getters = {
     return -1
   },
 
-  modules({ base, inspectedIndex, inspectedState }, getters) {
+  modules({ base, inspectedIndex }, getters) {
     const entry = getters.filteredHistory[inspectedIndex]
-    const data = entry ? inspectedState : base
+    const data = entry ? inspectedState.value : base
     if (data) {
       return data.modules
     }

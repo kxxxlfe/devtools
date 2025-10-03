@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, shallowRef } from 'vue'
 import { bridge as exBridge, api, eventBus } from '@front/bridge'
 import SharedData from '@utils/shared-data'
 import { snapshotsCache } from './cache'
@@ -37,6 +37,9 @@ exBridge.on(api.vuex.inspectedState, ({ index, snapshot }) => {
   })
 })
 
+// 当前状态
+const inspectedState = shallowRef(null)
+
 export const useVuex = function () {
-  return { hasVuex }
+  return { hasVuex, inspectedState }
 }
