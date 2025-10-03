@@ -4,7 +4,6 @@ import { snapshotsCache } from './cache'
 import SharedData from '@utils/shared-data'
 import { useVuex } from './useVuex'
 
-const REGEX_RE = /^\/((?:(?:.*?)(?:\\\/)?)*?)\/(\w*)/
 const ANY_RE = new RegExp('.*', 'i')
 
 let uid = 0
@@ -93,7 +92,7 @@ const mutations = {
 
   UPDATE_FILTER(state, filter) {
     state.filter = filter
-    const regexParts = filter.match(REGEX_RE)
+    const regexParts = filter.match(/^\/((?:(?:.*?)(?:\\\/)?)*?)\/(\w*)/)
     if (regexParts !== null) {
       // looks like it might be a regex -> try to compile it
       try {
