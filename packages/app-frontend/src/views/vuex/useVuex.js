@@ -23,12 +23,13 @@ exBridge.on(api.vuex.inspectedState, ({ index, snapshot }) => {
   lastReceivedState.value = parseStoreState(snapshot) // RECEIVE_STATE
   snapshotsCache.set(index, snapshot)
 
+  const absoluteInspectedIndex = store.getters['vuex/absoluteInspectedIndex']
   if (index === -1) {
     base.value = parseStoreState(snapshot) // UPDATE_BASE_STATE
-  } else if (store.getters['vuex/absoluteInspectedIndex'] === index) {
+  } else if (absoluteInspectedIndex === index) {
     inspectedState.value = parseStoreState(snapshot) // UPDATE_INSPECTED_STATE
   } else {
-    console.log('vuex:inspected-state wrong index', index, 'expected:', store.getters['vuex/absoluteInspectedIndex'])
+    console.log('vuex:inspected-state wrong index', index, 'expected:', absoluteInspectedIndex)
   }
 
   VuexResolve.travel?.(snapshot)
