@@ -20,13 +20,11 @@ exBridge.on(api.vuex.mutation, payload => {
 
 exBridge.on(api.vuex.inspectedState, ({ index, snapshot }) => {
   const store = window.store
-  // RECEIVE_STATE
-  lastReceivedState.value = parseStoreState(snapshot)
+  lastReceivedState.value = parseStoreState(snapshot) // RECEIVE_STATE
   snapshotsCache.set(index, snapshot)
 
   if (index === -1) {
-    // UPDATE_BASE_STATE
-    base.value = parseStoreState(snapshot)
+    base.value = parseStoreState(snapshot) // UPDATE_BASE_STATE
   } else if (store.getters['vuex/absoluteInspectedIndex'] === index) {
     inspectedState.value = parseStoreState(snapshot) // UPDATE_INSPECTED_STATE
   } else {
@@ -39,6 +37,7 @@ exBridge.on(api.vuex.inspectedState, ({ index, snapshot }) => {
     SharedData.snapshotLoading = false
   })
 })
+function freshState() {}
 
 // type Snapshot = { state: {}, getters: {} }
 const base = shallowRef(null)
