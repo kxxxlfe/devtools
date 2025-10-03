@@ -25,7 +25,8 @@ exBridge.on(api.vuex.inspectedState, ({ index, snapshot }) => {
   snapshotsCache.set(index, snapshot)
 
   if (index === -1) {
-    store.commit('vuex/UPDATE_BASE_STATE', snapshot)
+    // UPDATE_BASE_STATE
+    base.value = parseStoreState(snapshot)
   } else if (store.getters['vuex/absoluteInspectedIndex'] === index) {
     store.commit('vuex/UPDATE_INSPECTED_STATE', snapshot)
   } else {
@@ -39,6 +40,8 @@ exBridge.on(api.vuex.inspectedState, ({ index, snapshot }) => {
   })
 })
 
+// type Snapshot = { state: {}, getters: {} }
+const base = shallowRef(null)
 const inspectedState = shallowRef(null) // 当前状态
 const lastReceivedState = shallowRef(null)
 function parseStoreState(state) {
@@ -53,5 +56,5 @@ function parseStoreState(state) {
 }
 
 export const useVuex = function () {
-  return { hasVuex, inspectedState, lastReceivedState, parseStoreState }
+  return { hasVuex, base, inspectedState, lastReceivedState, parseStoreState }
 }

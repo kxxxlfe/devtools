@@ -10,10 +10,9 @@ let uid = 0
 
 export const mutationBuffer = []
 
-const { inspectedState, lastReceivedState, parseStoreState } = useVuex()
+const { base, inspectedState, lastReceivedState, parseStoreState } = useVuex()
 
 const state = {
-  base: null, // type Snapshot = { state: {}, getters: {} }
   inspectedIndex: -1,
   activeIndex: -1,
   history: [
@@ -44,7 +43,7 @@ const mutations = {
   },
 
   COMMIT_ALL(state) {
-    state.base = lastReceivedState.value
+    base.value = lastReceivedState.value
     state.lastCommit = Date.now()
     reset(state)
   },
@@ -54,7 +53,7 @@ const mutations = {
   },
 
   COMMIT(state, index) {
-    state.base = lastReceivedState.value
+    base.value = lastReceivedState.value
     state.lastCommit = Date.now()
     state.history = state.history.slice(index + 1)
     state.history.forEach(({ mutation }, index) => {
@@ -74,10 +73,6 @@ const mutations = {
 
   UPDATE_INSPECTED_STATE(state, value) {
     inspectedState.value = parseStoreState(value)
-  },
-
-  UPDATE_BASE_STATE(state, value) {
-    state.base = parseStoreState(value)
   },
 
   TIME_TRAVEL(state, index) {
@@ -125,8 +120,8 @@ const getters = {
     return filteredHistory[inspectedIndex]
   },
 
-  inspectedState({ base, inspectedModule }, { inspectedEntry }) {
-    const data = inspectedEntry ? inspectedState.value : base
+  inspectedState({ inspectedModule }, { inspectedEntry }) {
+    const data = inspectedEntry ? inspectedState.value : base.value
     return processInspectedState({ entry: inspectedEntry, data, inspectedModule })
   },
 
@@ -146,9 +141,9 @@ const getters = {
     return -1
   },
 
-  modules({ base, inspectedIndex }, getters) {
+  modules({ inspectedIndex }, getters) {
     const entry = getters.filteredHistory[inspectedIndex]
-    const data = entry ? inspectedState.value : base
+    const data = entry ? inspectedState.value : base.value
     if (data) {
       return data.modules
     }
