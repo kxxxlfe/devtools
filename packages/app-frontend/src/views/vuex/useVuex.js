@@ -18,7 +18,8 @@ exBridge.on(api.vuex.mutation, payload => {
   eventBus.$emit('onVuexMutation', payload)
 })
 
-exBridge.on(api.vuex.inspectedState, ({ index, snapshot }) => {
+exBridge.on(api.vuex.inspectedState, loadInspectedState)
+const loadInspectedState = ({ index, snapshot }) => {
   const store = window.store
   lastReceivedState.value = parseStoreState(snapshot) // RECEIVE_STATE
   snapshotsCache.set(index, snapshot)
@@ -37,8 +38,7 @@ exBridge.on(api.vuex.inspectedState, ({ index, snapshot }) => {
   requestAnimationFrame(() => {
     SharedData.snapshotLoading = false
   })
-})
-function freshState() {}
+}
 
 // type Snapshot = { state: {}, getters: {} }
 const base = shallowRef(null)
@@ -59,5 +59,5 @@ const updateInspectedState = function (value) {
 }
 
 export const useVuex = function () {
-  return { hasVuex, base, inspectedState, updateInspectedState, lastReceivedState, parseStoreState }
+  return { hasVuex, base, inspectedState, updateInspectedState, lastReceivedState, parseStoreState, loadInspectedState }
 }
