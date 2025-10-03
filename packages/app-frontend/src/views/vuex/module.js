@@ -71,10 +71,6 @@ const mutations = {
     state.inspectedIndex = index
   },
 
-  UPDATE_INSPECTED_STATE(state, value) {
-    inspectedState.value = parseStoreState(value)
-  },
-
   TIME_TRAVEL(state, index) {
     state.activeIndex = index
   },

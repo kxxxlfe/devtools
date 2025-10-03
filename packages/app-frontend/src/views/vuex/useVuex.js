@@ -28,7 +28,7 @@ exBridge.on(api.vuex.inspectedState, ({ index, snapshot }) => {
     // UPDATE_BASE_STATE
     base.value = parseStoreState(snapshot)
   } else if (store.getters['vuex/absoluteInspectedIndex'] === index) {
-    store.commit('vuex/UPDATE_INSPECTED_STATE', snapshot)
+    inspectedState.value = parseStoreState(snapshot) // UPDATE_INSPECTED_STATE
   } else {
     console.log('vuex:inspected-state wrong index', index, 'expected:', store.getters['vuex/absoluteInspectedIndex'])
   }
@@ -54,7 +54,10 @@ function parseStoreState(state) {
     }
   }
 }
+const updateInspectedState = function (value) {
+  inspectedState.value = parseStoreState(value)
+}
 
 export const useVuex = function () {
-  return { hasVuex, base, inspectedState, lastReceivedState, parseStoreState }
+  return { hasVuex, base, inspectedState, updateInspectedState, lastReceivedState, parseStoreState }
 }

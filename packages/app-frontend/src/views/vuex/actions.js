@@ -4,6 +4,9 @@ import Resolve from './resolve'
 import SharedData from '@utils/shared-data'
 import debounce from 'lodash/debounce'
 import { mutationBuffer } from './module'
+import { useVuex } from './useVuex'
+
+const { updateInspectedState } = useVuex()
 
 export function receiveMutation({ commit }, entry) {
   mutationBuffer.push(entry)
@@ -74,10 +77,11 @@ export function inspect({ commit, getters }, entryOrIndex) {
   const mutationIndex = entry ? entry.mutation.index : -1
   const cached = snapshotsCache.get(mutationIndex)
   if (cached) {
-    commit('UPDATE_INSPECTED_STATE', cached)
+    inspectedState.value = cached
+    updateInspectedState(cached)
   } else {
     SharedData.snapshotLoading = true
-    commit('UPDATE_INSPECTED_STATE', null)
+    updateInspectedState(null)
     exBridge.send(api.vuex.inspectState, mutationIndex)
   }
 }
@@ -104,7 +108,7 @@ function travelTo(state, commit, index, apply = true) {
     Resolve.travel = resolve
     const { inspectedIndex } = state
 
-    commit('UPDATE_INSPECTED_STATE', null)
+    updateInspectedState(null)
     SharedData.snapshotLoading = true
     bridge.send('vuex:travel-to-state', { index, apply })
 
