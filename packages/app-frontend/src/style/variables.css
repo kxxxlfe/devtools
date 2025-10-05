@@ -1,0 +1,34 @@
+html {
+  --blue: #44a1ff;
+  --grey: #dddddd;
+  --darkGrey: #ccc;
+  --darkerGrey: #aaa;
+  --blueishGrey: #486887;
+  --green: #42b983;
+  --darkerGreen: #3ba776;
+  --slate: #242424;
+  --white: #ffffff;
+  --orange: #ff6b00;
+  --red: #c41a16;
+  --black: #222;
+  --vividBlue: #0033cc;
+  --purple: #997fff;
+  --pink: #881391;
+  --lightPink: #e36eec;
+
+  --wide: 1100px;
+  --tall: 350px;
+
+  /* Theme */
+  --active-color: var(--darkerGreen);
+  --border-color: #ddd;
+  --background-color: var(--white);
+  --component-color: var(--active-color);
+  --hover-color: #e5f2ff;
+
+  --dark-active-color: var(--active-color);
+  --dark-border-color: #ddd;
+  --dark-background-color: #0b1015;
+  --dark-component-color: var(--darkerGreen);
+  --dark-hover-color: #2c3e50;
+}

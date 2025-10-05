@@ -1,5 +1,5 @@
 <template>
-  <div class="action-header">
+  <div class="action-header fe-action-header">
     <slot />
   </div>
 </template>
@@ -34,52 +34,6 @@
   &-bracket
     color #ccc
 
-.vue-ui-icon
-  width 16px
-  height @width
-  margin-right 0
-  @media (min-width: $wide)
-    margin-right 5px
-
-.button
-  cursor pointer
-  display flex
-  align-items center
-  justify-content center
-  padding 0 10px
-  transition opacity .25s, color .25s
-  white-space nowrap
-  opacity .8
-  overflow hidden
-  color $green
-
-  .vue-ui-icon >>> svg
-    transition fill .25s
-    fill @color
-
-  &:first-of-type
-    margin-left auto
-
-  &:not(.disabled):hover,
-  &:not(.disabled).active
-    opacity 1
-    color $active-color
-    .vue-ui-icon >>> svg
-      fill @color
-    .vue-ui-dark-mode &
-      color lighten($green, 15%)
-      .vue-ui-icon >>> svg
-        fill @color
-
-  &.disabled
-    opacity 0.45
-    cursor not-allowed
-
-  span
-    display none
-    @media (min-width: $wide)
-      display inline
-
 .vue-ui-button
   &:not(:last-child)
     margin-right 6px
@@ -106,4 +60,66 @@
 
     &.invalid
       color rgba(77, 10, 9, 1)
+</style>
+
+<style lang="css">
+.fe-action-header .button {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  transition: opacity 0.25s, color 0.25s;
+  white-space: nowrap;
+  opacity: 0.8;
+  overflow: hidden;
+  color: var(--green);
+
+  .vue-ui-icon svg {
+    transition: fill 0.25s;
+    fill: var(--green);
+  }
+
+  &:first-of-type {
+    margin-left: auto;
+  }
+
+  &:not(.disabled):hover,
+  &:not(.disabled).active {
+    opacity: 1;
+    color: var(--active-color);
+
+    .vue-ui-icon svg {
+      fill: var(--color);
+    }
+    .vue-ui-dark-mode {
+      color: var(--green);
+      .vue-ui-icon svg {
+        fill: var(--color);
+      }
+    }
+  }
+
+  &.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  span {
+    display: none;
+    @media (min-width: var(--wide)) {
+      display: inline;
+    }
+  }
+}
+.fe-action-header {
+  .vue-ui-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 0;
+    @media (min-width: var(--wide)) {
+      margin-right: 5px;
+    }
+  }
+}
 </style>

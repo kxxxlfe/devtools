@@ -6,8 +6,6 @@ import debounce from 'lodash/debounce'
 import { mutationBuffer } from './module'
 import { useVuex } from './useVuex'
 
-const { updateInspectedState } = useVuex()
-
 export function receiveMutation({ commit }, entry) {
   mutationBuffer.push(entry)
   receiveMutations(commit)
@@ -68,6 +66,7 @@ export function revert({ commit, state }, entry) {
 }
 
 export function inspect({ commit, getters }, entryOrIndex) {
+  const { updateInspectedState, inspectedState } = useVuex()
   let index = typeof entryOrIndex === 'number' ? entryOrIndex : getters.filteredHistory.indexOf(entryOrIndex)
   if (index < -1) index = -1
   if (index >= getters.filteredHistory.length) index = getters.filteredHistory.length - 1
@@ -104,6 +103,7 @@ export function editState({ state }, { path, args }) {
 }
 
 function travelTo(state, commit, index, apply = true) {
+  const { updateInspectedState } = useVuex()
   return new Promise(resolve => {
     Resolve.travel = resolve
     const { inspectedIndex } = state

@@ -81,7 +81,7 @@ class VuexBackend {
     bridge.on('vuex:revert-all', this.onRevertAll.bind(this))
     bridge.on('vuex:commit', this.onCommit.bind(this))
     bridge.on('vuex:revert', this.onRevert.bind(this))
-    bridge.on('vuex:import-state', this.onImportState.bind(this))
+    exBridge.on(api.vuex.importState, this.onImportState.bind(this))
     exBridge.on(api.vuex.inspectState, this.onInspectState.bind(this))
     bridge.on('vuex:edit-state', this.onEditState.bind(this))
   }
@@ -150,7 +150,11 @@ class VuexBackend {
     this.hook.emit('vuex:travel-to-state', parsed)
     this.reset()
     exBridge.send(api.vuex.init)
-    this.onInspectState(-1)
+
+    return {
+      index,
+      snapshot: this.replayMutations(-1),
+    }
   }
 
   /**

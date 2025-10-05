@@ -1,6 +1,7 @@
 import { ref, shallowRef } from 'vue'
 import { bridge as exBridge, api, eventBus } from '@front/bridge'
 import SharedData from '@utils/shared-data'
+import { parse } from '@utils/util'
 import { snapshotsCache } from './cache'
 import { reset } from './module'
 import VuexResolve from './resolve'
@@ -18,7 +19,6 @@ exBridge.on(api.vuex.mutation, payload => {
   eventBus.$emit('onVuexMutation', payload)
 })
 
-exBridge.on(api.vuex.inspectedState, loadInspectedState)
 const loadInspectedState = ({ index, snapshot }) => {
   const store = window.store
   lastReceivedState.value = parseStoreState(snapshot) // RECEIVE_STATE
@@ -39,11 +39,12 @@ const loadInspectedState = ({ index, snapshot }) => {
     SharedData.snapshotLoading = false
   })
 }
+exBridge.on(api.vuex.inspectedState, loadInspectedState)
 
 // type Snapshot = { state: {}, getters: {} }
-const base = shallowRef(null)
-const inspectedState = shallowRef(null) // 当前状态
-const lastReceivedState = shallowRef(null)
+export const base = shallowRef(null)
+export const inspectedState = shallowRef(null) // 当前状态
+export const lastReceivedState = shallowRef(null)
 function parseStoreState(state) {
   const data = parse(state)
   if (data) {

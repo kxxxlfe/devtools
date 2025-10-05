@@ -2,15 +2,13 @@ import { parse, get } from '@utils/util'
 import * as actions from './actions'
 import { snapshotsCache } from './cache'
 import SharedData from '@utils/shared-data'
-import { useVuex } from './useVuex'
+import { base, inspectedState, lastReceivedState } from './useVuex'
 
 const ANY_RE = new RegExp('.*', 'i')
 
 let uid = 0
 
 export const mutationBuffer = []
-
-const { base, inspectedState, lastReceivedState, parseStoreState } = useVuex()
 
 const state = {
   inspectedIndex: -1,
