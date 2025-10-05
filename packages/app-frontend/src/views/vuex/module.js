@@ -128,7 +128,7 @@ const getters = {
   },
 
   absoluteInspectedIndex({ history, inspectedIndex }, { filteredHistory }) {
-    return filteredHistory[inspectedIndex]?.indexOf(entry) ?? -1
+    return history?.indexOf(filteredHistory[inspectedIndex]) ?? -1
   },
 
   modules({ inspectedIndex }, getters) {
