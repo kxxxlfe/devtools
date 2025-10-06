@@ -69,7 +69,7 @@ export default {
         try {
           // Try to parse here so we can provide invalid feedback
           parse(importedStr, true)
-          const { index, snapshot } = await exBridge.request(api.vuex.importState, importedStr)
+          const { index, snapshot } = await exBridge.requestChunk(api.vuex.importState, importedStr)
 
           loadInspectedState({ index, snapshot })
           showBadJSONMessage.value = false

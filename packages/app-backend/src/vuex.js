@@ -162,10 +162,10 @@ class VuexBackend {
    * Else replays the mutations up to the <index> mutation.
    */
   onInspectState(index) {
-    sendChunk(api.vuex.inspectedState, {
+    return {
       index,
       snapshot: this.replayMutations(index),
-    })
+    }
   }
 
   onEditState({ index, value, path }) {

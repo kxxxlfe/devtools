@@ -110,6 +110,10 @@ function escapeStringForRegExp(str) {
 }
 
 const getters = {
+  filteredHistory({ history, filterRegex }) {
+    return history.filter(entry => filterRegex.test(entry.mutation.type))
+  },
+
   inspectedEntry({ inspectedIndex }, { filteredHistory }) {
     return filteredHistory[inspectedIndex]
   },
@@ -123,17 +127,12 @@ const getters = {
     return processInspectedState({ entry: inspectedEntry, data: lastReceivedState.value, inspectedModule })
   },
 
-  filteredHistory({ history, filterRegex }) {
-    return history.filter(entry => filterRegex.test(entry.mutation.type))
+  absoluteInspectedIndex({ history }, { inspectedEntry }) {
+    return history?.indexOf(inspectedEntry) ?? -1
   },
 
-  absoluteInspectedIndex({ history, inspectedIndex }, { filteredHistory }) {
-    return history?.indexOf(filteredHistory[inspectedIndex]) ?? -1
-  },
-
-  modules({ inspectedIndex }, getters) {
-    const entry = getters.filteredHistory[inspectedIndex]
-    const data = entry ? inspectedState.value : base.value
+  modules({}, { inspectedEntry }) {
+    const data = inspectedEntry ? inspectedState.value : base.value
     if (data) {
       return data.modules
     }

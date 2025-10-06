@@ -65,8 +65,8 @@ export function revert({ commit, state }, entry) {
   }
 }
 
-export function inspect({ commit, getters }, entryOrIndex) {
-  const { updateInspectedState, inspectedState } = useVuex()
+export async function inspect({ commit, getters }, entryOrIndex) {
+  const { updateInspectedState, inspectedState, loadInspectedState } = useVuex()
   let index = typeof entryOrIndex === 'number' ? entryOrIndex : getters.filteredHistory.indexOf(entryOrIndex)
   if (index < -1) index = -1
   if (index >= getters.filteredHistory.length) index = getters.filteredHistory.length - 1
@@ -81,7 +81,11 @@ export function inspect({ commit, getters }, entryOrIndex) {
   } else {
     SharedData.snapshotLoading = true
     updateInspectedState(null)
-    exBridge.send(api.vuex.inspectState, mutationIndex)
+    const { snapshot } = await exBridge.send(api.vuex.inspectState, mutationIndex)
+    loadInspectedState({ index: mutationIndex, snapshot })
+    requestAnimationFrame(() => {
+      SharedData.snapshotLoading = false
+    })
   }
 }
 
