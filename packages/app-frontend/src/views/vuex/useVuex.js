@@ -34,10 +34,6 @@ const loadInspectedState = ({ index, snapshot }) => {
   }
 
   VuexResolve.travel?.(snapshot)
-
-  requestAnimationFrame(() => {
-    SharedData.snapshotLoading = false
-  })
 }
 exBridge.on(api.vuex.inspectedState, loadInspectedState)
 

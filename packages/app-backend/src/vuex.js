@@ -100,10 +100,6 @@ class VuexBackend {
    */
   onTravelToState({ index, apply }) {
     const state = clone(this.lastState)
-    sendChunk(api.vuex.inspectedState, {
-      index,
-      snapshot: this.replayMutations(index),
-    })
     if (apply) {
       this.ensureRegisteredModules(this.mutations[index])
       this.hook.emit('vuex:travel-to-state', state)

@@ -81,7 +81,7 @@ export async function inspect({ commit, getters }, entryOrIndex) {
   } else {
     SharedData.snapshotLoading = true
     updateInspectedState(null)
-    const { snapshot } = await exBridge.send(api.vuex.inspectState, mutationIndex)
+    const { snapshot } = await exBridge.requestChunk(api.vuex.inspectState, mutationIndex)
     loadInspectedState({ index: mutationIndex, snapshot })
     requestAnimationFrame(() => {
       SharedData.snapshotLoading = false
@@ -108,17 +108,23 @@ export function editState({ state }, { path, args }) {
 
 function travelTo(state, commit, index, apply = true) {
   const { updateInspectedState } = useVuex()
-  return new Promise(resolve => {
+  return new Promise(async resolve => {
     Resolve.travel = resolve
     const { inspectedIndex } = state
 
-    updateInspectedState(null)
-    SharedData.snapshotLoading = true
     bridge.send('vuex:travel-to-state', { index, apply })
 
     if (index !== inspectedIndex) {
       commit('INSPECT', index)
     }
     commit('TIME_TRAVEL', index)
+
+    SharedData.snapshotLoading = true
+    updateInspectedState(null)
+    const { snapshot } = await exBridge.requestChunk(api.vuex.inspectState, index)
+    loadInspectedState({ index, snapshot })
+    requestAnimationFrame(() => {
+      SharedData.snapshotLoading = false
+    })
   })
 }
