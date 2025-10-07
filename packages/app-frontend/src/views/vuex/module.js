@@ -100,7 +100,6 @@ export function reset(state) {
   state.history = []
   state.inspectedIndex = state.activeIndex = -1
   inspectedState.value = null
-  state.activeIndex = -1
   SharedData.snapshotLoading = false
 }
 
