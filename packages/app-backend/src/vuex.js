@@ -401,10 +401,6 @@ class VuexBackend {
 class VuexBackendNew extends VuexBackend {
   constructor(...args) {
     super(...args)
-    /** Initial snapshot */
-    this.baseStateSnapshot = null
-    /** Snapshot cache */
-    this.stateSnapshotCache = null
   }
 
   onCommit(...args) {
