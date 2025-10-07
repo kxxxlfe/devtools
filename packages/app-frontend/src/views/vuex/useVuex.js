@@ -4,7 +4,6 @@ import SharedData from '@utils/shared-data'
 import { parse } from '@utils/util'
 import { snapshotsCache } from './cache'
 import { reset } from './module'
-import VuexResolve from './resolve'
 
 const hasVuex = ref(false)
 exBridge.on(api.vuex.init, args => {
@@ -32,8 +31,18 @@ const loadInspectedState = ({ index, snapshot }) => {
   } else {
     console.log('vuex:inspected-state wrong index', index, 'expected:', absoluteInspectedIndex)
   }
+}
+// 获取index对应的数据
+const loadStateByIndex = async function ({ index }) {
+  SharedData.snapshotLoading = true
+  updateInspectedState(null)
+  const { snapshot } = await exBridge.requestChunk(api.vuex.inspectState, index)
+  loadInspectedState({ index, snapshot })
+  requestAnimationFrame(() => {
+    SharedData.snapshotLoading = false
+  })
 
-  VuexResolve.travel?.(snapshot)
+  return { snapshot }
 }
 exBridge.on(api.vuex.inspectedState, loadInspectedState)
 
@@ -56,5 +65,5 @@ const updateInspectedState = function (value) {
 }
 
 export const useVuex = function () {
-  return { hasVuex, base, inspectedState, updateInspectedState, lastReceivedState, parseStoreState, loadInspectedState }
+  return { hasVuex, base, inspectedState, updateInspectedState, lastReceivedState, parseStoreState, loadStateByIndex }
 }

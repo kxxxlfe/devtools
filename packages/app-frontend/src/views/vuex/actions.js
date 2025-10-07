@@ -1,8 +1,7 @@
+import { debounce } from 'lodash-es'
 import { bridge as exBridge, api } from '@front/bridge'
 import { snapshotsCache } from './cache'
-import Resolve from './resolve'
 import SharedData from '@utils/shared-data'
-import debounce from 'lodash/debounce'
 import { mutationBuffer } from './module'
 import { useVuex } from './useVuex'
 
@@ -66,7 +65,7 @@ export function revert({ commit, state }, entry) {
 }
 
 export async function inspect({ commit, getters }, entryOrIndex) {
-  const { updateInspectedState, inspectedState, loadInspectedState } = useVuex()
+  const { updateInspectedState, inspectedState, loadStateByIndex } = useVuex()
   let index = typeof entryOrIndex === 'number' ? entryOrIndex : getters.filteredHistory.indexOf(entryOrIndex)
   if (index < -1) index = -1
   if (index >= getters.filteredHistory.length) index = getters.filteredHistory.length - 1
@@ -79,13 +78,7 @@ export async function inspect({ commit, getters }, entryOrIndex) {
     inspectedState.value = cached
     updateInspectedState(cached)
   } else {
-    SharedData.snapshotLoading = true
-    updateInspectedState(null)
-    const { snapshot } = await exBridge.requestChunk(api.vuex.inspectState, mutationIndex)
-    loadInspectedState({ index: mutationIndex, snapshot })
-    requestAnimationFrame(() => {
-      SharedData.snapshotLoading = false
-    })
+    loadStateByIndex({ index: mutationIndex })
   }
 }
 
@@ -106,25 +99,18 @@ export function editState({ state }, { path, args }) {
   })
 }
 
-function travelTo(state, commit, index, apply = true) {
-  const { updateInspectedState } = useVuex()
-  return new Promise(async resolve => {
-    Resolve.travel = resolve
-    const { inspectedIndex } = state
+async function travelTo(state, commit, index, apply = true) {
+  const { loadStateByIndex } = useVuex()
+  const { inspectedIndex } = state
 
-    bridge.send('vuex:travel-to-state', { index, apply })
+  bridge.send('vuex:travel-to-state', { index, apply })
 
-    if (index !== inspectedIndex) {
-      commit('INSPECT', index)
-    }
-    commit('TIME_TRAVEL', index)
+  if (index !== inspectedIndex) {
+    commit('INSPECT', index)
+  }
+  commit('TIME_TRAVEL', index)
 
-    SharedData.snapshotLoading = true
-    updateInspectedState(null)
-    const { snapshot } = await exBridge.requestChunk(api.vuex.inspectState, index)
-    loadInspectedState({ index, snapshot })
-    requestAnimationFrame(() => {
-      SharedData.snapshotLoading = false
-    })
-  })
+  const { snapshot } = await loadStateByIndex({ index })
+
+  return snapshot
 }
