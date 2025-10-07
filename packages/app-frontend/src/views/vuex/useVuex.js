@@ -44,7 +44,6 @@ const loadStateByIndex = async function ({ index }) {
 
   return { snapshot }
 }
-exBridge.on(api.vuex.inspectedState, loadInspectedState)
 
 // type Snapshot = { state: {}, getters: {} }
 export const base = shallowRef(null)
@@ -65,5 +64,14 @@ const updateInspectedState = function (value) {
 }
 
 export const useVuex = function () {
-  return { hasVuex, base, inspectedState, updateInspectedState, lastReceivedState, parseStoreState, loadStateByIndex }
+  return {
+    hasVuex,
+    base,
+    inspectedState,
+    updateInspectedState,
+    lastReceivedState,
+    parseStoreState,
+    loadInspectedState,
+    loadStateByIndex,
+  }
 }

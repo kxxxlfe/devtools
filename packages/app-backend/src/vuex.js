@@ -172,10 +172,11 @@ class VuexBackend {
     this.store._committing = true
     set(this.store.state, path, parsedValue)
     this.store._committing = false
-    sendChunk(api.vuex.inspectedState, {
+
+    return {
       index,
       snapshot: stringify(this.snapshotStore()),
-    })
+    }
   }
 
   /**
@@ -415,8 +416,10 @@ class VuexBackendNew extends VuexBackend {
     this.resetSnapshotCache()
   }
   onEditState({ index, value, path }) {
-    super.onEditState({ index, value, path })
+    const res = super.onEditState({ index, value, path })
     this.cacheStateSnapshot(index, true)
+
+    return res
   }
   reset(stateSnapshot = null) {
     super.reset()

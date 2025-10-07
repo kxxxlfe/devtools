@@ -91,12 +91,16 @@ export function updateFilter({ commit }, filter) {
 }
 
 export async function editState({ state }, { path, args }) {
-  if (state.inspectedIndex !== -1) snapshotsCache.del(state.inspectedIndex)
-  exBridge.request(api.vuex.editState, {
-    index: state.inspectedIndex,
+  const { loadInspectedState } = useVuex()
+  const index = state.inspectedIndex
+  if (index !== -1) snapshotsCache.del(index)
+  const { snapshot } = await exBridge.requestChunk(api.vuex.editState, {
+    index,
     path,
     ...args,
   })
+
+  loadInspectedState({ index, snapshot })
 }
 
 async function travelTo(state, commit, index, apply = true) {
