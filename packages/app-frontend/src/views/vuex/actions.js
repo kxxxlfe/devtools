@@ -90,9 +90,9 @@ export function updateFilter({ commit }, filter) {
   commit('UPDATE_FILTER', filter)
 }
 
-export function editState({ state }, { path, args }) {
+export async function editState({ state }, { path, args }) {
   if (state.inspectedIndex !== -1) snapshotsCache.del(state.inspectedIndex)
-  bridge.send('vuex:edit-state', {
+  exBridge.request(api.vuex.editState, {
     index: state.inspectedIndex,
     path,
     ...args,

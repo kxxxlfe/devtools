@@ -83,7 +83,7 @@ class VuexBackend {
     bridge.on('vuex:revert', this.onRevert.bind(this))
     exBridge.on(api.vuex.importState, this.onImportState.bind(this))
     exBridge.on(api.vuex.inspectState, this.onInspectState.bind(this))
-    bridge.on('vuex:edit-state', this.onEditState.bind(this))
+    exBridge.on(api.vuex.editState, this.onEditState.bind(this))
   }
 
   /**
