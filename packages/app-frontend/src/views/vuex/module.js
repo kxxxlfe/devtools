@@ -1,6 +1,5 @@
 import { parse, get } from '@utils/util'
 import * as actions from './actions'
-import { snapshotsCache } from './cache'
 import SharedData from '@utils/shared-data'
 import { base, inspectedState, lastReceivedState } from './useVuex'
 
