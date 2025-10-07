@@ -1,6 +1,6 @@
 import path from 'path-browserify'
 import { isRef } from 'vue'
-import { transform, cloneDeepWith } from 'lodash-es'
+import { transform, cloneDeepWith, cloneDeep } from 'lodash-es'
 import * as CircularJSON from './transfer'
 import { getCustomInstanceDetails } from '@back/process'
 import { getCustomStoreDetails } from '@back/vuex'
@@ -192,7 +192,7 @@ export function stringifyFlatted(data) {
 
 export function cloneVueData(data) {
   const processReplace = function (value, key) {
-    return replacer(key, value)
+    return cloneDeep(replacer(key, value))
   }
 
   return cloneDeepWith(data, processReplace)
