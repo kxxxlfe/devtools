@@ -192,7 +192,14 @@ export function stringifyFlatted(data) {
 
 export function cloneVueData(data) {
   const processReplace = function (value, key) {
-    return cloneDeep(replacer(key, value))
+    const res = replacer(key, value)
+    if (!res || typeof res !== 'object') {
+      return res
+    }
+    if (Array.isArray(res)) {
+      return [...res]
+    }
+    return { ...res }
   }
 
   return cloneDeepWith(data, processReplace)

@@ -34,15 +34,23 @@ const loadInspectedState = ({ index, snapshot }) => {
 }
 // 获取index对应的数据
 const loadStateByIndex = async function ({ index }) {
+  // loading中不重复请求数据
+  if (SharedData.snapshotLoading) {
+    return
+  }
   SharedData.snapshotLoading = true
   updateInspectedState(null)
-  const { snapshot } = await exBridge.requestChunk(api.vuex.inspectState, index)
-  loadInspectedState({ index, snapshot })
-  requestAnimationFrame(() => {
-    SharedData.snapshotLoading = false
-  })
+  try {
+    const { snapshot } = await exBridge.requestChunk(api.vuex.inspectState, index)
+    loadInspectedState({ index, snapshot })
+    requestAnimationFrame(() => {
+      SharedData.snapshotLoading = false
+    })
 
-  return { snapshot }
+    return { snapshot }
+  } finally {
+    SharedData.snapshotLoading = false
+  }
 }
 
 // type Snapshot = { state: {}, getters: {} }
