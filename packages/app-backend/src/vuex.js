@@ -1,6 +1,6 @@
 import Vue, { watch } from 'vue'
 import { cloneDeep } from 'lodash-es'
-import { stringify, parse, set, get } from '@utils/util'
+import { stringify, parse, set, get, cloneVueData } from '@utils/util'
 import SharedData from '@utils/shared-data'
 import clone from './clone'
 import { debounce } from './utils'
@@ -81,9 +81,9 @@ class VuexBackend {
     bridge.on('vuex:revert-all', this.onRevertAll.bind(this))
     bridge.on('vuex:commit', this.onCommit.bind(this))
     bridge.on('vuex:revert', this.onRevert.bind(this))
-    bridge.on('vuex:import-state', this.onImportState.bind(this))
+    exBridge.on(api.vuex.importState, this.onImportState.bind(this))
     exBridge.on(api.vuex.inspectState, this.onInspectState.bind(this))
-    bridge.on('vuex:edit-state', this.onEditState.bind(this))
+    exBridge.on(api.vuex.editState, this.onEditState.bind(this))
   }
 
   /**
@@ -100,10 +100,6 @@ class VuexBackend {
    */
   onTravelToState({ index, apply }) {
     const state = clone(this.lastState)
-    sendChunk(api.vuex.inspectedState, {
-      index,
-      snapshot: this.replayMutations(index),
-    })
     if (apply) {
       this.ensureRegisteredModules(this.mutations[index])
       this.hook.emit('vuex:travel-to-state', state)
@@ -150,7 +146,11 @@ class VuexBackend {
     this.hook.emit('vuex:travel-to-state', parsed)
     this.reset()
     exBridge.send(api.vuex.init)
-    this.onInspectState(-1)
+
+    return {
+      index,
+      snapshot: this.replayMutations(-1),
+    }
   }
 
   /**
@@ -158,10 +158,10 @@ class VuexBackend {
    * Else replays the mutations up to the <index> mutation.
    */
   onInspectState(index) {
-    sendChunk(api.vuex.inspectedState, {
+    return {
       index,
       snapshot: this.replayMutations(index),
-    })
+    }
   }
 
   onEditState({ index, value, path }) {
@@ -172,10 +172,11 @@ class VuexBackend {
     this.store._committing = true
     set(this.store.state, path, parsedValue)
     this.store._committing = false
-    sendChunk(api.vuex.inspectedState, {
+
+    return {
       index,
-      snapshot: this.stringifyStore(),
-    })
+      snapshot: stringify(this.snapshotStore()),
+    }
   }
 
   /**
@@ -341,10 +342,7 @@ class VuexBackend {
     return !!this.store._modules.get(path)
   }
 
-  stringifyStore() {
-    return stringify(this.snapshotStore(false))
-  }
-  snapshotStore(needClone = true) {
+  snapshotStore() {
     const snapshot = {
       state: this.store.state,
       getters: getCatchedGetters(this.store),
@@ -353,7 +351,7 @@ class VuexBackend {
         .sort(),
     }
 
-    return needClone ? cloneDeep(snapshot) : snapshot
+    return cloneVueData(snapshot)
   }
 
   /**
@@ -394,9 +392,8 @@ class VuexBackend {
     const snap = index === -1 ? this.legacyBaseSnapshot : this.mutations[index].snap
     if (!snap.str) {
       snap.str = stringify(snap.info)
-      snap.parsedInfo = parse(snap.str, true)
     }
-    this.lastState = snap.parsedInfo.state
+    this.lastState = snap.info.state
     return snap.str
   }
 }
@@ -405,10 +402,6 @@ class VuexBackend {
 class VuexBackendNew extends VuexBackend {
   constructor(...args) {
     super(...args)
-    /** Initial snapshot */
-    this.baseStateSnapshot = null
-    /** Snapshot cache */
-    this.stateSnapshotCache = null
   }
 
   onCommit(...args) {
@@ -423,8 +416,10 @@ class VuexBackendNew extends VuexBackend {
     this.resetSnapshotCache()
   }
   onEditState({ index, value, path }) {
-    super.onEditState({ index, value, path })
+    const res = super.onEditState({ index, value, path })
     this.cacheStateSnapshot(index, true)
+
+    return res
   }
   reset(stateSnapshot = null) {
     super.reset()
@@ -578,7 +573,7 @@ class VuexBackendNew extends VuexBackend {
 
     this.lastState = resultState
 
-    const result = this.stringifyStore()
+    const result = stringify(this.snapshotStore())
 
     // Restore user state
     tempAddedModules

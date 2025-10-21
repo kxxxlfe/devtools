@@ -1,9 +1,9 @@
+import { debounce } from 'lodash-es'
 import { bridge as exBridge, api } from '@front/bridge'
 import { snapshotsCache } from './cache'
-import Resolve from './resolve'
 import SharedData from '@utils/shared-data'
-import debounce from 'lodash/debounce'
 import { mutationBuffer } from './module'
+import { useVuex } from './useVuex'
 
 export function receiveMutation({ commit }, entry) {
   mutationBuffer.push(entry)
@@ -64,7 +64,8 @@ export function revert({ commit, state }, entry) {
   }
 }
 
-export function inspect({ commit, getters }, entryOrIndex) {
+export async function inspect({ commit, getters }, entryOrIndex) {
+  const { updateInspectedState, inspectedState, loadStateByIndex } = useVuex()
   let index = typeof entryOrIndex === 'number' ? entryOrIndex : getters.filteredHistory.indexOf(entryOrIndex)
   if (index < -1) index = -1
   if (index >= getters.filteredHistory.length) index = getters.filteredHistory.length - 1
@@ -74,11 +75,10 @@ export function inspect({ commit, getters }, entryOrIndex) {
   const mutationIndex = entry ? entry.mutation.index : -1
   const cached = snapshotsCache.get(mutationIndex)
   if (cached) {
-    commit('UPDATE_INSPECTED_STATE', cached)
+    inspectedState.value = cached
+    updateInspectedState(cached)
   } else {
-    SharedData.snapshotLoading = true
-    commit('UPDATE_INSPECTED_STATE', null)
-    exBridge.send(api.vuex.inspectState, mutationIndex)
+    loadStateByIndex({ index: mutationIndex })
   }
 }
 
@@ -90,27 +90,31 @@ export function updateFilter({ commit }, filter) {
   commit('UPDATE_FILTER', filter)
 }
 
-export function editState({ state }, { path, args }) {
-  if (state.inspectedIndex !== -1) snapshotsCache.del(state.inspectedIndex)
-  bridge.send('vuex:edit-state', {
-    index: state.inspectedIndex,
+export async function editState({ state }, { path, args }) {
+  const { loadInspectedState } = useVuex()
+  const index = state.inspectedIndex
+  if (index !== -1) snapshotsCache.del(index)
+  const { snapshot } = await exBridge.requestChunk(api.vuex.editState, {
+    index,
     path,
     ...args,
   })
+
+  loadInspectedState({ index, snapshot })
 }
 
-function travelTo(state, commit, index, apply = true) {
-  return new Promise(resolve => {
-    Resolve.travel = resolve
-    const { inspectedIndex } = state
+async function travelTo(state, commit, index, apply = true) {
+  const { loadStateByIndex } = useVuex()
+  const { inspectedIndex } = state
 
-    commit('UPDATE_INSPECTED_STATE', null)
-    SharedData.snapshotLoading = true
-    bridge.send('vuex:travel-to-state', { index, apply })
+  bridge.send('vuex:travel-to-state', { index, apply })
 
-    if (index !== inspectedIndex) {
-      commit('INSPECT', index)
-    }
-    commit('TIME_TRAVEL', index)
-  })
+  if (index !== inspectedIndex) {
+    commit('INSPECT', index)
+  }
+  commit('TIME_TRAVEL', index)
+
+  const { snapshot } = await loadStateByIndex({ index })
+
+  return snapshot
 }

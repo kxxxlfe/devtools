@@ -1,6 +1,6 @@
 import path from 'path-browserify'
 import { isRef } from 'vue'
-import { transform } from 'lodash-es'
+import { transform, cloneDeepWith, cloneDeep } from 'lodash-es'
 import * as CircularJSON from './transfer'
 import { getCustomInstanceDetails } from '@back/process'
 import { getCustomStoreDetails } from '@back/vuex'
@@ -190,8 +190,23 @@ export function stringifyFlatted(data) {
   return result
 }
 
-function replacer(key) {
-  const val = this[key]
+export function cloneVueData(data) {
+  const processReplace = function (value, key) {
+    const res = replacer(key, value)
+    if (!res || typeof res !== 'object') {
+      return res
+    }
+    if (Array.isArray(res)) {
+      return [...res]
+    }
+    return { ...res }
+  }
+
+  return cloneDeepWith(data, processReplace)
+}
+
+// 可视化核心逻辑
+function replacer(key, val) {
   const type = typeof val
   if (Array.isArray(val)) {
     const l = val.length

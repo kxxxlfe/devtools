@@ -1,9 +1,9 @@
-import { ref } from 'vue'
+import { ref, shallowRef } from 'vue'
 import { bridge as exBridge, api, eventBus } from '@front/bridge'
 import SharedData from '@utils/shared-data'
+import { parse } from '@utils/util'
 import { snapshotsCache } from './cache'
 import { reset } from './module'
-import VuexResolve from './resolve'
 
 const hasVuex = ref(false)
 exBridge.on(api.vuex.init, args => {
@@ -18,25 +18,68 @@ exBridge.on(api.vuex.mutation, payload => {
   eventBus.$emit('onVuexMutation', payload)
 })
 
-exBridge.on(api.vuex.inspectedState, ({ index, snapshot }) => {
+const loadInspectedState = ({ index, snapshot }) => {
   const store = window.store
-  store.commit('vuex/RECEIVE_STATE', { index, snapshot })
+  lastReceivedState.value = parseStoreState(snapshot) // RECEIVE_STATE
+  snapshotsCache.set(index, snapshot)
 
+  const absoluteInspectedIndex = store.getters['vuex/absoluteInspectedIndex']
   if (index === -1) {
-    store.commit('vuex/UPDATE_BASE_STATE', snapshot)
-  } else if (store.getters['vuex/absoluteInspectedIndex'] === index) {
-    store.commit('vuex/UPDATE_INSPECTED_STATE', snapshot)
+    base.value = parseStoreState(snapshot) // UPDATE_BASE_STATE
+  } else if (absoluteInspectedIndex === index) {
+    inspectedState.value = parseStoreState(snapshot) // UPDATE_INSPECTED_STATE
   } else {
-    console.log('vuex:inspected-state wrong index', index, 'expected:', store.getters['vuex/absoluteInspectedIndex'])
+    console.log('vuex:inspected-state wrong index', index, 'expected:', absoluteInspectedIndex)
   }
+}
+// 获取index对应的数据
+const loadStateByIndex = async function ({ index }) {
+  // loading中不重复请求数据
+  if (SharedData.snapshotLoading) {
+    return
+  }
+  SharedData.snapshotLoading = true
+  updateInspectedState(null)
+  try {
+    const { snapshot } = await exBridge.requestChunk(api.vuex.inspectState, index)
+    loadInspectedState({ index, snapshot })
+    requestAnimationFrame(() => {
+      SharedData.snapshotLoading = false
+    })
 
-  VuexResolve.travel?.(snapshot)
-
-  requestAnimationFrame(() => {
+    return { snapshot }
+  } finally {
     SharedData.snapshotLoading = false
-  })
-})
+  }
+}
+
+// type Snapshot = { state: {}, getters: {} }
+export const base = shallowRef(null)
+export const inspectedState = shallowRef(null) // 当前状态
+export const lastReceivedState = shallowRef(null)
+function parseStoreState(state) {
+  const data = parse(state)
+  if (data) {
+    return {
+      state: data.state,
+      getters: Object.freeze(data.getters),
+      modules: Object.freeze(data.modules),
+    }
+  }
+}
+const updateInspectedState = function (value) {
+  inspectedState.value = parseStoreState(value)
+}
 
 export const useVuex = function () {
-  return { hasVuex }
+  return {
+    hasVuex,
+    base,
+    inspectedState,
+    updateInspectedState,
+    lastReceivedState,
+    parseStoreState,
+    loadInspectedState,
+    loadStateByIndex,
+  }
 }

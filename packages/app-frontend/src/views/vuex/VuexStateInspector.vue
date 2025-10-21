@@ -21,20 +21,7 @@
           <span v-show="showStateCopiedMessage" class="message">(Copied to clipboard!)</span>
         </transition>
       </a>
-      <a v-tooltip="'Import Vuex State'" class="button import" @click="toggleImportStatePopup">
-        <VueIcon icon="content_paste" />
-        <span>Import</span>
-      </a>
-      <transition name="slide-down">
-        <div v-if="showImportStatePopup" class="import-state">
-          <textarea
-            placeholder="Paste state object here to import it..."
-            @input="importState"
-            @keydown.esc.stop="closeImportStatePopup"
-          />
-          <span v-show="showBadJSONMessage" class="message invalid-json">INVALID JSON!</span>
-        </div>
-      </transition>
+      <VuexImportState />
     </action-header>
     <div
       slot="scroll"
@@ -76,6 +63,7 @@ import { bridge as exBridge, api, eventBus } from '@front/bridge'
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 import StateInspector from '@front/components/StateInspector.vue'
+import VuexImportState from './components/VuexImportState.vue'
 
 import { searchDeepInObject, sortByKey, parse, copyToClipboard } from '@utils/util'
 import { mutationBuffer } from './module'
@@ -87,6 +75,7 @@ export default {
     ScrollPane,
     ActionHeader,
     StateInspector,
+    VuexImportState,
   },
 
   provide() {
@@ -99,7 +88,7 @@ export default {
     const ctx = getCurrentInstance()?.proxy
     const { sharedData } = useSharedData()
 
-    const { hasVuex } = useVuex()
+    const { hasVuex, lastReceivedState, loadInspectedState } = useVuex()
     watch(
       () => hasVuex.value,
       function (n, o) {
@@ -125,14 +114,12 @@ export default {
         args,
       })
     }
-    return { editVuex }
+    return { editVuex, lastReceivedState, loadInspectedState }
   },
 
   data() {
     return {
       showStateCopiedMessage: false,
-      showBadJSONMessage: false,
-      showImportStatePopup: false,
       filter: '',
       injection: {
         editable: false,
@@ -141,7 +128,7 @@ export default {
   },
 
   computed: {
-    ...mapState('vuex', ['activeIndex', 'inspectedIndex', 'lastReceivedState', 'inspectedModule', 'history']),
+    ...mapState('vuex', ['activeIndex', 'inspectedIndex', 'inspectedModule', 'history']),
 
     ...mapGetters('vuex', ['inspectedState', 'inspectedLastState', 'filteredHistory', 'inspectedEntry', 'modules']),
 
@@ -217,14 +204,6 @@ export default {
   },
 
   watch: {
-    showImportStatePopup(val) {
-      if (val) {
-        this.$nextTick(() => {
-          this.$el.querySelector('textarea').focus()
-        })
-      }
-    },
-
     isActive: {
       handler(value) {
         this.injection.editable = value
@@ -262,34 +241,6 @@ export default {
         this.showStateCopiedMessage = false
       }, 2000)
     },
-
-    toggleImportStatePopup() {
-      if (this.showImportStatePopup) {
-        this.closeImportStatePopup()
-      } else {
-        this.showImportStatePopup = true
-      }
-    },
-
-    closeImportStatePopup() {
-      this.showImportStatePopup = false
-    },
-
-    importState: debounce(function (e) {
-      const importedStr = e.target.value
-      if (importedStr.length === 0) {
-        this.showBadJSONMessage = false
-      } else {
-        try {
-          // Try to parse here so we can provide invalid feedback
-          parse(importedStr, true)
-          bridge.send('vuex:import-state', importedStr)
-          this.showBadJSONMessage = false
-        } catch (e) {
-          this.showBadJSONMessage = true
-        }
-      }
-    }, 250),
 
     loadState() {
       // Debouncing
@@ -382,39 +333,4 @@ export default {
   background-color $background-color
   .vue-ui-dark-mode &
     background-color $dark-background-color
-
-.import-state
-  transition all .2s ease
-  width 300px
-  position absolute
-  z-index 1
-  left 220px
-  right 10px
-  top 45px
-  box-shadow 4px 4px 6px 0 $border-color
-  border 1px solid $border-color
-  padding 3px
-  background-color $background-color
-  .vue-ui-dark-mode &
-    background-color $dark-background-color
-    box-shadow 4px 4px 6px 0 $dark-border-color
-    border 1px solid $dark-border-color
-  &:after
-    content 'Press ESC to close'
-    position absolute
-    bottom 0
-    padding 5px
-    color inherit
-    opacity .5
-
-  textarea
-    width 100%
-    height 100px
-    display block
-    outline none
-    border none
-    resize vertical
-    .vue-ui-dark-mode &
-      color #DDD
-      background-color $dark-background-color
 </style>

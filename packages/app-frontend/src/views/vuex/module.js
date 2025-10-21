@@ -1,9 +1,8 @@
 import { parse, get } from '@utils/util'
 import * as actions from './actions'
-import { snapshotsCache } from './cache'
 import SharedData from '@utils/shared-data'
+import { base, inspectedState, lastReceivedState } from './useVuex'
 
-const REGEX_RE = /^\/((?:(?:.*?)(?:\\\/)?)*?)\/(\w*)/
 const ANY_RE = new RegExp('.*', 'i')
 
 let uid = 0
@@ -11,7 +10,6 @@ let uid = 0
 export const mutationBuffer = []
 
 const state = {
-  base: null, // type Snapshot = { state: {}, getters: {} }
   inspectedIndex: -1,
   activeIndex: -1,
   history: [
@@ -22,8 +20,6 @@ const state = {
   filter: '',
   filterRegex: ANY_RE,
   filterRegexInvalid: false,
-  inspectedState: null,
-  lastReceivedState: null,
   inspectedModule: null,
 }
 
@@ -38,13 +34,13 @@ const mutations = {
       state.activeIndex = state.history.length - 1
       if (inspectingLastMutation) {
         state.inspectedIndex = state.activeIndex
-        state.inspectedState = null
+        inspectedState.value = null
       }
     }
   },
 
   COMMIT_ALL(state) {
-    state.base = state.lastReceivedState
+    base.value = lastReceivedState.value
     state.lastCommit = Date.now()
     reset(state)
   },
@@ -54,7 +50,7 @@ const mutations = {
   },
 
   COMMIT(state, index) {
-    state.base = state.lastReceivedState
+    base.value = lastReceivedState.value
     state.lastCommit = Date.now()
     state.history = state.history.slice(index + 1)
     state.history.forEach(({ mutation }, index) => {
@@ -72,26 +68,13 @@ const mutations = {
     state.inspectedIndex = index
   },
 
-  UPDATE_INSPECTED_STATE(state, value) {
-    state.inspectedState = parseStoreState(value)
-  },
-
-  RECEIVE_STATE(state, { index, snapshot }) {
-    state.lastReceivedState = parseStoreState(snapshot)
-    snapshotsCache.set(index, snapshot)
-  },
-
-  UPDATE_BASE_STATE(state, value) {
-    state.base = parseStoreState(value)
-  },
-
   TIME_TRAVEL(state, index) {
     state.activeIndex = index
   },
 
   UPDATE_FILTER(state, filter) {
     state.filter = filter
-    const regexParts = filter.match(REGEX_RE)
+    const regexParts = filter.match(/^\/((?:(?:.*?)(?:\\\/)?)*?)\/(\w*)/)
     if (regexParts !== null) {
       // looks like it might be a regex -> try to compile it
       try {
@@ -116,8 +99,7 @@ const mutations = {
 export function reset(state) {
   state.history = []
   state.inspectedIndex = state.activeIndex = -1
-  state.inspectedState = null
-  state.activeIndex = -1
+  inspectedState.value = null
   SharedData.snapshotLoading = false
 }
 
@@ -126,50 +108,34 @@ function escapeStringForRegExp(str) {
 }
 
 const getters = {
-  inspectedEntry({ inspectedIndex }, { filteredHistory }) {
-    return filteredHistory[inspectedIndex]
-  },
-
-  inspectedState({ base, inspectedState, inspectedModule }, { inspectedEntry }) {
-    const data = inspectedEntry ? inspectedState : base
-    return processInspectedState({ entry: inspectedEntry, data, inspectedModule })
-  },
-
-  inspectedLastState({ lastReceivedState, inspectedModule }, { inspectedEntry }) {
-    return processInspectedState({ entry: inspectedEntry, data: lastReceivedState, inspectedModule })
-  },
-
   filteredHistory({ history, filterRegex }) {
     return history.filter(entry => filterRegex.test(entry.mutation.type))
   },
 
-  absoluteInspectedIndex({ history, inspectedIndex }, { filteredHistory }) {
-    const entry = filteredHistory[inspectedIndex]
-    if (entry) {
-      return history.indexOf(entry)
-    }
-    return -1
+  inspectedEntry({ inspectedIndex }, { filteredHistory }) {
+    return filteredHistory[inspectedIndex]
   },
 
-  modules({ base, inspectedIndex, inspectedState }, getters) {
-    const entry = getters.filteredHistory[inspectedIndex]
-    const data = entry ? inspectedState : base
+  inspectedState({ inspectedModule }, { inspectedEntry }) {
+    const data = inspectedEntry ? inspectedState.value : base.value
+    return processInspectedState({ entry: inspectedEntry, data, inspectedModule })
+  },
+
+  inspectedLastState({ inspectedModule }, { inspectedEntry }) {
+    return processInspectedState({ entry: inspectedEntry, data: lastReceivedState.value, inspectedModule })
+  },
+
+  absoluteInspectedIndex({ history }, { inspectedEntry }) {
+    return history?.indexOf(inspectedEntry) ?? -1
+  },
+
+  modules({}, { inspectedEntry }) {
+    const data = inspectedEntry ? inspectedState.value : base.value
     if (data) {
       return data.modules
     }
     return []
   },
-}
-
-function parseStoreState(state) {
-  const data = parse(state)
-  if (data) {
-    return {
-      state: data.state,
-      getters: Object.freeze(data.getters),
-      modules: Object.freeze(data.modules),
-    }
-  }
 }
 
 function processInspectedState({ entry, data, inspectedModule }) {
