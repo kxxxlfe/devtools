@@ -45,16 +45,21 @@ function detect(win) {
     }
 
     // Method 2: Scan all elements inside document
-    const Vue = detectVue()
+    const { Vue, store } = detectVue()
 
     if (Vue) {
       VueRecord = Vue
       const devtoolsEnabled = Vue.config.devtools
       // 每次检测到Vue，直接分发出去
       const hook = globalThis.__VUE_DEVTOOLS_GLOBAL_HOOK__
-      if (hook && !hook.Vue) {
+      if (hook) {
         if (Vue.config.devtools || detectRes.devtoolsForceEnabled) {
-          enableDevtools(Vue)
+          if (!hook.Vue) {
+            enableDevtools(Vue)
+          }
+          if (!hook.store) {
+            hook.emit('vuex:init', store)
+          }
         }
       }
       initDetectRes({ Vue, devtoolsEnabled })

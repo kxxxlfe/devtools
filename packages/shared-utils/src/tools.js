@@ -59,12 +59,13 @@ export const detectVue = function ({ times = 1000 } = {}) {
     return null
   }
 
-  let Vue = Object.getPrototypeOf($el.__vue__).constructor
+  const component = $el.__vue__
+  let Vue = Object.getPrototypeOf(component).constructor
   while (Vue.super) {
     Vue = Vue.super
   }
 
-  return Vue
+  return { Vue, store: component.$store }
 }
 
 // `checkVisibility` polyfill, not consider parent visibility
