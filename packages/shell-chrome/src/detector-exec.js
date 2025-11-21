@@ -45,7 +45,7 @@ function detect(win) {
     }
 
     // Method 2: Scan all elements inside document
-    const { Vue, store } = detectVue()
+    const { Vue, store } = detectVue() || {}
 
     if (Vue) {
       VueRecord = Vue
