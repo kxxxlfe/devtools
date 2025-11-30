@@ -23,6 +23,7 @@
       "resources": [
         "devtools.html",
         "devtools-background.html",
+        "build/devtools-background.js",
         "build/backend.js",
         "build/proxy.js",
         "build/hook-exec.js",
