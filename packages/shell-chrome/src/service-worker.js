@@ -132,24 +132,26 @@ if (chrome.contextMenus) {
 }
 
 // 监听页面开始加载
-chrome.webNavigation.onCommitted.addListener(details => {
-  // 只在主框架 (frameId === 0) 注入
-  if (details.frameId !== 0) {
-    return
-  }
+if (chrome.webNavigation) {
+  chrome.webNavigation.onCommitted.addListener(details => {
+    // 只在主框架 (frameId === 0) 注入
+    if (details.frameId !== 0) {
+      return
+    }
 
-  // 过滤掉 Chrome 内置页面、DevTools、chrome:// 或者 extension://
-  if (!details.url?.startsWith('http')) {
-    return
-  }
+    // 过滤掉 Chrome 内置页面、DevTools、chrome:// 或者 extension://
+    if (!details.url?.startsWith('http')) {
+      return
+    }
 
-  chrome.scripting.executeScript({
-    target: { tabId: details.tabId },
-    world: 'MAIN', // 在页面主世界运行，能直接改 window
-    injectImmediately: true, // 等价于 document_start
-    func: () => {
-      // 抢在vue前注入
-      globalThis.__VUE_DEVTOOLS_GLOBAL_HOOK__ = globalThis.__VUE_DEVTOOLS_GLOBAL_HOOK__ || { emit() {}, on() {} }
-    },
+    chrome.scripting.executeScript({
+      target: { tabId: details.tabId },
+      world: 'MAIN', // 在页面主世界运行，能直接改 window
+      injectImmediately: true, // 等价于 document_start
+      func: () => {
+        // 抢在vue前注入
+        globalThis.__VUE_DEVTOOLS_GLOBAL_HOOK__ = globalThis.__VUE_DEVTOOLS_GLOBAL_HOOK__ || { emit() {}, on() {} }
+      },
+    })
   })
-})
+}
