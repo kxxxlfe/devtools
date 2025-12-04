@@ -57,7 +57,7 @@ function detect(win) {
           if (!hook.Vue) {
             enableDevtools(Vue)
           }
-          if (!hook.store) {
+          if (!hook.store && store) {
             hook.emit('vuex:init', store)
           }
         }
