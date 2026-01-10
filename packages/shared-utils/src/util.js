@@ -86,42 +86,29 @@ export const SPECIAL_TOKENS = {
 }
 
 export const MAX_STRING_SIZE = 10000
-export const MAX_ARRAY_SIZE = 1999
+export const MAX_ARRAY_SIZE = 500
 // 数组需要根据其中元素数量&大小，动态计算size
 const calcMaxArraySize = function (arr) {
   if (arr.length <= 100) {
     return arr.length
   }
 
-  // 裁剪掉子数组
-  const sampleSize = 3
-  const MAX_BYTE_SIZE = 300000 // 数组裁剪
-  const tailorArr = function (obj) {
-    if (!obj || typeof obj !== 'object') {
-      return obj
-    }
-    return transform(
-      obj,
-      (result, value, key) => {
-        if (isPlainObject(value)) {
-          // 递归处理嵌套对象
-          const nested = tailorArr(value)
-          result[key] = nested
-        } else if (!Array.isArray(value)) {
-          // 非数组的属性保留
-          result[key] = value
-        }
-      },
-      {}
-    )
+  // 组件列表，固定
+  if (typeof arr[0] !== 'object') {
+    return 10000
+  }
+  if (['uid', 'consoleId', 'renderKey'].every(key => Reflect.has(arr[0], key))) {
+    return 10000
   }
 
-  const sampleData = tailorArr(arr.slice(0, sampleSize))
-  const sampleByteSize = JSON.stringify(sampleData).length / sampleSize || 1
-  let maxSize = Math.floor(MAX_BYTE_SIZE / sampleByteSize)
-  maxSize = Math.max(0, maxSize)
-  maxSize = Math.min(arr.length, maxSize)
-  return maxSize
+  // 可以序列化
+  try {
+    const sampleByteSize = JSON.stringify(arr[0]).length
+    return Math.floor(MAX_BYTE_SIZE / sampleByteSize)
+  } catch (e) {}
+
+  // 循环引用
+  return 500
 }
 
 export function specialTokenToString(value) {
@@ -190,20 +177,58 @@ export function stringifyFlatted(data) {
   return result
 }
 
+// 把数据进行简化后clone
 export function cloneVueData(data) {
+  const cache = new Map()
+
   const processReplace = function (value, key) {
+    if (cache.has(value)) {
+      return cache.get(value)
+    }
+    // 先进行转换
     const res = replacer(key, value)
+
+    cache.set(value, res)
+
+    // 如果没有转换或者不是对象，直接返回
     if (!res || typeof res !== 'object') {
       return res
     }
+
+    // 如果转换后是对象或数组，递归克隆转换后的结果
     if (Array.isArray(res)) {
-      return [...res]
+      return res.map((item, index) => {
+        const processed = processReplace(item, index)
+        return processed !== undefined ? processed : null
+      })
     }
-    return { ...res }
+
+    // 对象的情况：递归处理每个属性
+    const result = {}
+    for (const k in res) {
+      const processed = processReplace(res[k], k)
+      result[k] = processed !== undefined ? processed : null
+    }
+    return result
   }
 
-  return cloneDeepWith(data, processReplace)
+  return processReplace(data)
 }
+
+// export function cloneVueData(data) {
+//   const processReplace = function (value, key) {
+//     const res = replacer(key, value)
+//     if (!res || typeof res !== 'object') {
+//       return res
+//     }
+//     if (Array.isArray(res)) {
+//       return [...res]
+//     }
+//     return { ...res }
+//   }
+
+//   return cloneDeepWith(data, processReplace)
+// }
 
 // 可视化核心逻辑
 function replacer(key, val) {
