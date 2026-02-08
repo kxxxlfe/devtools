@@ -28,42 +28,48 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.app-connecting
-  width 100%
-  height 100%
-  display flex
-  align-items center
-  justify-content center
+<style scoped>
+.app-connecting {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  &.theme-dark
-    background $vue-ui-color-almost-black
+  &.theme-dark {
+    background: var(--vue-ui-color-almost-black);
+  }
+}
 
-.animation-inner
-  padding 28px 24px 16px
-  background rgba($vue-ui-color-primary, .1)
-  animation animation 1s .1s backwards cubic-bezier(0, 1, .2, 1)
+.animation-inner {
+  padding: 28px 24px 16px;
+  background: rgba(66, 185, 131, 0.1);
+  animation: animation 1s .1s backwards cubic-bezier(0, 1, .2, 1);
+}
 
-.animation-outer
-  padding 24px
-  background rgba($vue-ui-color-primary, .1)
-  animation animation 1s cubic-bezier(0, 1, .2, 1)
+.animation-outer {
+  padding: 24px;
+  background: rgba(66, 185, 131, 0.1);
+  animation: animation 1s cubic-bezier(0, 1, .2, 1);
+}
 
 .animation-inner,
-.animation-outer
-  border-radius 50%
+.animation-outer {
+  border-radius: 50%;
+}
 
-.logo
-  max-width 64px
+.logo {
+  max-width: 64px;
+}
 
 @keyframes animation {
   0% {
-    opacity 0
-    transform scale(.7)
+    opacity: 0;
+    transform: scale(.7);
   }
   100% {
-    opacity 1
-    transform none
+    opacity: 1;
+    transform: none;
   }
 }
 </style>

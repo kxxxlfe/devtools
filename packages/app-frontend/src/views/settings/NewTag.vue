@@ -22,14 +22,15 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.new-tag
-  display inline-block
-  background $vue-ui-color-info
-  color $vue-ui-color-light
-  font-size 9px
-  font-weight bold
-  text-transform uppercase
-  padding 1px 3px
-  border-radius $br
+<style scoped>
+.new-tag {
+  display: inline-block;
+  background: var(--vue-ui-color-info);
+  color: var(--vue-ui-color-light);
+  font-size: 9px;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 1px 3px;
+  border-radius: var(--br);
+}
 </style>

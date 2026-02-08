@@ -204,13 +204,17 @@ function findByIndex(all, index) {
 }
 </script>
 
-<style lang="stylus">
-.tree
-  padding 4px 0
+<style>
+.tree {
+  padding: 4px 0;
+}
 
-.select-component
-  &.active
-    color $active-color
-    .vue-ui-icon
-      animation pulse 2s infinite linear
+.select-component {
+  &.active {
+    color: var(--active-color);
+    .vue-ui-icon {
+      animation: pulse 2s infinite linear;
+    }
+  }
+}
 </style>

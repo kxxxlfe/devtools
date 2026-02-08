@@ -154,42 +154,54 @@ export default {
 }
 </style>
 
-<style lang="stylus" scoped>
-.no-events
-  color #ccc
-  text-align center
-  margin-top 50px
-  line-height 30px
+<style scoped>
+.no-events {
+  color: #ccc;
+  text-align: center;
+  margin-top: 50px;
+  line-height: 30px;
+}
 
-.entry
-  position relative;
-  font-family Menlo, Consolas, monospace
-  cursor pointer
-  padding 10px 20px
-  font-size 12px
-  box-shadow inset 0 1px 0px rgba(0, 0, 0, .08)
-  transition padding .15s
-  .event-name
-    font-weight 600
-  .event-source
-    color #999
-  .component-name
-    color $component-color
-  .event-type
-    color #999
-    margin-left 8px
-  &.active
-    .time, .event-type, .component-name
-      color lighten($active-color, 75%)
-    .event-name
-      color: #fff
-    .event-source
-      color #ddd
-  .high-density &
-    padding 4px 20px
+.entry {
+  position: relative;
+  font-family: Menlo, Consolas, monospace;
+  cursor: pointer;
+  padding: 10px 20px;
+  font-size: 12px;
+  box-shadow: inset 0 1px 0px rgba(0, 0, 0, .08);
+  transition: padding .15s;
+  .event-name {
+    font-weight: 600;
+  }
+  .event-source {
+    color: #999;
+  }
+  .component-name {
+    color: var(--component-color);
+  }
+  .event-type {
+    color: #999;
+    margin-left: 8px;
+  }
+  &.active {
+    .time, .event-type, .component-name {
+      color: #cbecdd;
+    }
+    .event-name {
+      color: #fff;
+    }
+    .event-source {
+      color: #ddd;
+    }
+  }
+  .high-density & {
+    padding: 4px 20px;
+  }
+}
 
-.time
-  font-size 11px
-  color #999
-  float right
+.time {
+  font-size: 11px;
+  color: #999;
+  float: right;
+}
 </style>

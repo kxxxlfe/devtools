@@ -304,108 +304,136 @@ export default {
 }
 </script>
 
-<style lang="stylus" src="./style/global.styl"></style>
+<style src="./style/global.css"></style>
 
-<style lang="stylus" scoped>
-.app
-  width 100%
-  height 100%
-  user-select none
-  background-color $background-color
-  display flex
-  flex-direction column
-  position relative
-  .vue-ui-dark-mode &
-    background-color $dark-background-color
-  .vue-ui-high-contrast &
-    background black
-  &.beta
-    &::after
-      display block
-      content ''
-      position absolute
-      top 0
-      left 0
-      width 100%
-      border-top 2px rgba($orange, .4) solid
+<style scoped>
+.app {
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  background-color: var(--background-color);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  .vue-ui-dark-mode & {
+    background-color: var(--dark-background-color);
+  }
+  .vue-ui-high-contrast & {
+    background: black;
+  }
+  &.beta {
+    &::after {
+      display: block;
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      border-top: 2px rgba(255, 107, 0, 0.4) solid;
+    }
+  }
 
-  &.disconnected
-    pointer-events none
-    filter grayscale(100%)
-    opacity .6
+  &.disconnected {
+    pointer-events: none;
+    filter: grayscale(100%);
+    opacity: .6;
+  }
+}
 
-.header
-  display flex
-  align-items center
-  box-shadow 0 0 8px rgba(0, 0, 0, 0.15)
-  font-size 14px
-  position relative
-  .vue-ui-dark-mode &
-    border-bottom 1px solid $dark-border-color
+.header {
+  display: flex;
+  align-items: center;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+  font-size: 14px;
+  position: relative;
+  .vue-ui-dark-mode & {
+    border-bottom: 1px solid var(--dark-border-color);
+  }
+}
 
-.logo
-  width 30px
-  height 30px
-  margin 0 15px
+.logo {
+  width: 30px;
+  height: 30px;
+  margin: 0 15px;
+}
 
-.message-container
-  height 1em
-  cursor default
-  display none
-  @media (min-width: $wide - 300px)
-    display block
+.message-container {
+  height: 1em;
+  cursor: default;
+  display: none;
+  @media (min-width: 800px) {
+    display: block;
+  }
+}
 
-.message
-  color $active-color
-  transition all .3s ease
-  position absolute
-  display flex
-  align-items center
+.message {
+  color: var(--active-color);
+  transition: all .3s ease;
+  position: absolute;
+  display: flex;
+  align-items: center;
+}
 
-.badges
-  display flex
-  align-items center
+.badges {
+  display: flex;
+  align-items: center;
+}
 
-.badge
-  background rgba($orange, .7)
-  color white
-  font-size 10px
-  line-height 10px
-  padding 2px 6px
-  border-radius 8px
-  margin-left 6px
-  .vue-ui-dark-mode &
-    opacity .75
+.badge {
+  background: rgba(255, 107, 0, 0.7);
+  color: white;
+  font-size: 10px;
+  line-height: 10px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  margin-left: 6px;
+  .vue-ui-dark-mode & {
+    opacity: .75;
+  }
+}
 
-.actions
-  flex auto 1 1
-  display flex
-  justify-content flex-end
+.actions {
+  flex: auto 1 1;
+  display: flex;
+  justify-content: flex-end;
+}
 
-.vue-ui-button
-  height 38px
-  @media (max-width: $wide)
-    width 38px
-    /deep/
-      .button-icon.left
-        margin-right 0 !important
-      .default-slot
-        display none
-  @media (min-height: $tall)
-    height 48px
-    @media (max-width: $wide)
-      width @height
+.vue-ui-button {
+  height: 38px;
+  @media (max-width: 1100px) {
+    width: 38px;
+  }
+  @media (min-height: 350px) {
+    height: 48px;
+    @media (max-width: 1100px) {
+      width: 48px;
+    }
+  }
+}
 
-.vue-ui-group /deep/ > .indicator
-  padding-bottom 0 !important
+@media (max-width: 1100px) {
+  .vue-ui-button :deep(.button-icon.left) {
+    margin-right: 0 !important;
+  }
+  .vue-ui-button :deep(.default-slot) {
+    display: none;
+  }
+}
 
-.container
-  height: calc(100% - 60px)
-  position relative
-  overflow hidden
-  flex 1
+.vue-ui-group :deep(> .indicator) {
+  padding-bottom: 0 !important;
+}
 
-.hide-below-wide
-  @media (max-width: $wide)
-    display: none
+.container {
+  height: calc(100% - 60px);
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+}
+
+.hide-below-wide {
+  @media (max-width: 1100px) {
+    display: none;
+  }
+}
 </style>

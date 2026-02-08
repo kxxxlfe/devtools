@@ -92,11 +92,14 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.more
-  width 20px
-  height @width
-  >>> .vue-ui-icon
-    width 16px
-    height @width
+<style scoped>
+.more {
+  width: 20px;
+  height: 20px;
+}
+
+.more :deep(.vue-ui-icon) {
+  width: 16px;
+  height: 16px;
+}
 </style>

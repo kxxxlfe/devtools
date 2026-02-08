@@ -175,75 +175,92 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.fps
-  height 100%
-  width 100%
+<style scoped>
+.fps {
+  height: 100%;
+  width: 100%;
+}
 
-.chart
-  display flex
-  flex-direction column
-  height 100%
-  overflow-x auto
+.chart {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-x: auto;
+}
 
-.row
-  display flex
+.row {
+  display: flex;
+}
 
-.markers
-  flex 80px 0 0
-  position relative
+.markers {
+  flex: 80px 0 0;
+  position: relative;
+}
 
-.marker
-  position absolute
-  top 0
-  padding-bottom 8px
-  display flex
-  flex-direction column
-  justify-content flex-end
-  align-items center
-  cursor pointer
-  height 100%
-  pointer-events none
-  &:hover
-    .bubble
-      transform scale(1.2)
-  &.selected
-    .bubble
-      background $vue-ui-color-primary !important
-      transform scale(1.3)
-  .bubble
-    position relative
-    z-index 1
-    pointer-events all
-    width 18px
-    height @width
-    border-radius 50%
-    transition transform .2s ease-in-out
-    &:not(:last-child)
-      margin-bottom 5px
-  .label
-    font-size 11px
-    line-height @font-size
-    color $md-white
-    text-align center
-    position relative
-    top 4px
-    text-transform uppercase
-    font-weight bold
+.marker {
+  position: absolute;
+  top: 0;
+  padding-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  cursor: pointer;
+  height: 100%;
+  pointer-events: none;
+  &:hover {
+    .bubble {
+      transform: scale(1.2);
+    }
+  }
+  &.selected {
+    .bubble {
+      background: var(--vue-ui-color-primary) !important;
+      transform: scale(1.3);
+    }
+  }
+  .bubble {
+    position: relative;
+    z-index: 1;
+    pointer-events: all;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    transition: transform .2s ease-in-out;
+    &:not(:last-child) {
+      margin-bottom: 5px;
+    }
+  }
+  .label {
+    font-size: 11px;
+    line-height: 11px;
+    color: var(--md-white);
+    text-align: center;
+    position: relative;
+    top: 4px;
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+}
 
-.bars
-  flex 100% 1 1
+.bars {
+  flex: 100% 1 1;
+}
 
-.bar-wrapper
-  display flex
-  align-items flex-end
-  height 100%
-  &:hover
-    background rgba($vue-ui-color-primary, .1)
-    .bar
-      background $vue-ui-color-primary !important
+.bar-wrapper {
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+  &:hover {
+    background: rgba(66, 185, 131, 0.1);
+    .bar {
+      background: var(--vue-ui-color-primary) !important;
+    }
+  }
+}
 
-.bar
-  flex auto 0 0
-  min-width 12px
+.bar {
+  flex: auto 0 0;
+  min-width: 12px;
+}
 </style>

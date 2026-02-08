@@ -136,55 +136,68 @@ export default {
 }
 </script>
 
-<style lang="stylus">
-.data-el
-  font-size 15px
+<style>
+.data-el {
+  font-size: 15px;
 
-  &.dim
-    opacity .7
-    pointer-events none
-    user-select none
-    filter grayscale(50%)
+  &.dim {
+    opacity: .7;
+    pointer-events: none;
+    user-select: none;
+    filter: grayscale(50%);
+  }
 
-  &:not(:last-child)
-    border-bottom rgba($grey, .4) solid 1px
+  &:not(:last-child) {
+    border-bottom: rgba(221, 221, 221, 0.4) solid 1px;
 
-    .vue-ui-dark-mode &
-      border-bottom-color rgba($grey, .07)
+    .vue-ui-dark-mode & {
+      border-bottom-color: rgba(221, 221, 221, 0.07);
+    }
+  }
 
-  .vue-ui-dark-mode &
-    box-shadow none
+  .vue-ui-dark-mode & {
+    box-shadow: none;
+  }
 
   .data-type,
-  .data-fields
-    margin 5px
-    padding 2px 9px 2px 21px
-    @media (max-height: $tall)
-      margin 0
-      padding 0 9px 0 21px
+  .data-fields {
+    margin: 5px;
+    padding: 2px 9px 2px 21px;
+    @media (max-height: 350px) {
+      margin: 0;
+      padding: 0 9px 0 21px;
+    }
+  }
 
-  .data-type
-    color $blueishGrey
-    position relative
-    cursor pointer
-    border-radius 3px
-    display flex
-    align-items baseline
-    padding-left 9px
-    user-select none
+  .data-type {
+    color: var(--blueishGrey);
+    position: relative;
+    cursor: pointer;
+    border-radius: 3px;
+    display: flex;
+    align-items: baseline;
+    padding-left: 9px;
+    user-select: none;
 
-    .vue-ui-dark-mode &
-      color lighten(#486887, 30%)
+    .vue-ui-dark-mode & {
+      color: #7595b5;
+    }
 
-    .arrow
-      transition transform .1s ease
-      margin-right 8px
-      opacity .7
-      &.rotated
-        transform rotate(90deg)
+    .arrow {
+      transition: transform .1s ease;
+      margin-right: 8px;
+      opacity: .7;
+      &.rotated {
+        transform: rotate(90deg);
+      }
+    }
+  }
 
-  .data-fields
-    padding-top 0
-    @media (max-height: $tall)
-      margin-bottom 4px
+  .data-fields {
+    padding-top: 0;
+    @media (max-height: 350px) {
+      margin-bottom: 4px;
+    }
+  }
+}
 </style>

@@ -4,62 +4,78 @@
   </div>
 </template>
 
-<style lang="stylus" scoped>
-.action-header
-  display flex
-  align-items center
-  padding 0 10px
-  font-size 12px
-  border-bottom 1px solid $border-color
-  color #666
-  height 35px
-  @media (min-height: $tall)
-    height 50px
-  .vue-ui-dark-mode &
-    border-bottom 1px solid $dark-border-color
-  &.no-search
-    .button
-      &:first-of-type
-        margin-left 0
+<style scoped>
+.action-header {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border-color);
+  color: #666;
+  height: 35px;
+  @media (min-height: 350px) {
+    height: 50px;
+  }
+  .vue-ui-dark-mode & {
+    border-bottom: 1px solid var(--dark-border-color);
+  }
+  &.no-search {
+    .button {
+      &:first-of-type {
+        margin-left: 0;
+      }
+    }
+  }
+}
 
-.title
-  display flex
-  align-items center
-  font-size 18px
-  color $component-color
+.title {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  color: var(--component-color);
 
-  + .search
-    margin-left 10px
+  + .search {
+    margin-left: 10px;
+  }
 
-  &-bracket
-    color #ccc
+  &-bracket {
+    color: #ccc;
+  }
+}
 
-.vue-ui-button
-  &:not(:last-child)
-    margin-right 6px
+.vue-ui-button {
+  &:not(:last-child) {
+    margin-right: 6px;
+  }
+}
 
-.search
-  display flex
-  align-items center
-  flex 1
-  input
-    flex 1
-    height 100%
-    background-color transparent
-    border 0
-    margin-left 5px
-    font-size inherit
-    color inherit
-    outline 0
-    transition color 0.25s
-    &:focus
-      color $active-color
+.search {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  input {
+    flex: 1;
+    height: 100%;
+    background-color: transparent;
+    border: 0;
+    margin-left: 5px;
+    font-size: inherit;
+    color: inherit;
+    outline: 0;
+    transition: color 0.25s;
+    &:focus {
+      color: var(--active-color);
+    }
 
-    &::placeholder
-      opacity 0.8
+    &::placeholder {
+      opacity: 0.8;
+    }
 
-    &.invalid
-      color rgba(77, 10, 9, 1)
+    &.invalid {
+      color: rgba(77, 10, 9, 1);
+    }
+  }
+}
 </style>
 
 <style lang="css">

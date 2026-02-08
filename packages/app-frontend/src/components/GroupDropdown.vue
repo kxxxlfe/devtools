@@ -96,39 +96,51 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.group-dropdown
-  position relative
-  z-index 100
-  &:focus
-    outline none
-    .vue-ui-dark-mode &
-      background darken($vue-ui-color-dark, 8%)
-  .header
-    display flex
-    align-items center
-    padding 0 14px
-    height 100%
-    cursor pointer
-    @media (min-width: ($wide + 1px))
-      .left-icon
-        margin-right 6px
-      .right-icon
-        margin-left 6px
-    @media (max-width: $wide)
-      padding 0 6px 0 12px
-  & /deep/ svg
-    fill #2c3e50
+<style scoped>
+.group-dropdown {
+  position: relative;
+  z-index: 100;
+  &:focus {
+    outline: none;
+    .vue-ui-dark-mode & {
+      background: #28394a;
+    }
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    height: 100%;
+    cursor: pointer;
+    @media (min-width: 1101px) {
+      .left-icon {
+        margin-right: 6px;
+      }
+      .right-icon {
+        margin-left: 6px;
+      }
+    }
+    @media (max-width: 1100px) {
+      padding: 0 6px 0 12px;
+    }
+  }
+}
 
-.group-dropdown-options
-  position absolute
-  background white
-  left 0
-  top 100%
-  width 100%
-  box-shadow 0 3px 6px rgba(0,0,0,0.15)
-  border-bottom-left-radius 3px
-  border-bottom-right-radius 3px
-  .vue-ui-dark-mode &
-    background lighten($vue-ui-color-darker, 3%)
+.group-dropdown :deep(svg) {
+  fill: #2c3e50;
+}
+
+.group-dropdown-options {
+  position: absolute;
+  background: white;
+  left: 0;
+  top: 100%;
+  width: 100%;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  .vue-ui-dark-mode & {
+    background: #222f3d;
+  }
+}
 </style>

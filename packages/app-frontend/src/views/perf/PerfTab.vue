@@ -154,26 +154,33 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.saved-benchmarks-select
-  width 250px
+<style scoped>
+.saved-benchmarks-select {
+  width: 250px;
+}
 
-.stop-button
-  >>> .vue-ui-icon
-    border-radius 50%
-    filter drop-shadow(0 0 3px rgba(255, 0, 0, .4))
-    animation pulse 3s linear infinite
-    svg
-      fill red !important
+.stop-button :deep(.vue-ui-icon) {
+  border-radius: 50%;
+  filter: drop-shadow(0 0 3px rgba(255, 0, 0, .4));
+  animation: pulse 3s linear infinite;
+  svg {
+    fill: red !important;
+  }
+}
 
-@keyframes pulse
-  0%
-    opacity 1
-  50%
-    opacity .5
-  100%
-    opacity 1
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 
-.benchmark-duration
-  margin-left 32px
+.benchmark-duration {
+  margin-left: 32px;
+}
 </style>

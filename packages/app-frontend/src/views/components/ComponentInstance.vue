@@ -197,136 +197,175 @@ export default defineComponent({
 })
 </script>
 
-<style lang="stylus" scoped>
-.instance
-  font-family dejavu sans mono, monospace
-  .platform-mac &
-    font-family Menlo, monospace
-  .platform-windows &
-    font-family Consolas, Lucida Console, Courier New, monospace
-  &.inactive
-    opacity .5
+<style scoped>
+.instance {
+  font-family: dejavu sans mono, monospace;
+  .platform-mac & {
+    font-family: Menlo, monospace;
+  }
+  .platform-windows & {
+    font-family: Consolas, Lucida Console, Courier New, monospace;
+  }
+  &.inactive {
+    opacity: .5;
+  }
+}
 
-.self
-  cursor pointer
-  position relative
-  overflow hidden
-  z-index 2
-  border-radius 3px
-  font-size 14px
-  line-height 22px
-  height 22px
-  white-space nowrap
-  display flex
-  align-items center
-  padding-right 6px
-  transition font-size .15s, height .15s
+.self {
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  z-index: 2;
+  border-radius: 3px;
+  font-size: 14px;
+  line-height: 22px;
+  height: 22px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  padding-right: 6px;
+  transition: font-size .15s, height .15s;
 
-  &:hidden
-    display none
+  &:hidden {
+    display: none;
+  }
 
-  .high-density &
-    font-size 12px
-    height 15px
+  .high-density & {
+    font-size: 12px;
+    height: 15px;
+  }
+}
 
-.children
-  position relative
-  z-index 1
+.children {
+  position: relative;
+  z-index: 1;
+}
 
-.content
-  position relative
-  padding-left 22px
+.content {
+  position: relative;
+  padding-left: 22px;
+}
 
-.info
-  color #fff
-  font-size 10px
-  padding 3px 5px 2px
-  display inline-block
-  line-height 10px
-  border-radius 3px
-  position relative
-  top -1px
-  .high-density &
-    padding 1px 4px 0
-    top 0
-  &.console
-    color #fff
-    background-color transparent
-    top 0
-  &.router-view
-    background-color #ff8344
-  &.fragment
-    background-color #b3cbf7
-  &.inactive
-    background-color #aaa
-  &.functional
-    background-color rgba($md-black, .06)
-    color: rgba($md-black, .5)
-    .vue-ui-dark-mode &
-      background-color rgba($md-white, .06)
-      color rgba($md-white, .5)
-  &:not(.console)
-    margin-left 6px
+.info {
+  color: #fff;
+  font-size: 10px;
+  padding: 3px 5px 2px;
+  display: inline-block;
+  line-height: 10px;
+  border-radius: 3px;
+  position: relative;
+  top: -1px;
+  .high-density & {
+    padding: 1px 4px 0;
+    top: 0;
+  }
+  &.console {
+    color: #fff;
+    background-color: transparent;
+    top: 0;
+  }
+  &.router-view {
+    background-color: #ff8344;
+  }
+  &.fragment {
+    background-color: #b3cbf7;
+  }
+  &.inactive {
+    background-color: #aaa;
+  }
+  &.functional {
+    background-color: rgba(0, 0, 0, 0.06);
+    color: rgba(0, 0, 0, 0.5);
+    .vue-ui-dark-mode & {
+      background-color: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.5);
+    }
+  }
+  &:not(.console) {
+    margin-left: 6px;
+  }
+}
 
-.arrow-wrapper
-  position absolute
-  display inline-block
-  width 16px
-  height 16px
-  top 1px
-  left 4px
+.arrow-wrapper {
+  position: absolute;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  top: 1px;
+  left: 4px;
+}
 
-.arrow
-  position absolute
-  top 5px
-  left 4px
-  transition transform .1s ease
-  &.rotated
-    transform rotate(90deg)
+.arrow {
+  position: absolute;
+  top: 5px;
+  left: 4px;
+  transition: transform .1s ease;
+  &.rotated {
+    transform: rotate(90deg);
+  }
+}
 
-.angle-bracket
-  color $darkGrey
+.angle-bracket {
+  color: var(--darkGrey);
+}
 
-.item-name
-  color $component-color
-  margin 0 1px
+.item-name {
+  color: var(--component-color);
+  margin: 0 1px;
+}
 
-.attr
-  opacity .5
-  font-size 12px
-  .high-density &
-    font-size 10px
+.attr {
+  opacity: .5;
+  font-size: 12px;
+  .high-density & {
+    font-size: 10px;
+  }
+}
 
-.attr-title
-  color purple
-  .vue-ui-dark-mode &
-    color lighten(purple, 60%)
+.attr-title {
+  color: purple;
+  .vue-ui-dark-mode & {
+    color: #f6f;
+  }
+}
 
-.spacer
-  flex auto 1 1
+.spacer {
+  flex: auto 1 1;
+}
 
-.icon-button
-  width 16px
-  height 16px
+.icon-button {
+  width: 16px;
+  height: 16px;
 
-  .self:not(:hover) &
-    visibility hidden
+  .self:not(:hover) & {
+    visibility: hidden;
+  }
+}
 
-  .self.selected & >>> svg
-    fill $white
+.self.selected .icon-button :deep(svg) {
+  fill: var(--white);
+}
 
-.self:not(.selected)
-  .info
-    &.console
-      color lighten(black, 80%)
-      .vue-ui-dark-mode &
-        color darken(white, 70%)
+.self:not(.selected) {
+  .info {
+    &.console {
+      color: #ccc;
+      .vue-ui-dark-mode & {
+        color: #4d4d4d;
+      }
+    }
+  }
+}
 
-.self.selected
-  .attr
-    opacity 1
-  .attr-title
-    color lighten($purple, 70%)
-  .info.functional
-    color $md-white
+.self.selected {
+  .attr {
+    opacity: 1;
+  }
+  .attr-title {
+    color: #e0d9ff;
+  }
+  .info.functional {
+    color: var(--md-white);
+  }
+}
 </style>

@@ -87,55 +87,71 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.split-pane
-  display flex
-  height 100%
-  &.horizontal
-    flex-direction column
+<style scoped>
+.split-pane {
+  display: flex;
+  height: 100%;
+  &.horizontal {
+    flex-direction: column;
+  }
 
-  &.dragging
+  &.dragging {
     .left,
-    .right
-      pointer-events none
-    &.vertical
-      cursor ew-resize
-    &.horizontal
-      cursor ns-resize
+    .right {
+      pointer-events: none;
+    }
+    &.vertical {
+      cursor: ew-resize;
+    }
+    &.horizontal {
+      cursor: ns-resize;
+    }
+  }
+}
 
 .left,
-.right
-  position relative
-  height 100%
+.right {
+  position: relative;
+  height: 100%;
+}
 
-.horizontal
-  .bottom
-    box-shadow 0 -2px 10px rgba(0, 0, 0, 0.1)
-    border-top 1px solid $border-color
-    .vue-ui-dark-mode &
-      border-top 1px solid $dark-border-color
+.horizontal {
+  .bottom {
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    border-top: 1px solid var(--border-color);
+    .vue-ui-dark-mode & {
+      border-top: 1px solid var(--dark-border-color);
+    }
+  }
+}
 
-.vertical
-  .left
-    border-right 1px solid $border-color
-    .vue-ui-dark-mode &
-      border-right 1px solid $dark-border-color
+.vertical {
+  .left {
+    border-right: 1px solid var(--border-color);
+    .vue-ui-dark-mode & {
+      border-right: 1px solid var(--dark-border-color);
+    }
+  }
+}
 
-.dragger
-  position absolute
-  z-index 99
+.dragger {
+  position: absolute;
+  z-index: 99;
 
-  .vertical &
-    top 0
-    bottom 0
-    right -5px
-    width 10px
-    cursor ew-resize
+  .vertical & {
+    top: 0;
+    bottom: 0;
+    right: -5px;
+    width: 10px;
+    cursor: ew-resize;
+  }
 
-  .horizontal &
-    left 0
-    right 0
-    bottom -5px
-    height 10px
-    cursor ns-resize
+  .horizontal & {
+    left: 0;
+    right: 0;
+    bottom: -5px;
+    height: 10px;
+    cursor: ns-resize;
+  }
+}
 </style>

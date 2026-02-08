@@ -103,66 +103,85 @@ export default {
 }
 </style>
 
-<style lang="stylus" scoped>
-.no-routes
-  color #ccc
-  text-align center
-  margin-top 50px
-  line-height 30px
+<style scoped>
+.no-routes {
+  color: #ccc;
+  text-align: center;
+  margin-top: 50px;
+  line-height: 30px;
+}
 
-.entry
-  font-family Menlo, Consolas, monospace
-  cursor pointer
-  padding 7px 20px
-  font-size 12px
-  line-height: 20px
-  box-shadow inset 0 1px 0px rgba(0, 0, 0, .08)
-  min-height 34px
-  transition padding .15s, min-height .15s
+.entry {
+  font-family: Menlo, Consolas, monospace;
+  cursor: pointer;
+  padding: 7px 20px;
+  font-size: 12px;
+  line-height: 20px;
+  box-shadow: inset 0 1px 0px rgba(0, 0, 0, .08);
+  min-height: 34px;
+  transition: padding .15s, min-height .15s;
 
-  &::after
-    content: ''
-    display table
-    clear both
-  &.active
-    .time
-      color lighten($active-color, 75%)
-    .action
-      color lighten($active-color, 75%)
-      .vue-ui-icon >>> svg
-        fill  lighten($active-color, 75%)
-      &:hover
-        color lighten($active-color, 95%)
-        .vue-ui-icon >>> svg
-          fill  lighten($active-color, 95%)
-  .high-density &
-    padding 1px 20px
-    min-height 22px
-  span
-    display inline-block
-    vertical-align middle
+  &::after {
+    content: '';
+    display: table;
+    clear: both;
+  }
+  &.active {
+    .time {
+      color: #cbecdd;
+    }
+    .action {
+      color: #cbecdd;
+      &:hover {
+        color: #f5fbf8;
+      }
+    }
+  }
+  .high-density & {
+    padding: 1px 20px;
+    min-height: 22px;
+  }
+  span {
+    display: inline-block;
+    vertical-align: middle;
+  }
+}
 
-.route-name
-  font-weight: 600
+.entry.active .action .vue-ui-icon :deep(svg) {
+  fill: #cbecdd;
+}
 
-.time
-  font-size 11px
-  color #999
-  float right
+.entry.active .action:hover .vue-ui-icon :deep(svg) {
+  fill: #f5fbf8;
+}
 
-.label
-  float right
-  font-size 10px
-  padding 4px 8px
-  border-radius 6px
-  margin-right 8px
-  margin-top: 1px
-  line-height: 1
-  color: #fff
-  &.name
-    background-color $purple
-  &.alias
-    background-color $orange
-  &.redirect
-    background-color $darkerGrey
+.route-name {
+  font-weight: 600;
+}
+
+.time {
+  font-size: 11px;
+  color: #999;
+  float: right;
+}
+
+.label {
+  float: right;
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin-right: 8px;
+  margin-top: 1px;
+  line-height: 1;
+  color: #fff;
+  &.name {
+    background-color: var(--purple);
+  }
+  &.alias {
+    background-color: var(--orange);
+  }
+  &.redirect {
+    background-color: var(--darkerGrey);
+  }
+}
 </style>

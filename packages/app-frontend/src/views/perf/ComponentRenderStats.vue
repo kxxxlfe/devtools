@@ -125,43 +125,53 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.components
-  height 100%
-  width 100%
+<style scoped>
+.components {
+  height: 100%;
+  width: 100%;
+}
 
-.component
-  display flex
-  align-items center
-  padding 0 20px
-  width 100%
-  height 34px
-  font-size 14px
+.component {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  width: 100%;
+  height: 34px;
+  font-size: 14px;
 
-  .high-density &
-    height 22px
+  .high-density & {
+    height: 22px;
+  }
 
-  .name
-    flex 300px 0 0
-    font-family Menlo, Consolas, monospace
-    color $green
+  .name {
+    flex: 300px 0 0;
+    font-family: Menlo, Consolas, monospace;
+    color: var(--green);
+  }
 
-  .total-time
-    flex 100px 0 0
-    text-align right
-    margin-right 6px
+  .total-time {
+    flex: 100px 0 0;
+    text-align: right;
+    margin-right: 6px;
+  }
 
-  .bar-wrapper
-    flex 100% 1 1
-    .bar
-      height 6px
-      background $green
+  .bar-wrapper {
+    flex: 100% 1 1;
+    .bar {
+      height: 6px;
+      background: var(--green);
+    }
+  }
 
-  &.selected
+  &.selected {
     &,
-    .name
-      color $md-white
+    .name {
+      color: var(--md-white);
+    }
 
-    .bar
-      background $md-white
+    .bar {
+      background: var(--md-white);
+    }
+  }
+}
 </style>

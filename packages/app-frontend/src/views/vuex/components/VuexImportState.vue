@@ -91,41 +91,46 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.import-state
-  transition all .2s ease
-  width 300px
-  position absolute
-  z-index 1
-  left 220px
-  right 10px
-  top 45px
-  box-shadow 4px 4px 6px 0 $border-color
-  border 1px solid $border-color
-  padding 3px
-  background-color $background-color
-  .vue-ui-dark-mode &
-    background-color $dark-background-color
-    box-shadow 4px 4px 6px 0 $dark-border-color
-    border 1px solid $dark-border-color
-  &:after
-    content 'Press ESC to close'
-    position absolute
-    bottom 0
-    padding 5px
-    color inherit
-    opacity .5
+<style scoped>
+.import-state {
+  transition: all .2s ease;
+  width: 300px;
+  position: absolute;
+  z-index: 1;
+  left: 220px;
+  right: 10px;
+  top: 45px;
+  box-shadow: 4px 4px 6px 0 var(--border-color);
+  border: 1px solid var(--border-color);
+  padding: 3px;
+  background-color: var(--background-color);
+  .vue-ui-dark-mode & {
+    background-color: var(--dark-background-color);
+    box-shadow: 4px 4px 6px 0 var(--dark-border-color);
+    border: 1px solid var(--dark-border-color);
+  }
+  &:after {
+    content: 'Press ESC to close';
+    position: absolute;
+    bottom: 0;
+    padding: 5px;
+    color: inherit;
+    opacity: .5;
+  }
 
-  textarea
-    width 100%
-    height 100px
-    display block
-    outline none
-    border none
-    resize vertical
-    .vue-ui-dark-mode &
-      color #DDD
-      background-color $dark-background-color
+  textarea {
+    width: 100%;
+    height: 100px;
+    display: block;
+    outline: none;
+    border: none;
+    resize: vertical;
+    .vue-ui-dark-mode & {
+      color: #DDD;
+      background-color: var(--dark-background-color);
+    }
+  }
+}
 </style>
 
 <style lang="css" scoped>
