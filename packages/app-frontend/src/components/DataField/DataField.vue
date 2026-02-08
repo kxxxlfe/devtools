@@ -659,23 +659,27 @@ export default {
 
 .value.string :deep(span) {
   color: var(--black);
-  .vue-ui-dark-mode & {
-    color: var(--red);
-  }
+}
+
+.vue-ui-dark-mode .value.string :deep(span) {
+  color: var(--red);
 }
 
 .value.custom.type-function :deep(span) {
   color: var(--vividBlue);
   font-family: dejavu sans mono, monospace;
-  .platform-mac & {
-    font-family: Menlo, monospace;
-  }
-  .platform-windows & {
-    font-family: Consolas, Lucida Console, Courier New, monospace;
-  }
-  .vue-ui-dark-mode & {
-    color: var(--purple);
-  }
+}
+
+.platform-mac .value.custom.type-function :deep(span) {
+  font-family: Menlo, monospace;
+}
+
+.platform-windows .value.custom.type-function :deep(span) {
+  font-family: Consolas, Lucida Console, Courier New, monospace;
+}
+
+.vue-ui-dark-mode .value.custom.type-function :deep(span) {
+  color: var(--purple);
 }
 
 .value.custom.type-component-definition :deep(span) {
@@ -684,9 +688,10 @@ export default {
 
 .value.custom.type-reference :deep(.attr-title) {
   color: #800080;
-  .vue-ui-dark-mode & {
-    color: #e36eec;
-  }
+}
+
+.vue-ui-dark-mode .value.custom.type-reference :deep(.attr-title) {
+  color: #e36eec;
 }
 
 .more :deep(.vue-ui-icon) {

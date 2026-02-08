@@ -155,12 +155,16 @@ export default {
 .header :deep(> *),
 .metric :deep(> *) {
   padding: 4px 10px;
-  .high-density & {
-    padding: 2px 10px;
-  }
-  &:not(:first-child) {
-    text-align: right;
-  }
+}
+
+.high-density .header :deep(> *),
+.high-density .metric :deep(> *) {
+  padding: 2px 10px;
+}
+
+.header :deep(> *:not(:first-child)),
+.metric :deep(> *:not(:first-child)) {
+  text-align: right;
 }
 
 .header {

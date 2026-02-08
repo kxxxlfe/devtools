@@ -37,17 +37,15 @@ export default {
   display: flex;
   flex-wrap: wrap;
   padding: 12px 4px;
+}
 
-  > * {
-    flex-basis: 380px;
-    margin: 16px 24px;
-  }
+.settings :deep(.preferences > *) {
+  flex-basis: 380px;
+  margin: 16px 24px;
+}
 
-  .vue-ui-form-field {
-    > .wrapper > .content {
-      min-height: 32px;
-      justify-content: center;
-    }
-  }
+.settings :deep(.preferences .vue-ui-form-field > .wrapper > .content) {
+  min-height: 32px;
+  justify-content: center;
 }
 </style>

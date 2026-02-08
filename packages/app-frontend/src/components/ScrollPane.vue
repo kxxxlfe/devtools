@@ -33,16 +33,16 @@ export default {
   overflow: auto;
 }
 
-.scroll,
-.scroll :deep(.vue-recycle-scroller) {
-  .vue-ui-dark-mode &::-webkit-scrollbar {
-    background: var(--dark-background-color);
-    border-left: 1px solid var(--dark-border-color);
-  }
-  .vue-ui-dark-mode &::-webkit-scrollbar-thumb {
-    background: #17212b;
-    border: 1px solid #1f2d3a;
-  }
+.vue-ui-dark-mode .scroll::-webkit-scrollbar,
+.vue-ui-dark-mode .scroll :deep(.vue-recycle-scroller::-webkit-scrollbar) {
+  background: var(--dark-background-color);
+  border-left: 1px solid var(--dark-border-color);
+}
+
+.vue-ui-dark-mode .scroll::-webkit-scrollbar-thumb,
+.vue-ui-dark-mode .scroll :deep(.vue-recycle-scroller::-webkit-scrollbar-thumb) {
+  background: #17212b;
+  border: 1px solid #1f2d3a;
 }
 
 /* Keeping this here in case `overflow: overlay`
