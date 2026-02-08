@@ -79,7 +79,7 @@
 </style>
 
 <style lang="css">
-.fe-action-header .button {
+.fe-action-header .button:not(.vue-ui-button) {
   cursor: pointer;
   display: flex;
   align-items: center;
