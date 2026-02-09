@@ -124,7 +124,6 @@ function initApp(shell) {
       app = new Vue({
         extends: App,
         router,
-        store,
 
         data: {
           isBeta,
