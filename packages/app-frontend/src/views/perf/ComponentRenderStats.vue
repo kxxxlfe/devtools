@@ -45,14 +45,16 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
 import { scaleLinear, extent } from 'd3'
 import { getComponentDisplayName } from '@utils/util'
+import { usePerf } from './usePerf'
 
 import SplitPane from '@front/components/SplitPane.vue'
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 import ComponentRenderDetails from './ComponentRenderDetails.vue'
+
+const { currentBenchmark, metrics } = usePerf()
 
 export default {
   components: {
@@ -70,9 +72,13 @@ export default {
   },
 
   computed: {
-    ...mapState('perf', ['currentBenchmark']),
+    currentBenchmark() {
+      return currentBenchmark.value
+    },
 
-    ...mapGetters('perf', ['metrics']),
+    metrics() {
+      return metrics.value
+    },
 
     highDensity() {
       const pref = this.$shared.displayDensity

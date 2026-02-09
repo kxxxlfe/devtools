@@ -51,8 +51,6 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex'
-
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 import { usePerf } from './usePerf'
@@ -60,7 +58,7 @@ import { usePerf } from './usePerf'
 const DEFAULT_ROUTE = 'fps'
 const MAX_DURATION = 300000
 
-usePerf()
+const { currentBenchmark, benchmarks, setCurrentBenchmark, updateBenchmark, addBenchmark } = usePerf()
 
 export default {
   components: {
@@ -75,14 +73,20 @@ export default {
   },
 
   computed: {
-    ...mapState('perf', ['currentBenchmark', 'benchmarks']),
+    currentBenchmark() {
+      return currentBenchmark.value
+    },
+
+    benchmarks() {
+      return benchmarks.value
+    },
 
     currentBenchmarkModel: {
       get() {
         return this.currentBenchmark
       },
       set(value) {
-        this.setCurrentBenchmark(value)
+        setCurrentBenchmark(value)
       },
     },
 
@@ -116,12 +120,6 @@ export default {
   },
 
   methods: {
-    ...mapMutations('perf', {
-      setCurrentBenchmark: 'SET_CURRENT_BENCHMARK',
-      updateBenchmark: 'UPDATE_BENCHMARK',
-      addBenchmark: 'ADD_BENCHMARK',
-    }),
-
     start() {
       const benchmark = {
         start: Date.now(),
@@ -132,7 +130,7 @@ export default {
           componentRender: [],
         },
       }
-      this.addBenchmark(benchmark)
+      addBenchmark(benchmark)
       this.currentBenchmarkModel = benchmark
       this.$shared.recordPerf = true
       this.now = Date.now()
@@ -143,7 +141,7 @@ export default {
     },
 
     stop() {
-      this.updateBenchmark({
+      updateBenchmark({
         end: Date.now(),
       })
       clearTimeout(this.$_timer)
