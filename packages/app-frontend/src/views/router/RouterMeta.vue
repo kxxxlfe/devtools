@@ -10,16 +10,19 @@
 <script>
 import StateInspector from '@front/components/StateInspector.vue'
 import ScrollPane from '@front/components/ScrollPane.vue'
-import { mapGetters } from 'vuex'
 import { UNDEFINED } from '@utils/util'
+import { useRouter } from './useRouter'
 
 export default {
   components: {
     ScrollPane,
     StateInspector,
   },
+  setup() {
+    const { activeRouteChange } = useRouter()
+    return { activeRouteChange }
+  },
   computed: {
-    ...mapGetters('router', ['activeRouteChange']),
     to() {
       return this.sanitizeRouteData(this.activeRouteChange.to)
     },

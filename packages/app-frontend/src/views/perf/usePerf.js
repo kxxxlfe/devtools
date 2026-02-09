@@ -2,8 +2,10 @@ import { reactive, computed } from 'vue'
 import { parse } from '@utils/util'
 import { bridge as exBridge, api } from '@front/bridge'
 import { useEvents } from '../events/useEvents'
+import { useRouter } from '../router/useRouter'
 
 const { events } = useEvents()
+const { state: routerState } = useRouter()
 
 export const FPS_MARKERS_PRECISION = 1000
 
@@ -67,7 +69,7 @@ const fpsMarkers = computed(() => {
     },
   }))
 
-  const { routeChanges } = window.store.state.router
+  const { routeChanges } = routerState
   addEntries('routes', routeChanges, entry => ({
     label: entry.to.fullPath,
     state: {

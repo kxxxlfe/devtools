@@ -1,7 +1,9 @@
 import { parse } from '@utils/util'
 import { useEvents } from '../events/useEvents'
+import { useRouter } from '../router/useRouter'
 
 const { events } = useEvents()
+const { state: routerState } = useRouter()
 
 export const FPS_MARKERS_PRECISION = 1000
 
@@ -16,7 +18,7 @@ export default {
   getters: {
     metrics: state => (state.currentBenchmark && state.currentBenchmark.metrics) || {},
 
-    fpsMarkers(state, getters, rootState) {
+    fpsMarkers(state, getters) {
       const { currentBenchmark } = state
       let markers = {}
       if (!currentBenchmark) return markers
@@ -67,7 +69,7 @@ export default {
         },
       }))
 
-      const { routeChanges } = rootState.router
+      const { routeChanges } = routerState
       addEntries('routes', routeChanges, entry => ({
         label: entry.to.fullPath,
         state: {

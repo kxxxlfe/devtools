@@ -19,7 +19,7 @@
 import SplitPane from '@front/components/SplitPane.vue'
 import RouterHistory from './RouterHistory.vue'
 import RouterMeta from './RouterMeta.vue'
-import { mapState } from 'vuex'
+import { useRouter } from './useRouter'
 
 export default {
   components: {
@@ -28,8 +28,9 @@ export default {
     RouterMeta
   },
 
-  computed: mapState('router', {
-    hasRouter: state => state.hasRouter
-  })
+  setup() {
+    const { hasRouter } = useRouter()
+    return { hasRouter }
+  },
 }
 </script>

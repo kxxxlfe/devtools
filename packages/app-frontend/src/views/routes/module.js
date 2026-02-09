@@ -1,3 +1,7 @@
+import { useRouter } from '../router/useRouter'
+
+const { state: routerState } = useRouter()
+
 const state = () => ({
   hasRouter: false,
   routeChanges: [],
@@ -34,9 +38,9 @@ const getters = {
     }
     return state.routeChanges[state.inspectedIndex]
   },
-  activeRoute: (state, getters, rootState) => {
+  activeRoute: (state) => {
     return state.routeChanges.find(change =>
-      rootState.router.routeChanges.find(historyChange => historyChange.to.path === change.path)
+      routerState.routeChanges.find(historyChange => historyChange.to.path === change.path)
     )
   },
   filteredRoutes: state => {
