@@ -64,8 +64,8 @@
 </template>
 
 <script>
-import { mapState, mapMutations, mapGetters } from 'vuex'
 import { formattedValue } from '@front/filters'
+import { useRoutes } from './useRoutes'
 
 export default {
   name: 'RoutesTreeItem',
@@ -83,18 +83,18 @@ export default {
       required: true
     }
   },
+
+  setup () {
+    const { inspectedIndex, activeRoute, inspect } = useRoutes()
+    return { inspectedIndex, activeRoute, inspect }
+  },
+
   data () {
     return {
       expanded: false
     }
   },
   computed: {
-    ...mapState('routes', [
-      'inspectedIndex'
-    ]),
-    ...mapGetters('routes', [
-      'activeRoute'
-    ]),
     selected () {
       return this.inspectedIndex === this.routeId
     },
@@ -103,10 +103,6 @@ export default {
     }
   },
   methods: {
-    ...mapMutations('routes', {
-      inspect: 'INSPECT'
-    }),
-
     toggleExpand () {
       this.expanded = !this.expanded
     },
