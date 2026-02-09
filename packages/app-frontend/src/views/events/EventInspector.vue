@@ -40,24 +40,30 @@ export default defineComponent({
 })
 </script>
 
-<style lang="stylus" scoped>
-section:not(:last-child)
-  border-bottom 1px solid $border-color
-  .vue-ui-dark-mode &
-    border-bottom 1px solid $dark-border-color
+<style scoped>
+section:not(:last-child) {
+  border-bottom: 1px solid var(--border-color);
+  .vue-ui-dark-mode & {
+    border-bottom: 1px solid var(--dark-border-color);
+  }
+}
 
-.component-name
-  margin 0 10px
+.component-name {
+  margin: 0 10px;
+}
 
-.string
-  color: $red
+.string {
+  color: var(--red);
+}
 
-.literal
-  color: #03c
+.literal {
+  color: #03c;
+}
 
-.no-event-data
+.no-event-data {
   color: #ccc;
   text-align: center;
   margin-top: 50px;
   line-height: 30px;
+}
 </style>

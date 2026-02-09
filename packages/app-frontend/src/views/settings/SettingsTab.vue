@@ -28,20 +28,24 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.settings
-  overflow auto !important
-  >>> .preferences
-    display flex
-    flex-wrap wrap
-    padding 12px 4px
+<style scoped>
+.settings {
+  overflow: auto !important;
+}
 
-    > *
-      flex-basis 380px
-      margin 16px 24px
+.settings :deep(.preferences) {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 12px 4px;
+}
 
-    .vue-ui-form-field
-      > .wrapper > .content
-       min-height 32px
-       justify-content center
+.settings :deep(.preferences > *) {
+  flex-basis: 380px;
+  margin: 16px 24px;
+}
+
+.settings :deep(.preferences .vue-ui-form-field > .wrapper > .content) {
+  min-height: 32px;
+  justify-content: center;
+}
 </style>

@@ -72,10 +72,12 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.route-heading
-  padding 0px 10px
+<style scoped>
+.route-heading {
+  padding: 0px 10px;
+}
 
-.tree
-  padding 5px
+.tree {
+  padding: 5px;
+}
 </style>

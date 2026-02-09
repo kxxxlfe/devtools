@@ -21,14 +21,31 @@ html {
 
   /* Theme */
   --active-color: var(--darkerGreen);
-  --border-color: #ddd;
+  --border-color: #eeeeee;
   --background-color: var(--white);
   --component-color: var(--active-color);
   --hover-color: #e5f2ff;
 
   --dark-active-color: var(--active-color);
-  --dark-border-color: #ddd;
+  --dark-border-color: #141d25;
   --dark-background-color: #0b1015;
   --dark-component-color: var(--darkerGreen);
   --dark-hover-color: #2c3e50;
+
+  /* @vue/ui library variables */
+  --vue-ui-color-dark: #2c3e50;
+  --vue-ui-color-light-neutral: #e4f5ef;
+  --vue-ui-color-primary: #42b983;
+  --vue-ui-color-almost-black: #0b1015;
+  --vue-ui-color-info: #03c2e6;
+  --vue-ui-color-light: #fff;
+  --vue-ui-color-darker: #1d2935;
+
+  /* Material Design colors */
+  --md-grey-500: #9e9e9e;
+  --md-white: #ffffff;
+  --md-black: #000000;
+
+  /* Misc */
+  --br: 3px;
 }

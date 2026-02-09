@@ -58,7 +58,8 @@ export default {
 }
 </script>
 
-<style lang="stylus">
-.mine
-  display inline-block
+<style>
+.mine {
+  display: inline-block;
+}
 </style>

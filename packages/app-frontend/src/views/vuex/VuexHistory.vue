@@ -243,111 +243,148 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-$inspected_color = #af90d5
+<style scoped>
+.vue-recycle-scroller {
+  height: 100%;
+}
+.history {
+  width: 100%;
+}
 
-.vue-recycle-scroller
-  height 100%
-.history
-  width 100%
-
-.entry
-  font-family Menlo, Consolas, monospace
-  cursor pointer
-  padding 7px 20px
-  font-size 12px
-  box-shadow inset 0 1px 0px rgba(0, 0, 0, .08)
-  min-height 34px
-  transition padding-top .15s, padding-bottom .15s, min-height .15s
+.entry {
+  font-family: Menlo, Consolas, monospace;
+  cursor: pointer;
+  padding: 7px 20px;
+  font-size: 12px;
+  box-shadow: inset 0 1px 0px rgba(0, 0, 0, .08);
+  min-height: 34px;
+  transition: padding-top .15s, padding-bottom .15s, min-height .15s;
   &,
-  .entry-info
-    display flex
-  .entry-info
-    flex 100% 1 1
-    overflow hidden
-  &.active
-    .time
-      color lighten($active-color, 75%)
-    .action
-      color lighten($active-color, 75%)
-      .vue-ui-icon >>> svg
-        fill  lighten($active-color, 75%)
-      &:hover
-        color lighten($active-color, 95%)
-        .vue-ui-icon >>> svg
-          fill  lighten($active-color, 95%)
-    .label.inspected
-      background-color darken($inspected_color, 10%)
-  &.special
-    .mutation-type
-      font-style italic
-      opacity .75
-  @media (max-width: $wide)
-    .label
-      display none
-    &.inspected
-      border-left 4px solid darken($inspected_color, 15%)
-      padding-left 16px
-  .vue-ui-icon, span, a
-    display inline-block
-    vertical-align middle
-  .mutation-type
-    line-height 20px
-    overflow hidden
-    white-space nowrap
-    text-overflow ellipsis
-    flex auto 0 1
-    margin-right 4px
-  .entry-actions
-    display none
-    flex none
-    padding-right 12px
-  &:hover
-    .entry-actions
-      display inline-block
-  .vue-ui-dark-mode &
-    &.active
-      .mutation-type
-        color #fff
-  .high-density &
-    padding 1px 20px
-    min-height 22px
+  .entry-info {
+    display: flex;
+  }
+  .entry-info {
+    flex: 100% 1 1;
+    overflow: hidden;
+  }
+  &.active {
+    .time {
+      color: #cbecdd;
+    }
+    .action {
+      color: #cbecdd;
+      &:hover {
+        color: #f5fbf8;
+      }
+    }
+    .label.inspected {
+      background-color: #9c76cb;
+    }
+  }
+  &.special {
+    .mutation-type {
+      font-style: italic;
+      opacity: .75;
+    }
+  }
+  @media (max-width: 1100px) {
+    .label {
+      display: none;
+    }
+    &.inspected {
+      border-left: 4px solid #9369c6;
+      padding-left: 16px;
+    }
+  }
+  .vue-ui-icon, span, a {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .mutation-type {
+    line-height: 20px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    flex: auto 0 1;
+    margin-right: 4px;
+  }
+  .entry-actions {
+    display: none;
+    flex: none;
+    padding-right: 12px;
+  }
+  &:hover {
+    .entry-actions {
+      display: inline-block;
+    }
+  }
+  .vue-ui-dark-mode & {
+    &.active {
+      .mutation-type {
+        color: #fff;
+      }
+    }
+  }
+  .high-density & {
+    padding: 1px 20px;
+    min-height: 22px;
+  }
+}
 
-.action
-  color #999
-  font-size 11px
-  display inline-block
-  vertical-align middle
-  margin-left 10px
-  white-space nowrap
-  span
-    display none
-    @media (min-width: 1400px)
-      display inline
-  .vue-ui-icon
-    width 18px
-    height @width
-    margin-right 2px
-  &:hover
-    color $active-color
-    .vue-ui-icon >>> svg
-      fill $active-color
+.action {
+  color: #999;
+  font-size: 11px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 10px;
+  white-space: nowrap;
+  span {
+    display: none;
+    @media (min-width: 1400px) {
+      display: inline;
+    }
+  }
+  .vue-ui-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 2px;
+  }
+  &:hover {
+    color: var(--active-color);
+  }
+}
 
-.time
-  font-size 11px
-  color #999
-  margin-top 3px
-  flex none
+.entry.active .action .vue-ui-icon :deep(svg) {
+  fill: #cbecdd;
+}
 
-.label
-  font-size 10px
-  padding 4px 8px
-  border-radius 6px
-  margin-right 8px
-  flex none
-  &.active
-    background-color darken($active-color, 25%)
-  &.inspected
-    color #fff
-    background-color $inspected_color
+.entry.active .action:hover .vue-ui-icon :deep(svg) {
+  fill: #f5fbf8;
+}
+
+.action:hover .vue-ui-icon :deep(svg) {
+  fill: var(--active-color);
+}
+
+.time {
+  font-size: 11px;
+  color: #999;
+  margin-top: 3px;
+  flex: none;
+}
+
+.label {
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin-right: 8px;
+  flex: none;
+  &.active {
+    background-color: #2c7d59;
+  }
+  &.inspected {
+    color: #fff;
+    background-color: #af90d5;
+  }
+}
 </style>

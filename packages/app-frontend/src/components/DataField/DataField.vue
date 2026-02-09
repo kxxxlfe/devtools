@@ -412,204 +412,290 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.data-field
-  user-select text
-  font-size 12px
-  font-family Menlo, Consolas, monospace
-  cursor pointer
+<style scoped>
+.data-field {
+  user-select: text;
+  font-size: 12px;
+  font-family: Menlo, Consolas, monospace;
+  cursor: pointer;
+}
 
-.self
-  height 20px
-  line-height 20px
-  position relative
-  white-space nowrap
-  padding-left 14px
-  .high-density &
-    height 14px
-    line-height 14px
-  span, div
-    display inline-block
-    vertical-align middle
-  .arrow
-    position absolute
-    top 7px
-    left 0px
-    transition transform .1s ease
-    &.rotated
-      transform rotate(90deg)
-  .actions
-    visibility hidden
-    display inline-flex
-    align-items center
-    position relative
-    top -1px
-    .icon-button
-      user-select none
-      width 20px
-      height @width
-      &:first-child
-        margin-left 6px
-      &:not(:last-child)
-        margin-right 6px
-    .icon-button >>> .vue-ui-icon,
-    .small-icon
-      width 16px
-      height @width
-    .warning >>> svg
-      fill $orange
+.self {
+  height: 20px;
+  line-height: 20px;
+  position: relative;
+  white-space: nowrap;
+  padding-left: 14px;
+  .high-density & {
+    height: 14px;
+    line-height: 14px;
+  }
+  span, div {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .arrow {
+    position: absolute;
+    top: 7px;
+    left: 0px;
+    transition: transform .1s ease;
+    &.rotated {
+      transform: rotate(90deg);
+    }
+  }
+  .actions {
+    visibility: hidden;
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    top: -1px;
+    .icon-button {
+      user-select: none;
+      width: 20px;
+      height: 20px;
+      &:first-child {
+        margin-left: 6px;
+      }
+      &:not(:last-child) {
+        margin-right: 6px;
+      }
+    }
+    .small-icon {
+      width: 16px;
+      height: 16px;
+    }
+  }
   &:hover,
-  &.force-toolbar
-    .actions
-      visibility visible
-  .colon
-    margin-right .5em
-    position relative
+  &.force-toolbar {
+    .actions {
+      visibility: visible;
+    }
+  }
+  .colon {
+    margin-right: .5em;
+    position: relative;
+  }
 
-  .type
-    color $background-color
-    padding 3px 6px
-    font-size 10px
-    line-height 10px
-    height 16px
-    border-radius 3px
-    margin 2px 6px
-    position relative
-    background-color #eee
-    &.prop
-      background-color #96afdd
-    &.computed
-      background-color #af90d5
-    &.vuex-getter
-      background-color #5dd5d5
-    &.firebase-binding
-      background-color #ffcc00
-    &.observable
-      background-color #ff9999
-    .vue-ui-dark-mode &
-      color: #242424
+  .type {
+    color: var(--background-color);
+    padding: 3px 6px;
+    font-size: 10px;
+    line-height: 10px;
+    height: 16px;
+    border-radius: 3px;
+    margin: 2px 6px;
+    position: relative;
+    background-color: #eee;
+    &.prop {
+      background-color: #96afdd;
+    }
+    &.computed {
+      background-color: #af90d5;
+    }
+    &.vuex-getter {
+      background-color: #5dd5d5;
+    }
+    &.firebase-binding {
+      background-color: #ffcc00;
+    }
+    &.observable {
+      background-color: #ff9999;
+    }
+    .vue-ui-dark-mode & {
+      color: #242424;
+    }
+  }
 
-  .edit-overlay
-    display inline-flex
-    align-items center
+  .edit-overlay {
+    display: inline-flex;
+    align-items: center;
+  }
+}
 
-.key
-  color #881391
-  .vue-ui-dark-mode &
-    color: $lightPink
-  &.abstract
-    color $blueishGrey
-    .vue-ui-dark-mode &
-      color lighten($blueishGrey, 20%)
-.value
-  display inline-block
-  color #444
-  &.string, &.native
-    color $red
-  &.string
-    >>> span
-      color $black
-      .vue-ui-dark-mode &
-        color $red
-  &.null
-    color #999
-  &.literal
-    color $vividBlue
-  &.raw-boolean
-    width 36px
-  &.native.Error
-    background $red
-    color $white !important
-    padding 0 4px
-    border-radius $br
-    &::before
-      content 'Error: '
-      opacity .75
-  &.custom
-    &.type-component
-      color $green
+.key {
+  color: #881391;
+  .vue-ui-dark-mode & {
+    color: var(--lightPink);
+  }
+  &.abstract {
+    color: var(--blueishGrey);
+    .vue-ui-dark-mode & {
+      color: #6186ab;
+    }
+  }
+}
+.value {
+  display: inline-block;
+  color: #444;
+  &.string, &.native {
+    color: var(--red);
+  }
+  &.null {
+    color: #999;
+  }
+  &.literal {
+    color: var(--vividBlue);
+  }
+  &.raw-boolean {
+    width: 36px;
+  }
+  &.native.Error {
+    background: var(--red);
+    color: var(--white) !important;
+    padding: 0 4px;
+    border-radius: var(--br);
+    &::before {
+      content: 'Error: ';
+      opacity: .75;
+    }
+  }
+  &.custom {
+    &.type-component {
+      color: var(--green);
       &::before,
-      &::after
-        color $darkGrey
-      &::before
-        content '<'
-      &::after
-        content '>'
-    &.type-function
-      font-style italic
-      >>> span
-        color $vividBlue
-        font-family dejavu sans mono, monospace
-        .platform-mac &
-          font-family Menlo, monospace
-        .platform-windows &
-          font-family Consolas, Lucida Console, Courier New, monospace
-        .vue-ui-dark-mode &
-          color $purple
-    &.type-component-definition
-      color $green
-      >>> span
-        color $darkerGrey
-    &.type-reference
-        opacity 0.5
-      >>> .attr-title
-        color #800080
-        .vue-ui-dark-mode &
-          color #e36eec
+      &::after {
+        color: var(--darkGrey);
+      }
+      &::before {
+        content: '<';
+      }
+      &::after {
+        content: '>';
+      }
+    }
+    &.type-function {
+      font-style: italic;
+    }
+    &.type-component-definition {
+      color: var(--green);
+    }
+    &.type-reference {
+      opacity: 0.5;
+    }
+  }
 
-  .vue-ui-dark-mode &
-    color #bdc6cf
-    &.string, &.native
-      color #e33e3a
-    &.null
-      color #999
-    &.literal
-      color $purple
+  .vue-ui-dark-mode & {
+    color: #bdc6cf;
+    &.string, &.native {
+      color: #e33e3a;
+    }
+    &.null {
+      color: #999;
+    }
+    &.literal {
+      color: var(--purple);
+    }
+  }
+}
 
-.meta
-  font-size 12px
-  font-family Menlo, Consolas, monospace
-  min-width 150px
-  .key
-    display inline-block
-    width 80px
-    color lighten(#881391, 60%)
-    .vue-ui-dark-mode &
-      color #881391
-  .value
-    color white
-    .vue-ui-dark-mode &
-      color black
-.meta-field
-  &:not(:last-child)
-    margin-bottom 4px
+.meta {
+  font-size: 12px;
+  font-family: Menlo, Consolas, monospace;
+  min-width: 150px;
+  .key {
+    display: inline-block;
+    width: 80px;
+    color: #e785ef;
+    .vue-ui-dark-mode & {
+      color: #881391;
+    }
+  }
+  .value {
+    color: white;
+    .vue-ui-dark-mode & {
+      color: black;
+    }
+  }
+}
+.meta-field {
+  &:not(:last-child) {
+    margin-bottom: 4px;
+  }
+}
 
-.edit-input
-  font-family Menlo, Consolas, monospace
-  border solid 1px $green
-  border-radius 3px
-  padding 2px
-  outline none
-  &.error
-    border-color $orange
-.value-input
-  width 180px
-.key-input
-  width 90px
-  color #881391
+.edit-input {
+  font-family: Menlo, Consolas, monospace;
+  border: solid 1px var(--green);
+  border-radius: 3px;
+  padding: 2px;
+  outline: none;
+  &.error {
+    border-color: var(--orange);
+  }
+}
+.value-input {
+  width: 180px;
+}
+.key-input {
+  width: 90px;
+  color: #881391;
+}
 
-.remove-field
-  margin-left 10px
+.remove-field {
+  margin-left: 10px;
+}
 
-.context-menu-dropdown
-  .vue-ui-button
-    display block
-    width 100%
+.context-menu-dropdown {
+  .vue-ui-button {
+    display: block;
+    width: 100%;
+  }
+}
 
-.more
-  width 20px
-  height @width
-  >>> .vue-ui-icon
-    width 16px
-    height @width
+.more {
+  width: 20px;
+  height: 20px;
+}
+
+/* Flattened :deep() selectors - vue-loader scoped plugin doesn't support CSS nesting */
+.self .actions .icon-button :deep(.vue-ui-icon) {
+  width: 16px;
+  height: 16px;
+}
+
+.self .actions .warning :deep(svg) {
+  fill: var(--orange);
+}
+
+.value.string :deep(span) {
+  color: var(--black);
+}
+
+.vue-ui-dark-mode .value.string :deep(span) {
+  color: var(--red);
+}
+
+.value.custom.type-function :deep(span) {
+  color: var(--vividBlue);
+  font-family: dejavu sans mono, monospace;
+}
+
+.platform-mac .value.custom.type-function :deep(span) {
+  font-family: Menlo, monospace;
+}
+
+.platform-windows .value.custom.type-function :deep(span) {
+  font-family: Consolas, Lucida Console, Courier New, monospace;
+}
+
+.vue-ui-dark-mode .value.custom.type-function :deep(span) {
+  color: var(--purple);
+}
+
+.value.custom.type-component-definition :deep(span) {
+  color: var(--darkerGrey);
+}
+
+.value.custom.type-reference :deep(.attr-title) {
+  color: #800080;
+}
+
+.vue-ui-dark-mode .value.custom.type-reference :deep(.attr-title) {
+  color: #e36eec;
+}
+
+.more :deep(.vue-ui-icon) {
+  width: 16px;
+  height: 16px;
+}
 </style>

@@ -133,9 +133,10 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.title
-  white-space nowrap
-  position relative
-  top -1px
+<style scoped>
+.title {
+  white-space: nowrap;
+  position: relative;
+  top: -1px;
+}
 </style>

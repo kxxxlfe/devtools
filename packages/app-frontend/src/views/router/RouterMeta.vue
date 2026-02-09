@@ -74,10 +74,11 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.no-route-data
-  color: #ccc
-  text-align: center
-  margin-top: 50px
-  line-height: 30px
+<style scoped>
+.no-route-data {
+  color: #ccc;
+  text-align: center;
+  margin-top: 50px;
+  line-height: 30px;
+}
 </style>

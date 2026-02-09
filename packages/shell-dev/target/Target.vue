@@ -93,24 +93,28 @@ export default {
 }
 </script>
 
-<style lang="stylus">
-body
-  background white
+<style>
+body {
+  background: white;
+}
 </style>
 
-<style lang="stylus" scoped>
-.inspect
-  border solid 1px black
-  background #eee
-  color black
-  border-radius 2px
-  padding 6px 12px
-  cursor pointer
-  &:hover
-    border-color blue
-    color blue
+<style scoped>
+.inspect {
+  border: solid 1px black;
+  background: #eee;
+  color: black;
+  border-radius: 2px;
+  padding: 6px 12px;
+  cursor: pointer;
+  &:hover {
+    border-color: blue;
+    color: blue;
+  }
+}
 
-.over
-  pointer-events none
-  margin-left 12px
+.over {
+  pointer-events: none;
+  margin-left: 12px;
+}
 </style>

@@ -97,39 +97,51 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.framerate-marker-inspector
-  height 100%
-  overflow hidden
+<style scoped>
+.framerate-marker-inspector {
+  height: 100%;
+  overflow: hidden;
+}
 
 .entries,
-.state-inspector
-  height 100%
-  overflow-y auto
+.state-inspector {
+  height: 100%;
+  overflow-y: auto;
+}
 
 .group-title,
-.entry
-  padding 7px 12px 6px
-  .high-density &
-    padding 3px 12px 2px
+.entry {
+  padding: 7px 12px 6px;
+  .high-density & {
+    padding: 3px 12px 2px;
+  }
+}
 
-.group
-  &:not(:first-child)
-    margin-top 12px
+.group {
+  &:not(:first-child) {
+    margin-top: 12px;
+  }
+}
 
-.group-title
-  color $blueishGrey
-  font-size 15px
+.group-title {
+  color: var(--blueishGrey);
+  font-size: 15px;
+}
 
-.entry
-  font-size 12px
-  font-family Menlo, Consolas, monospace
-  display flex
-  .label
-    flex auto 1 1
-  .time
-    color $md-grey-500
-  &.selected
-    .time
-      color $white
+.entry {
+  font-size: 12px;
+  font-family: Menlo, Consolas, monospace;
+  display: flex;
+  .label {
+    flex: auto 1 1;
+  }
+  .time {
+    color: var(--md-grey-500);
+  }
+  &.selected {
+    .time {
+      color: var(--white);
+    }
+  }
+}
 </style>

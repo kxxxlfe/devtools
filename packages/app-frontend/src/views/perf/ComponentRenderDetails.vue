@@ -128,48 +128,68 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.title
-  white-space nowrap
-  position relative
-  top -1px
+<style scoped>
+.title {
+  white-space: nowrap;
+  position: relative;
+  top: -1px;
+}
 
-.metrics
-  padding 6px 0
-  font-size 14px
-  &.high-density
-    font-size 12px
+.metrics {
+  padding: 6px 0;
+  font-size: 14px;
+  &.high-density {
+    font-size: 12px;
+  }
+}
 
 .header,
-.metric
-  display flex
-  /deep/ > *
-    padding 4px 10px
-    .high-density &
-      padding 2px 10px
-    &:not(:first-child)
-      text-align right
+.metric {
+  display: flex;
 
-  .dim
-    opacity .4
+  .dim {
+    opacity: .4;
+  }
+}
 
-.header
-  color $blueishGrey
-  margin-bottom 6px
+.header :deep(> *),
+.metric :deep(> *) {
+  padding: 4px 10px;
+}
 
-.metric
-  font-family Menlo, Consolas, monospace
+.high-density .header :deep(> *),
+.high-density .metric :deep(> *) {
+  padding: 2px 10px;
+}
 
-.type
-  color $green
-  width 120px
-  flex-shrink 0
-.count
-  width 100px
-  flex-shrink 0
-.totla-time
-  width 100px
-  flex-shrink 0
-.average-time
-  flex: 1
+.header :deep(> *:not(:first-child)),
+.metric :deep(> *:not(:first-child)) {
+  text-align: right;
+}
+
+.header {
+  color: var(--blueishGrey);
+  margin-bottom: 6px;
+}
+
+.metric {
+  font-family: Menlo, Consolas, monospace;
+}
+
+.type {
+  color: var(--green);
+  width: 120px;
+  flex-shrink: 0;
+}
+.count {
+  width: 100px;
+  flex-shrink: 0;
+}
+.totla-time {
+  width: 100px;
+  flex-shrink: 0;
+}
+.average-time {
+  flex: 1;
+}
 </style>

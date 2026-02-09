@@ -48,21 +48,6 @@ exports.createConfig = (config, target = { chrome: 52, firefox: 48 }) => {
           use: ['vue-style-loader', 'css-loader', 'postcss-loader'],
         },
         {
-          test: /\.styl(us)?$/,
-          use: [
-            'vue-style-loader',
-            'css-loader',
-            'postcss-loader',
-            'stylus-loader',
-            {
-              loader: 'style-resources-loader',
-              options: {
-                patterns: [require.resolve('@vue-devtools/app-frontend/src/style/imports.styl')],
-              },
-            },
-          ],
-        },
-        {
           test: /\.(png|woff2)$/,
           use: [
             {

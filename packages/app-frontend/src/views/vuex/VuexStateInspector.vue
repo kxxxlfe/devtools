@@ -290,47 +290,58 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
-.state-info
-  display flex
-  align-items center
-  padding 2px 2px 2px 14px
-  min-height 36px
-  font-size 14px
+<style scoped>
+.state-info {
+  display: flex;
+  align-items: center;
+  padding: 2px 2px 2px 14px;
+  min-height: 36px;
+  font-size: 14px;
 
-  .label
-    flex 1
-    display flex
-    align-items center
-    color $blueishGrey
+  .label {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    color: var(--blueishGrey);
 
-    .vue-ui-icon
-      margin-right 8px
-      >>> svg
-        fill @color
+    .vue-ui-icon {
+      margin-right: 8px;
+    }
+  }
 
-  .note
-    opacity .7
-    margin-left 4px
+  .note {
+    opacity: .7;
+    margin-left: 4px;
+  }
+}
 
-.loading-vuex-state
-  padding-right 14px
+.state-info .label .vue-ui-icon :deep(svg) {
+  fill: var(--blueishGrey);
+}
 
-.pointer
-  cursor pointer
+.loading-vuex-state {
+  padding-right: 14px;
+}
 
-.message
-  margin-left 5px
-  transition all .3s ease
-  color $blue
+.pointer {
+  cursor: pointer;
+}
 
-.invalid-json
-  right 20px
-  left initial
-  top 1px
-  font-size 12px
-  color $red
-  background-color $background-color
-  .vue-ui-dark-mode &
-    background-color $dark-background-color
+.message {
+  margin-left: 5px;
+  transition: all .3s ease;
+  color: var(--blue);
+}
+
+.invalid-json {
+  right: 20px;
+  left: initial;
+  top: 1px;
+  font-size: 12px;
+  color: var(--red);
+  background-color: var(--background-color);
+  .vue-ui-dark-mode & {
+    background-color: var(--dark-background-color);
+  }
+}
 </style>
