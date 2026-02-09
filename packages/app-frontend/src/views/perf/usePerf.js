@@ -3,9 +3,11 @@ import { parse } from '@utils/util'
 import { bridge as exBridge, api } from '@front/bridge'
 import { useEvents } from '../events/useEvents'
 import { useRouter } from '../router/useRouter'
+import { useVuex } from '../vuex/useVuex'
 
 const { events } = useEvents()
 const { state: routerState } = useRouter()
+const { state: vuexState } = useVuex()
 
 export const FPS_MARKERS_PRECISION = 1000
 
@@ -47,8 +49,7 @@ const fpsMarkers = computed(() => {
     }
   }
 
-  const { history } = window.store.state.vuex
-  addEntries('mutations', history, entry => ({
+  addEntries('mutations', vuexState.history, entry => ({
     label: entry.mutation.type,
     state: {
       'mutation info': {
