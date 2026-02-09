@@ -164,7 +164,6 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
 import { isPlainObject, sortByKey, openInEditor, copyToClipboard } from '@utils/util'
 import { formattedValue, valueType } from '@front/filters'
 
@@ -430,7 +429,8 @@ export default {
     height: 14px;
     line-height: 14px;
   }
-  span, div {
+  span,
+  div {
     display: inline-block;
     vertical-align: middle;
   }
@@ -438,7 +438,7 @@ export default {
     position: absolute;
     top: 7px;
     left: 0px;
-    transition: transform .1s ease;
+    transition: transform 0.1s ease;
     &.rotated {
       transform: rotate(90deg);
     }
@@ -472,7 +472,7 @@ export default {
     }
   }
   .colon {
-    margin-right: .5em;
+    margin-right: 0.5em;
     position: relative;
   }
 
@@ -527,7 +527,8 @@ export default {
 .value {
   display: inline-block;
   color: #444;
-  &.string, &.native {
+  &.string,
+  &.native {
     color: var(--red);
   }
   &.null {
@@ -546,7 +547,7 @@ export default {
     border-radius: var(--br);
     &::before {
       content: 'Error: ';
-      opacity: .75;
+      opacity: 0.75;
     }
   }
   &.custom {
@@ -576,7 +577,8 @@ export default {
 
   .vue-ui-dark-mode & {
     color: #bdc6cf;
-    &.string, &.native {
+    &.string,
+    &.native {
       color: #e33e3a;
     }
     &.null {

@@ -8,7 +8,6 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
 import Defer from '@front/mixins/defer'
 
 import SplitPane from '@front/components/SplitPane.vue'

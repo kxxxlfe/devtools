@@ -67,7 +67,6 @@ import ActionHeader from '@front/components/ActionHeader.vue'
 
 import Keyboard, { UP, DOWN, DEL, BACKSPACE } from '@front/mixins/keyboard'
 import EntryList from '@front/mixins/entry-list'
-import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 import { focusInput, getComponentDisplayName } from '@utils/util'
 import { useEvents } from './useEvents'
 
@@ -168,8 +167,8 @@ export default {
   cursor: pointer;
   padding: 10px 20px;
   font-size: 12px;
-  box-shadow: inset 0 1px 0px rgba(0, 0, 0, .08);
-  transition: padding .15s;
+  box-shadow: inset 0 1px 0px rgba(0, 0, 0, 0.08);
+  transition: padding 0.15s;
   .event-name {
     font-weight: 600;
   }
@@ -184,7 +183,9 @@ export default {
     margin-left: 8px;
   }
   &.active {
-    .time, .event-type, .component-name {
+    .time,
+    .event-type,
+    .component-name {
       color: #cbecdd;
     }
     .event-name {

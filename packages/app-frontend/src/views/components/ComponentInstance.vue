@@ -66,7 +66,6 @@
 
 <script>
 import { defineComponent, ref, watch, getCurrentInstance, computed } from 'vue'
-import { mapState, mapMutations } from 'vuex'
 import debounce from 'lodash/debounce'
 import { getComponentDisplayName, UNDEFINED } from '@utils/util'
 
@@ -207,7 +206,7 @@ export default defineComponent({
     font-family: Consolas, Lucida Console, Courier New, monospace;
   }
   &.inactive {
-    opacity: .5;
+    opacity: 0.5;
   }
 }
 
@@ -224,7 +223,7 @@ export default defineComponent({
   display: flex;
   align-items: center;
   padding-right: 6px;
-  transition: font-size .15s, height .15s;
+  transition: font-size 0.15s, height 0.15s;
 
   &:hidden {
     display: none;
@@ -299,7 +298,7 @@ export default defineComponent({
   position: absolute;
   top: 5px;
   left: 4px;
-  transition: transform .1s ease;
+  transition: transform 0.1s ease;
   &.rotated {
     transform: rotate(90deg);
   }
@@ -315,7 +314,7 @@ export default defineComponent({
 }
 
 .attr {
-  opacity: .5;
+  opacity: 0.5;
   font-size: 12px;
   .high-density & {
     font-size: 10px;
