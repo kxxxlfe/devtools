@@ -3,7 +3,6 @@ import './style/variables.css'
 import AppConnecting from './AppConnecting.vue'
 import App from './App.vue'
 import router from './router'
-import { createStore } from './store'
 import { useApp } from './store/useApp'
 import * as filters from './filters'
 import './plugins'
@@ -108,9 +107,6 @@ function initApp(shell) {
         exBridge.send(api.web.log, { type: 'log-detected-vue' })
       }
 
-      const store = createStore()
-      window.store = store
-
       bridge.once('ready', version => {
         updateHeaderMsg(`Ready. Detected Vue ${version} .`)
       })
@@ -128,7 +124,6 @@ function initApp(shell) {
       app = new Vue({
         extends: App,
         router,
-        store,
 
         data: {
           isBeta,

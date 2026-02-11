@@ -55,18 +55,17 @@
 </template>
 
 <script>
-import { getCurrentInstance, watch } from 'vue'
-import { debounce, groupBy } from 'lodash-es'
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+import { computed, getCurrentInstance, watch } from 'vue'
+import { groupBy } from 'lodash-es'
 
-import { bridge as exBridge, api, eventBus } from '@front/bridge'
+import { eventBus } from '@front/bridge'
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 import StateInspector from '@front/components/StateInspector.vue'
 import VuexImportState from './components/VuexImportState.vue'
 
-import { searchDeepInObject, sortByKey, parse, copyToClipboard } from '@utils/util'
-import { mutationBuffer } from './module'
+import { searchDeepInObject, sortByKey, copyToClipboard } from '@utils/util'
+import { mutationBuffer } from './useVuex'
 import { useVuex } from './useVuex'
 import { useSharedData } from '@utils/shared-data'
 
@@ -88,7 +87,21 @@ export default {
     const ctx = getCurrentInstance()?.proxy
     const { sharedData } = useSharedData()
 
-    const { hasVuex, lastReceivedState, loadInspectedState } = useVuex()
+    const {
+      state: vuexState,
+      hasVuex,
+      lastReceivedState,
+      loadInspectedState,
+      inspectedState,
+      inspectedLastState,
+      filteredHistory,
+      inspectedEntry,
+      modules,
+      inspect,
+      editState,
+      setInspectedModule,
+    } = useVuex()
+
     watch(
       () => hasVuex.value,
       function (n, o) {
@@ -109,12 +122,28 @@ export default {
         return
       }
 
-      ctx.$store.dispatch('vuex/editState', {
-        path,
-        args,
-      })
+      editState({ path, args })
     }
-    return { editVuex, lastReceivedState, loadInspectedState }
+
+    return {
+      editVuex,
+      lastReceivedState,
+      loadInspectedState,
+      // State
+      activeIndex: computed(() => vuexState.activeIndex),
+      inspectedIndex: computed(() => vuexState.inspectedIndex),
+      inspectedModule: computed(() => vuexState.inspectedModule),
+      history: computed(() => vuexState.history),
+      // Getters
+      inspectedState,
+      inspectedLastState,
+      filteredHistory,
+      inspectedEntry,
+      modules,
+      // Actions
+      inspect,
+      setInspectedModule,
+    }
   },
 
   data() {
@@ -128,10 +157,6 @@ export default {
   },
 
   computed: {
-    ...mapState('vuex', ['activeIndex', 'inspectedIndex', 'inspectedModule', 'history']),
-
-    ...mapGetters('vuex', ['inspectedState', 'inspectedLastState', 'filteredHistory', 'inspectedEntry', 'modules']),
-
     filteredState() {
       const inspectedState =
         this.isOnlyMutationPayload && this.inspectedState.mutation ? this.inspectedLastState : this.inspectedState
@@ -228,12 +253,6 @@ export default {
   },
 
   methods: {
-    ...mapMutations('vuex', {
-      setInspectedModule: 'INSPECTED_MODULE',
-    }),
-
-    ...mapActions('vuex', ['inspect']),
-
     copyStateToClipboard() {
       copyToClipboard(this.inspectedState.state)
       this.showStateCopiedMessage = true

@@ -140,9 +140,9 @@ import ActionHeader from '@front/components/ActionHeader.vue'
 
 import Keyboard, { UP, DOWN, DEL, BACKSPACE, ENTER } from '@front/mixins/keyboard'
 import EntryList from '@front/mixins/entry-list'
-import { mapState, mapGetters, mapActions } from 'vuex'
 import { useSharedData } from '@utils/shared-data'
 import { focusInput } from '@utils/util'
+import { useVuex } from './useVuex'
 
 export default {
   components: {
@@ -151,12 +151,22 @@ export default {
   },
 
   setup(props, { emit }) {
-    const ctx = getCurrentInstance()?.proxy
     const { sharedData, updateSharedData } = useSharedData()
+    const {
+      state: vuexState,
+      filteredHistory,
+      inspect,
+      commitAll,
+      revertAll,
+      commit,
+      revert,
+      timeTravelTo,
+      updateFilter,
+    } = useVuex()
 
     const highDensity = computed(() => {
       const pref = sharedData.value.displayDensity
-      return (pref === 'auto' && ctx.filteredHistory.length > 7) || pref === 'high'
+      return (pref === 'auto' && filteredHistory.value.length > 7) || pref === 'high'
     })
 
     function toggleRecording() {
@@ -164,7 +174,38 @@ export default {
         recordVuex: !sharedData.value.recordVuex,
       })
     }
-    return { sharedData, highDensity, toggleRecording }
+
+    const filter = computed({
+      get: () => vuexState.filter,
+      set: (value) => {
+        updateFilter(value)
+        inspect(value ? -1 : vuexState.history.length - 1)
+      },
+    })
+
+    return {
+      sharedData,
+      highDensity,
+      toggleRecording,
+      // State
+      history: computed(() => vuexState.history),
+      lastCommit: computed(() => vuexState.lastCommit),
+      inspectedIndex: computed(() => vuexState.inspectedIndex),
+      activeIndex: computed(() => vuexState.activeIndex),
+      filterRegex: computed(() => vuexState.filterRegex),
+      filterRegexInvalid: computed(() => vuexState.filterRegexInvalid),
+      filter,
+      // Getters
+      filteredHistory,
+      // Actions
+      commitAll,
+      revertAll,
+      commit,
+      revert,
+      inspect,
+      timeTravelTo,
+      updateFilter,
+    }
   },
 
   mixins: [
@@ -201,33 +242,7 @@ export default {
     }),
   ],
 
-  computed: {
-    ...mapState('vuex', [
-      'enabled',
-      'history',
-      'lastCommit',
-      'inspectedIndex',
-      'activeIndex',
-      'filterRegex',
-      'filterRegexInvalid',
-    ]),
-
-    ...mapGetters('vuex', ['filteredHistory']),
-
-    filter: {
-      get() {
-        return this.$store.state.vuex.filter
-      },
-      set(filter) {
-        this.$store.dispatch('vuex/updateFilter', filter)
-        this.$store.dispatch('vuex/inspect', filter ? -1 : this.history.length - 1)
-      },
-    },
-  },
-
   methods: {
-    ...mapActions('vuex', ['commitAll', 'revertAll', 'commit', 'revert', 'inspect', 'timeTravelTo', 'updateFilter']),
-
     isActive(index, entry) {
       return this.activeIndex === index - (this.filter ? 0 : 1)
     },

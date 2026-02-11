@@ -33,8 +33,7 @@
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 import RoutesTreeItem from './RoutesTreeItem.vue'
-
-import { mapGetters, mapState } from 'vuex'
+import { useRoutes } from './useRoutes'
 
 export default {
   components: {
@@ -43,24 +42,12 @@ export default {
     RoutesTreeItem
   },
 
+  setup () {
+    const { routeChanges, filteredRoutes, filter } = useRoutes()
+    return { routeChanges, filteredRoutes, filter }
+  },
+
   computed: {
-    ...mapState('routes', [
-      'routeChanges'
-    ]),
-
-    ...mapGetters('routes', [
-      'filteredRoutes'
-    ]),
-
-    filter: {
-      get () {
-        return this.$store.state.routes.filter
-      },
-      set (filter) {
-        this.$store.commit('routes/UPDATE_FILTER', filter)
-      }
-    },
-
     finalHighDensity () {
       if (this.$shared.displayDensity === 'auto') {
         // TODO auto density

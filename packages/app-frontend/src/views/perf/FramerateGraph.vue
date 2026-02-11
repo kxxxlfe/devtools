@@ -52,9 +52,8 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
 import * as d3 from 'd3'
-import { FPS_MARKERS_PRECISION } from './module'
+import { usePerf, FPS_MARKERS_PRECISION } from './usePerf'
 import SplitPane from '@front/components/SplitPane.vue'
 import FramerateMarkerInspector from './FramerateMarkerInspector.vue'
 
@@ -69,6 +68,8 @@ const SLICE_TIME = 500
 // In pixels
 const SLICE_WIDTH = 12
 
+const { currentBenchmark, metrics, fpsMarkers } = usePerf()
+
 export default {
   components: {
     SplitPane,
@@ -82,9 +83,17 @@ export default {
   },
 
   computed: {
-    ...mapState('perf', ['currentBenchmark']),
+    currentBenchmark() {
+      return currentBenchmark.value
+    },
 
-    ...mapGetters('perf', ['metrics', 'fpsMarkers']),
+    metrics() {
+      return metrics.value
+    },
+
+    fpsMarkers() {
+      return fpsMarkers.value
+    },
 
     values() {
       return this.metrics.fps.map(metric => metric.value)

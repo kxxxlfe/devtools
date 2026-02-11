@@ -51,7 +51,6 @@
 </template>
 
 <script>
-import { mapState, mapMutations, mapGetters } from 'vuex'
 import { UNDEFINED } from '@utils/util'
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
@@ -64,31 +63,27 @@ export default {
     ActionHeader,
   },
   setup(props, { emit }) {
-    const { toggleRecording, recordRouter } = useRouter()
+    const {
+      toggleRecording, recordRouter,
+      routeChanges, inspectedIndex, filter,
+      filteredRoutes,
+      inspect, reset,
+    } = useRouter()
 
-    return { toggleRecording, recordRouter }
+    return {
+      toggleRecording, recordRouter,
+      routeChanges, inspectedIndex, filter,
+      filteredRoutes,
+      inspect, reset,
+    }
   },
   computed: {
-    filter: {
-      get() {
-        return this.$store.state.router.filter
-      },
-      set(filter) {
-        this.$store.commit('router/UPDATE_FILTER', filter)
-      },
-    },
     highDensity() {
       const pref = this.$shared.displayDensity
       return (pref === 'auto' && this.totalCount > 12) || pref === 'high'
     },
-    ...mapState('router', ['routeChanges', 'inspectedIndex']),
-    ...mapGetters('router', ['filteredRoutes']),
   },
   methods: {
-    ...mapMutations('router', {
-      inspect: 'INSPECT',
-      reset: 'RESET',
-    }),
     isNotEmpty(value) {
       return !!value && value !== UNDEFINED
     },

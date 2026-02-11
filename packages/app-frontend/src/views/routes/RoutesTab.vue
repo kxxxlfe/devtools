@@ -19,7 +19,7 @@
 import SplitPane from '@front/components/SplitPane.vue'
 import RoutesTree from './RoutesTree.vue'
 import RoutesMeta from './RoutesMeta.vue'
-import { mapState } from 'vuex'
+import { useRoutes } from './useRoutes'
 
 export default {
   components: {
@@ -28,8 +28,9 @@ export default {
     RoutesTree
   },
 
-  computed: mapState('routes', {
-    hasRouter: state => state.hasRouter
-  })
+  setup () {
+    const { hasRouter } = useRoutes()
+    return { hasRouter }
+  },
 }
 </script>
