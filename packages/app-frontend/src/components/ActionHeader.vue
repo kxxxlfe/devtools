@@ -38,7 +38,7 @@
     margin-left: 10px;
   }
 
-  &-bracket {
+  .title-bracket {
     color: #ccc;
   }
 }
