@@ -6,6 +6,7 @@ import vue2 from '@vitejs/plugin-vue2'
 import webExtension from 'vite-plugin-web-extension'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const isDev = process.env.NODE_ENV !== 'production'
 
 function copyDirSync(src, dest) {
   fs.mkdirSync(dest, { recursive: true })
@@ -48,6 +49,20 @@ export default defineConfig({
         'popups/popup.js',
       ],
       disableAutoLaunch: true,
+      scriptViteConfig: {
+        build: {
+          minify: !isDev,
+          sourcemap: isDev,
+          rollupOptions: isDev
+            ? {
+                output: {
+                  format: 'es',
+                  compact: false,
+                },
+              }
+            : undefined,
+        },
+      },
     }),
   ],
   resolve: {
@@ -67,5 +82,15 @@ export default defineConfig({
   build: {
     outDir: 'build',
     emptyOutDir: false,
+    minify: isDev ? false : 'esbuild',
+    sourcemap: isDev,
+    rollupOptions: isDev
+      ? {
+          output: {
+            format: 'es',
+            compact: false,
+          },
+        }
+      : undefined,
   },
 })
