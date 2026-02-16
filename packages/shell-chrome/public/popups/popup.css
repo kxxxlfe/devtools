@@ -1,0 +1,29 @@
+body {
+  font-family: Roboto, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  padding: 10px 12px 12px 12px;
+  margin: 0;
+  color: #2c3e50;
+}
+
+.desc {
+  font-size: 14px;
+  min-width: 100px;
+  max-width: 300px;
+  white-space: nowrap;
+  font-weight: bold;
+}
+
+.enable-desc {
+  color: #595959;
+}
+
+.enable-wrapper {
+  font-size: 14px;
+  color: #1677ff;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+}

@@ -9,9 +9,9 @@
   "scripts": {
     "dev": "cross-env PORT=8100 npm run dev:shell",
     "dev:shell": "cd packages/shell-dev && webpack-dev-server",
-    "dev:chrome": "cd packages/shell-chrome && webpack --watch",
-    "dev:chrome:prod": "cd packages/shell-chrome && cross-env NODE_ENV=production webpack --watch --stats=errors-only",
-    "build": "cd packages/shell-chrome && cross-env NODE_ENV=production webpack --progress --stats=errors-only",
+    "dev:chrome": "cd packages/shell-chrome && vite build --watch",
+    "dev:chrome:prod": "cd packages/shell-chrome && cross-env NODE_ENV=production vite build --watch",
+    "build": "cd packages/shell-chrome && cross-env NODE_ENV=production vite build",
     "clean": "pnpm --recursive exec -- npx rimraf node_modules && npx rimraf node_modules",
     "run:firefox": "web-ext run -s packages/shell-chrome -a dist -i src",
     "zip": "npm run zip:chrome && npm run zip:firefox",

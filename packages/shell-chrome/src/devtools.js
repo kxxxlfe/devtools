@@ -22,7 +22,7 @@ initDevTools({
       return console.log('connect run repeat, reload too fast, will ignore', currRunId, connectLatestRunId)
     }
     // 1. inject backend code into page
-    await injectScript(chrome.runtime.getURL('build/backend.js'))
+    await injectScript(chrome.runtime.getURL('src/backend.js'))
 
     // 2. connect to background to setup proxy
     const port = chrome.runtime.connect({

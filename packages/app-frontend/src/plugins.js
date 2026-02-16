@@ -12,7 +12,9 @@ Vue.use(VueUi)
 Vue.use(VueVirtualScroller)
 
 const currentLocale = 'en'
-const locales = require.context('./locales')
+// Vite: import.meta.glob 替代 webpack 的 require.context
+const localeModules = import.meta.glob('./locales/*.js', { eager: true, import: 'default' })
+const localeStrings = localeModules[`./locales/${currentLocale}.js`]
 const replacers = [
   { reg: /<input>/g, replace: '<span class="input-example">' },
   { reg: /<mono>/g, replace: '<span class="mono">' },
@@ -21,7 +23,7 @@ const replacers = [
   { reg: /<<(\S+)>>/g, replace: (match, p1) => generateHtmlIcon(p1) }
 ]
 Vue.use(VI18n, {
-  strings: locales(`./${currentLocale}`).default,
+  strings: localeStrings,
   defaultValues: {
     keys
   },

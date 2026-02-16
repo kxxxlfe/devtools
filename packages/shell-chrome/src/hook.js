@@ -1,6 +1,6 @@
 // 初始化hook
 const script = document.createElement('script')
-script.src = chrome.runtime.getURL('build/hook-exec.js')
+script.src = chrome.runtime.getURL('src/hook-exec.js')
 script.onload = () => {
   script.remove()
 }

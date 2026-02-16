@@ -1,10 +1,11 @@
 {
   "name": "@vue-devtools/shell-chrome",
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "dev:chrome": "webpack --watch",
-    "build": "cross-env NODE_ENV=production webpack --progress --stats=errors-only && npm run zip",
-    "zip": "zip -r ../shell-chrome.zip ./* -x 'node_modules/*'"
+    "dev:chrome": "vite build --watch",
+    "build": "cross-env NODE_ENV=production vite build && npm run zip",
+    "zip": "cd build && zip -r ../shell-chrome.zip ."
   },
   "dependencies": {
     "@vue-devtools/app-backend": "workspace:*",
@@ -13,8 +14,8 @@
     "@yuhufe/browser-bridge": "^0.1.5"
   },
   "devDependencies": {
-    "@vue-devtools/build-tools": "workspace:*",
-    "webpack": "^5.96.1",
-    "webpack-cli": "^5.1.4"
+    "@vitejs/plugin-vue2": "^2.3.1",
+    "vite": "^7.0.0",
+    "vite-plugin-web-extension": "^4.0.0"
   }
 }
