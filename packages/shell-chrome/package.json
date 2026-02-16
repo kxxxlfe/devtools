@@ -16,6 +16,8 @@
   "devDependencies": {
     "@vitejs/plugin-vue2": "^2.3.1",
     "vite": "^7.0.0",
-    "vite-plugin-web-extension": "^4.0.0"
+    "vite-plugin-web-extension": "^4.0.0",
+    "typescript": "^5.0.0",
+    "@types/chrome": "^0.1.0"
   }
 }
