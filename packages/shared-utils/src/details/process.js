@@ -1,7 +1,7 @@
 // 循环引用了，这里放纯工具方法
 import { isRef, isReadonly } from 'vue'
-import { camelize, getComponentName, getCustomRefDetails } from './util'
-import SharedData from './shared-data'
+import { camelize, getComponentName, getCustomRefDetails } from '../util'
+import SharedData from '../shared-data'
 
 // 判断数据是否响应式
 const checkReact = function ({ key, val, host }) {
