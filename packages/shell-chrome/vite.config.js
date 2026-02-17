@@ -67,9 +67,9 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@front': path.resolve(__dirname, '../app-frontend/src'),
-      '@back': path.resolve(__dirname, '../app-backend/src'),
-      '@utils': path.resolve(__dirname, '../shared-utils/src'),
+      '@front': path.resolve('../app-frontend/src'),
+      '@back': path.resolve('../app-backend/src'),
+      '@utils': path.resolve('../shared-utils/src'),
     },
   },
   css: {
