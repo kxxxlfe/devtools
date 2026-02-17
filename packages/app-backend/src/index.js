@@ -1,6 +1,7 @@
 // This is the backend that is injected into the page that a Vue app lives in
 // when the Vue Devtools panel is activated.
 import Vue from 'vue'
+import { getInstanceState, getInstanceName, processProps } from '@vue-devtools/shared-utils'
 import { highlight, unHighlight, getInstanceOrVnodeRect } from './highlighter'
 import { initVuexBackend } from './vuex'
 import { initEventsBackend } from './events'
@@ -9,7 +10,6 @@ import { initPerfBackend } from './perf'
 import { initPiniaBackend } from './pinia'
 import { findRelatedComponent, debounce } from './utils'
 import ComponentSelector from './component-selector'
-import { getInstanceState, getInstanceName, processProps } from './process'
 import {
   stringify,
   stringifyFlatted,
