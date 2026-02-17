@@ -2,6 +2,7 @@ import Vue, { watch, nextTick } from 'vue'
 import { cloneDeep } from 'lodash-es'
 import { stringify, parse, set, get, cloneVueData } from '@utils/util'
 import SharedData from '@utils/shared-data'
+import { getCatchedGetters } from '@vue-devtools/shared-utils'
 import clone from './clone'
 import { debounce } from './utils'
 import { bridge as exBridge, api } from './bridge'
@@ -650,44 +651,6 @@ nextTick(() => {
 export function initVuexBackend(hook, bridge, isLegacy) {
   vuexBackend = new VuexBackendNew(hook, bridge, isLegacy)
   window.vuexBackend = vuexBackend
-}
-
-function getCatchedGetters(store) {
-  const getters = {}
-
-  const origGetters = store.getters || {}
-  const keys = Object.keys(origGetters)
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i]
-    Object.defineProperty(getters, key, {
-      enumerable: true,
-      get: () => {
-        try {
-          return origGetters[key]
-        } catch (e) {
-          return e
-        }
-      },
-    })
-  }
-
-  return getters
-}
-
-export function getCustomStoreDetails(store) {
-  return {
-    _custom: {
-      type: 'store',
-      display: 'Store',
-      value: {
-        state: store.state,
-        getters: getCatchedGetters(store),
-      },
-      fields: {
-        abstract: true,
-      },
-    },
-  }
 }
 
 // 发送数据量大，使用chunk
