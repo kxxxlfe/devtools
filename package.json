@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "dev": "cross-env PORT=8100 npm run dev:shell",
-    "dev:shell": "cd packages/shell-dev && webpack-dev-server",
+    "dev:shell": "cd packages/shell-dev && npm run dev",
     "dev:chrome": "cd packages/shell-chrome && cross-env NODE_ENV=development vite build --watch",
     "dev:chrome:prod": "cd packages/shell-chrome && cross-env NODE_ENV=production vite build --watch",
     "build": "cd packages/shell-chrome && cross-env NODE_ENV=production vite build",

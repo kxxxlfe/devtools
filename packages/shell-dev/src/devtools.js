@@ -11,7 +11,7 @@ target.onload = () => {
   initDevTools({
     connect (cb) {
       // 3. called by devtools: inject backend
-      inject('./build/backend.js', () => {
+      inject(import.meta.env.DEV ? '/src/backend.js' : './backend.js', () => {
         // 4. send back bridge
         cb(new Bridge({
           listen (fn) {
@@ -35,6 +35,7 @@ function inject (src, done) {
     return done()
   }
   const script = target.contentDocument.createElement('script')
+  script.type = 'module'
   script.src = src
   script.onload = done
   target.contentDocument.body.appendChild(script)
