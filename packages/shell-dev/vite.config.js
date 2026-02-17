@@ -9,9 +9,9 @@ export default defineConfig({
   plugins: [vue2()],
   resolve: {
     alias: {
-      '@front': path.resolve(__dirname, 'node_modules/@vue-devtools/app-frontend/src'),
-      '@back': path.resolve(__dirname, 'node_modules/@vue-devtools/app-backend/src'),
-      '@utils': path.resolve(__dirname, 'node_modules/@vue-devtools/shared-utils/src'),
+      '@front': path.resolve(__dirname, '../app-frontend/src'),
+      '@back': path.resolve(__dirname, '../app-backend/src'),
+      '@utils': path.resolve(__dirname, '../shared-utils/src'),
     },
   },
   define: {
