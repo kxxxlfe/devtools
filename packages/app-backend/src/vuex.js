@@ -1,4 +1,4 @@
-import Vue, { watch } from 'vue'
+import Vue, { watch, nextTick } from 'vue'
 import { cloneDeep } from 'lodash-es'
 import { stringify, parse, set, get, cloneVueData } from '@utils/util'
 import SharedData from '@utils/shared-data'
@@ -635,16 +635,18 @@ class VuexBackendNew extends VuexBackend {
   }
 }
 
-// 打开开关后再进行记录
+// 打开开关后再进行记录（延后注册 watch，避免 ESM 循环依赖下 SharedData 未初始化）
 let vuexBackend
-watch(
-  () => SharedData.recordVuex,
-  function (n, o) {
-    if (n && !o) {
-      vuexBackend?.reset()
+nextTick(() => {
+  watch(
+    () => SharedData.recordVuex,
+    function (n, o) {
+      if (n && !o) {
+        vuexBackend?.reset()
+      }
     }
-  }
-)
+  )
+})
 export function initVuexBackend(hook, bridge, isLegacy) {
   vuexBackend = new VuexBackendNew(hook, bridge, isLegacy)
   window.vuexBackend = vuexBackend
