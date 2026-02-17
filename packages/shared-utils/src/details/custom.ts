@@ -14,7 +14,7 @@ export function getCustomRouterDetails(router) {
   }
 }
 
-function getCatchedGetters(store) {
+export function getCatchedGetters(store) {
   const getters = {}
 
   const origGetters = store.getters || {}
