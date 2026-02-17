@@ -2,7 +2,6 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import vue2 from '@vitejs/plugin-vue2'
-import openInEditor from 'launch-editor-middleware'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -22,8 +21,5 @@ export default defineConfig({
   server: {
     port: Number(process.env.PORT) || 6789,
     strictPort: false,
-  },
-  configureServer(server) {
-    server.middlewares.use('/__open-in-editor', openInEditor())
   },
 })

@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "sideEffects": [],
+  "main": "src/index.js",
   "dependencies": {
     "lodash-es": "^4.17.21",
     "flatted": "^3.3.3",
