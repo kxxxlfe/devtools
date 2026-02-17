@@ -3,8 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development vite",
-    "build": "cross-env NODE_ENV=production vite build"
+    "dev": "cross-env NODE_ENV=development vite"
   },
   "dependencies": {
     "@vue-devtools/app-backend": "workspace:*",
