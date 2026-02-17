@@ -41,6 +41,10 @@ importers:
       vue:
         specifier: ^2.7.16
         version: 2.7.16
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
 
   packages/app-frontend:
     dependencies:
@@ -74,6 +78,10 @@ importers:
       vue-virtual-scroller:
         specifier: ^1.0.0-rc.2
         version: 1.0.0-rc.2(vue@2.7.16)
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
 
   packages/build-tools:
     dependencies:
@@ -131,6 +139,10 @@ importers:
       path-browserify:
         specifier: 1.0.1
         version: 1.0.1
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
 
   packages/shell-chrome:
     dependencies:

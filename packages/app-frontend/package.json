@@ -14,5 +14,8 @@
     "vue": "^2.7.16",
     "vue-router": "^3.0.2",
     "vue-virtual-scroller": "^1.0.0-rc.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
   }
 }
