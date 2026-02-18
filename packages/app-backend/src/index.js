@@ -254,7 +254,7 @@ function flush() {
     id: currentInspectedId,
     instance: stringify(getInstanceDetails(currentInspectedId)),
   })
-  exBridge.send(api.devtool.flush, payload, { chunk: { size: 1024 * 10 }, trace: true })
+  exBridge.send(api.devtool.flush, payload, { chunk: { size: 1024 * 10 } })
 }
 
 const debounceFlush = debounce(() => {
