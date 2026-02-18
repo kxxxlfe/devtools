@@ -13,6 +13,7 @@ import Defer from '@front/mixins/defer'
 import SplitPane from '@front/components/SplitPane.vue'
 import EventsHistory from './EventsHistory.vue'
 import EventInspector from './EventInspector.vue'
+import { useEvents } from './useEvents'
 
 export default {
   components: {
