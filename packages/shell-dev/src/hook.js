@@ -1,3 +1,3 @@
-import { installHook } from '@back/hook'
+import { installHook } from '@vue-devtools/app-backend/src/hook'
 
 installHook(window)
