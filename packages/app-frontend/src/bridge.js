@@ -6,10 +6,7 @@ const bridge = detectDev('frontend')
   ? new IFrameTopBridge({
       plat: PLATFORM.devtool,
       frameKey: PLATFORM.web,
-      frameEl: () => {
-        debugger
-        return document.querySelector('#target')
-      },
+      frameEl: () => document.querySelector('#target'),
     })
   : new DevtoolBridge({ plat: PLATFORM.devtool })
 bridge.Plat = Plat
