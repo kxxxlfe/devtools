@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import { initBackend } from '@vue-devtools/app-backend'
 import Bridge from '@utils/bridge'
 
@@ -11,4 +12,5 @@ const bridge = new Bridge({
   },
 })
 
+Vue.config.devtools = true // 重置为true
 initBackend(bridge)
