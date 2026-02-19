@@ -1,0 +1,289 @@
+// 循环引用了，这里放纯工具方法
+import { isRef, isReadonly, isReactive } from 'vue'
+import { camelize, getComponentName, getCustomRefDetails } from '@utils/util'
+import SharedData from '@utils/shared-data'
+
+// 判断数据是否响应式
+const checkReact = function ({ key, val, host }: { key: string; val: unknown; host: Record<string, unknown> }) {
+  if (typeof val === 'object') {
+    return isRef(val) || isReactive(val)
+  }
+
+  const descriptor = Object.getOwnPropertyDescriptor(host, key)
+
+  if (descriptor?.get && descriptor?.set) {
+    return true
+  }
+
+  return
+}
+
+export function getInstanceState(instance: any) {
+  return processProps(instance).concat(
+    processState(instance),
+    processRefs(instance),
+    ...processSetup(instance),
+    processComputed(instance),
+    processInjected(instance),
+    processRouteContext(instance),
+    processVuexGetters(instance),
+    processFirebaseBindings(instance),
+    processObservables(instance),
+    processAttrs(instance)
+  )
+}
+
+export function getCustomInstanceDetails(instance: any) {
+  const state = getInstanceState(instance)
+  return {
+    _custom: {
+      type: 'component',
+      id: instance.__VUE_DEVTOOLS_UID__,
+      display: getInstanceName(instance),
+      tooltip: 'Component instance',
+      value: reduceStateList(state),
+      fields: {
+        abstract: true,
+      },
+    },
+  }
+}
+
+function reduceStateList(list: any[]) {
+  if (!list.length) {
+    return undefined
+  }
+  return list.reduce((map: Record<string, Record<string, unknown>>, item: any) => {
+    const key = item.type || 'data'
+    const obj = (map[key] = map[key] || {})
+    obj[item.key] = item.value
+    return map
+  }, {})
+}
+
+/**
+ * Get the appropriate display name for the instance.
+ */
+export function getInstanceName(instance: any): string {
+  const name = getComponentName(instance.$options || instance.fnOptions || {})
+  if (name) return name
+  return instance.$root === instance ? 'Root' : 'Anonymous Component'
+}
+
+let isLegacy = false
+const propModes = ['default', 'sync', 'once']
+
+export function processProps(instance: any) {
+  let props: Record<string, any> | undefined
+  if (isLegacy && (props = instance._props)) {
+    return Object.keys(props).map(key => {
+      const prop = props![key]
+      const options = prop.options
+      return {
+        type: 'props',
+        key: prop.path,
+        value: instance[prop.path],
+        meta: options
+          ? {
+              type: options.type ? getPropType(options.type) : 'any',
+              required: !!options.required,
+              mode: propModes[prop.mode],
+            }
+          : {},
+      }
+    })
+  } else if ((props = instance.$options?.props)) {
+    const propsData: any[] = []
+    for (const key in props) {
+      const prop = props[key]
+      const camelKey = camelize(key)
+      propsData.push({
+        type: 'props',
+        key: camelKey,
+        value: instance[camelKey],
+        meta: prop
+          ? {
+              type: prop.type ? getPropType(prop.type) : 'any',
+              required: !!prop.required,
+            }
+          : {
+              type: 'invalid',
+            },
+        editable: SharedData.editableProps,
+      })
+    }
+    return propsData
+  } else {
+    return []
+  }
+}
+
+function processAttrs(instance: any) {
+  return Object.entries(instance.$attrs || {}).map(([key, value]) => ({
+    type: '$attrs',
+    key,
+    value,
+  }))
+}
+
+const fnTypeRE = /^(?:function|class) (\w+)/
+function getPropType(type: any): string {
+  const match = type.toString().match(fnTypeRE)
+  return typeof type === 'function' ? (match && match[1]) || 'any' : 'any'
+}
+
+function processState(instance: any) {
+  const props = isLegacy ? instance._props : instance.$options?.props
+  const getters = instance.$options?.vuex && instance.$options.vuex.getters
+  return Object.keys(instance._data)
+    .filter(key => !(props && key in props) && !(getters && key in getters))
+    .map(key => ({
+      key,
+      value: instance._data[key],
+      editable: true,
+    }))
+}
+
+function processRefs(instance: any) {
+  return Object.keys(instance.$refs || {})
+    .filter(key => instance.$refs[key])
+    .map(key => getCustomRefDetails(instance, key, instance.$refs[key]))
+}
+
+function processSetup(instance: any) {
+  const states: any[] = []
+  const computes: any[] = []
+  Object.entries(instance._setupState || {}).forEach(([key, value]: [string, any]) => {
+    if (typeof value === 'function') {
+      return
+    }
+    const val = isRef(value) ? value.value : value
+    if (instance.$refs?.[key] && val === instance.$refs[key]) {
+      return
+    }
+
+    if (isReadonly(value)) {
+      computes.push({
+        type: 'setup.computed',
+        key,
+        value: val,
+      })
+    } else {
+      states.push({
+        type: 'setup.state/ref',
+        key,
+        value: val,
+        editable: true,
+      })
+    }
+  })
+
+  return [states, computes]
+}
+
+function processComputed(instance: any) {
+  const computed: any[] = []
+  const defs = instance.$options?.computed || {}
+  for (const key in defs) {
+    const def = defs[key]
+    if (def.cache === false && !Reflect.hasOwnProperty(def, 'set')) {
+      if (Object.values(instance.$refs || {}).find((comp: any) => comp === instance[key])) {
+        continue
+      }
+    }
+    const type = typeof def === 'function' && def.vuex ? 'vuex bindings' : 'computed'
+    let computedProp: any = null
+    try {
+      computedProp = {
+        type,
+        key,
+        value: instance[key],
+      }
+    } catch (e) {
+      computedProp = {
+        type,
+        key,
+        value: '(error during evaluation)',
+      }
+    }
+    computed.push(computedProp)
+  }
+  return computed
+}
+
+function processInjected(instance: any) {
+  const injected = instance.$options?.inject
+  if (injected) {
+    return Object.keys(injected).map(key => ({
+      key,
+      type: 'injected',
+      value: instance[key],
+    }))
+  }
+  return []
+}
+
+function processRouteContext(instance: any) {
+  try {
+    const route = instance.$route
+    if (route) {
+      const { path, query, params } = route
+      const value: any = { path, query, params }
+      if (route.fullPath) value.fullPath = route.fullPath
+      if (route.hash) value.hash = route.hash
+      if (route.name) value.name = route.name
+      if (route.meta) value.meta = route.meta
+      return [
+        {
+          key: '$route',
+          value: {
+            _custom: {
+              type: 'router',
+              abstract: true,
+              value,
+            },
+          },
+        },
+      ]
+    }
+  } catch (e) {
+    // Invalid $router
+  }
+  return []
+}
+
+function processVuexGetters(instance: any) {
+  const getters = instance.$options?.vuex && instance.$options.vuex.getters
+  if (getters) {
+    return Object.keys(getters).map(key => ({
+      type: 'vuex getters',
+      key,
+      value: instance[key],
+    }))
+  }
+  return []
+}
+
+function processFirebaseBindings(instance: any) {
+  const refs = instance.$firebaseRefs
+  if (refs) {
+    return Object.keys(refs).map(key => ({
+      type: 'firebase bindings',
+      key,
+      value: instance[key],
+    }))
+  }
+  return []
+}
+
+function processObservables(instance: any) {
+  const obs = instance.$observables
+  if (obs) {
+    return Object.keys(obs).map(key => ({
+      type: 'observables',
+      key,
+      value: instance[key],
+    }))
+  }
+  return []
+}
