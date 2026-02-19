@@ -2,9 +2,13 @@
   "name": "@vue-devtools/app-backend",
   "version": "0.0.0",
   "private": true,
+  "main": "src/index.js",
   "dependencies": {
     "@vue-devtools/shared-utils": "workspace:*",
     "@yuhufe/browser-bridge": "^0.1.5",
     "vue": "^2.7.16"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
   }
 }

@@ -1,7 +1,8 @@
-import Vue, { watch } from 'vue'
+import Vue, { watch, nextTick } from 'vue'
 import { cloneDeep } from 'lodash-es'
 import { stringify, parse, set, get, cloneVueData } from '@utils/util'
 import SharedData from '@utils/shared-data'
+import { getCatchedGetters } from '@vue-devtools/shared-utils'
 import clone from './clone'
 import { debounce } from './utils'
 import { bridge as exBridge, api } from './bridge'
@@ -635,57 +636,21 @@ class VuexBackendNew extends VuexBackend {
   }
 }
 
-// 打开开关后再进行记录
+// 打开开关后再进行记录（延后注册 watch，避免 ESM 循环依赖下 SharedData 未初始化）
 let vuexBackend
-watch(
-  () => SharedData.recordVuex,
-  function (n, o) {
-    if (n && !o) {
-      vuexBackend?.reset()
+nextTick(() => {
+  watch(
+    () => SharedData.recordVuex,
+    function (n, o) {
+      if (n && !o) {
+        vuexBackend?.reset()
+      }
     }
-  }
-)
+  )
+})
 export function initVuexBackend(hook, bridge, isLegacy) {
   vuexBackend = new VuexBackendNew(hook, bridge, isLegacy)
   window.vuexBackend = vuexBackend
-}
-
-function getCatchedGetters(store) {
-  const getters = {}
-
-  const origGetters = store.getters || {}
-  const keys = Object.keys(origGetters)
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i]
-    Object.defineProperty(getters, key, {
-      enumerable: true,
-      get: () => {
-        try {
-          return origGetters[key]
-        } catch (e) {
-          return e
-        }
-      },
-    })
-  }
-
-  return getters
-}
-
-export function getCustomStoreDetails(store) {
-  return {
-    _custom: {
-      type: 'store',
-      display: 'Store',
-      value: {
-        state: store.state,
-        getters: getCatchedGetters(store),
-      },
-      fields: {
-        abstract: true,
-      },
-    },
-  }
 }
 
 // 发送数据量大，使用chunk

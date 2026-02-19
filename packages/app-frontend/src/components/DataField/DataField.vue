@@ -204,7 +204,7 @@ export default {
   },
 
   data() {
-    const value = this.field.value && this.field.value._custom ? this.field.value._custom.value : this.field.value
+    const value = this.field.value?._custom ? this.field.value._custom.value : this.field.value
     return {
       contextMenuOpen: false,
       limit: 20,

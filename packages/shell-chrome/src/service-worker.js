@@ -40,7 +40,7 @@ function installProxy(tabId) {
   chrome.scripting
     .executeScript({
       target: { tabId: tabId },
-      files: ['/build/proxy.js'],
+      files: ['src/proxy.js'],
     })
     .then(res => {
       if (!res) {

@@ -1,5 +1,5 @@
 import { stringify } from '@utils/util'
-import { getInstanceName } from './process'
+import { getInstanceName } from '@vue-devtools/shared-utils'
 import { bridge as exBridge, api } from './bridge'
 import sharedData from '@utils/shared-data'
 

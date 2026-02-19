@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "isolatedModules": true,
+    "moduleResolution": "bundler",
+    "baseUrl": ".",
+    "noEmit": true
+  },
+  "include": ["src/**/*", "*.d.ts"],
+  "exclude": ["node_modules"]
+}

@@ -3,11 +3,15 @@
   "version": "0.0.0",
   "private": true,
   "sideEffects": [],
+  "main": "src/index.js",
   "dependencies": {
     "lodash-es": "^4.17.21",
     "flatted": "^3.3.3",
     "@yuhufe/browser-bridge": "^0.1.5",
     "path-browserify": "1.0.1",
     "events": "3.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
   }
 }

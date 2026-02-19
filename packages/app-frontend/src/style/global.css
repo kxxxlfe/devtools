@@ -1,4 +1,4 @@
-@import '~@vue/ui/dist/vue-ui.css';
+@import '@vue/ui/dist/vue-ui.css';
 
 @import 'variables.css';
 @import 'transitions.css';

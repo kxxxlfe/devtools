@@ -51,9 +51,9 @@ export default {
   &::-webkit-scrollbar {
     width: 5px;
     height: 0;
-    &-thumb {
-      background: var(--active-color);
-    }
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--active-color);
   }
 }
 

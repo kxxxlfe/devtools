@@ -1,5 +1,5 @@
 import { WebBridge, Plat, IFrameBridge } from '@yuhufe/browser-bridge'
-import { PLATFORM, api, detectDev } from '@utils/api'
+import { PLATFORM, api, detectDev } from '@vue-devtools/shared-utils'
 
 export const bridge = detectDev('backend')
   ? new IFrameBridge({ frameKey: PLATFORM.web })

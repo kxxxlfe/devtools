@@ -4,17 +4,9 @@
   "version_name": "5.4.22",
   "description": "base on vue.js devtools 5.3.4",
   "manifest_version": 3,
-  "icons": {
-    "16": "icons/16.png",
-    "48": "icons/48.png",
-    "128": "icons/128.png"
-  },
+  "icons": { "16": "icons/16.png", "48": "icons/48.png", "128": "icons/128.png" },
   "action": {
-    "default_icon": {
-      "16": "icons/16-gray.png",
-      "48": "icons/48-gray.png",
-      "128": "icons/128-gray.png"
-    },
+    "default_icon": { "16": "icons/16-gray.png", "48": "icons/48-gray.png", "128": "icons/128-gray.png" },
     "default_title": "Vue Devtools",
     "default_popup": "popups/vue-popup.html"
   },
@@ -23,35 +15,23 @@
       "resources": [
         "devtools.html",
         "devtools-background.html",
-        "build/devtools-background.js",
-        "build/backend.js",
-        "build/proxy.js",
-        "build/hook-exec.js",
-        "build/detector-exec.js"
+        "src/devtools-background.js",
+        "src/backend.js",
+        "src/proxy.js",
+        "src/hook-exec.js",
+        "src/detector-exec.js"
       ],
       "matches": ["<all_urls>"]
     }
   ],
   "devtools_page": "devtools-background.html",
-  "background": {
-    "service_worker": "build/service-worker.js"
-  },
+  "background": { "service_worker": "src/service-worker.js" },
   "permissions": ["contextMenus", "storage", "scripting", "tabs", "webNavigation"],
   "host_permissions": ["<all_urls>"],
   "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["build/hook.js"],
-      "run_at": "document_start"
-    },
-    {
-      "matches": ["<all_urls>"],
-      "js": ["build/detector.js"],
-      "run_at": "document_idle"
-    }
+    { "matches": ["<all_urls>"], "js": ["src/hook.js"], "run_at": "document_start" },
+    { "matches": ["<all_urls>"], "js": ["src/detector.js"], "run_at": "document_idle" }
   ],
-  "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'"
-  },
+  "content_security_policy": { "extension_pages": "script-src 'self'; object-src 'self'" },
   "incognito": "split"
 }

@@ -1,4 +1,4 @@
-import { initDevTools } from '@front'
+import { initDevTools } from '@vue-devtools/app-frontend'
 import Bridge from '@utils/bridge'
 
 const target = document.getElementById('target')
@@ -9,32 +9,35 @@ target.src = 'target.html'
 target.onload = () => {
   // 2. init devtools
   initDevTools({
-    connect (cb) {
+    connect(cb) {
       // 3. called by devtools: inject backend
-      inject('./build/backend.js', () => {
+      inject(import.meta.env.DEV ? '/src/backend.js' : './backend.js', () => {
         // 4. send back bridge
-        cb(new Bridge({
-          listen (fn) {
-            targetWindow.parent.addEventListener('message', evt => fn(evt.data))
-          },
-          send (data) {
-            console.log('devtools -> backend', data)
-            targetWindow.postMessage(data, '*')
-          }
-        }))
+        cb(
+          new Bridge({
+            listen(fn) {
+              targetWindow.parent.addEventListener('message', evt => fn(evt.data))
+            },
+            send(data) {
+              console.log('devtools -> backend', data)
+              targetWindow.postMessage(data, '*')
+            },
+          })
+        )
       })
     },
-    onReload (reloadFn) {
+    onReload(reloadFn) {
       target.onload = reloadFn
-    }
+    },
   })
 }
 
-function inject (src, done) {
+function inject(src, done) {
   if (!src || src === 'false') {
     return done()
   }
   const script = target.contentDocument.createElement('script')
+  script.type = 'module'
   script.src = src
   script.onload = done
   target.contentDocument.body.appendChild(script)

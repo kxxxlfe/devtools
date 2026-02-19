@@ -5,7 +5,7 @@ import { PLATFORM } from '@utils/api'
 new ContentBridge({ platWeb: PLATFORM.web })
 
 const script = document.createElement('script')
-script.src = chrome.runtime.getURL('build/detector-exec.js')
+script.src = chrome.runtime.getURL('src/detector-exec.js')
 script.onload = () => {
   script.remove()
 }

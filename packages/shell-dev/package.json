@@ -1,17 +1,20 @@
 {
   "name": "@vue-devtools/shell-dev",
   "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development vite"
+  },
   "dependencies": {
     "@vue-devtools/app-backend": "workspace:*",
     "@vue-devtools/app-frontend": "workspace:*",
     "@vue-devtools/shared-utils": "workspace:*"
   },
   "devDependencies": {
-    "@vue-devtools/build-tools": "workspace:*",
+    "@vitejs/plugin-vue2": "^2.3.1",
+    "cross-env": "^5.2.0",
     "launch-editor-middleware": "^2.2.1",
-    "vuex": "^3.6.2",
-    "webpack": "^5.96.1",
-    "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.15.2"
+    "vite": "^7.0.0",
+    "vuex": "^3.6.2"
   }
 }

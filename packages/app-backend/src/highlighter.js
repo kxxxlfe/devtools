@@ -2,7 +2,7 @@ import { inDoc, getComponentName, getComponentDisplayName } from '@utils/util'
 import SharedData from '@utils/shared-data'
 import { checkVisibility } from '@utils/tools'
 import { isBrowser, target } from '@utils/env'
-import { getInstanceName } from './process'
+import { getInstanceName } from '@vue-devtools/shared-utils'
 
 let overlay
 let overlayContent

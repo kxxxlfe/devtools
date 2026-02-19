@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { DevtoolBridge, IFrameTopBridge, Plat } from '@yuhufe/browser-bridge'
-import { PLATFORM, api, detectDev } from '@utils/api'
+import { PLATFORM, api, detectDev } from '@vue-devtools/shared-utils'
 
 const bridge = detectDev('frontend')
   ? new IFrameTopBridge({
