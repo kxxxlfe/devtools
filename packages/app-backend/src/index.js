@@ -81,7 +81,6 @@ export function initBackend(_bridge) {
 function connect(Vue) {
   initSharedData({
     exBridge,
-    Vue,
   }).then(() => {
     hook.currentTab = 'components'
 
