@@ -2,7 +2,7 @@ import { stringify } from '@utils/util'
 import { bridge as exBridge, api } from './bridge'
 import sharedData from '@utils/shared-data'
 
-export function initRouterBackend(Vue, rootInstances) {
+export function initRouterBackend(rootInstances) {
   const getSnapshot = () => {
     const routeChanges = []
     rootInstances.forEach(instance => {
