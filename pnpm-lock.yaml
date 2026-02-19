@@ -139,6 +139,9 @@ importers:
       path-browserify:
         specifier: 1.0.1
         version: 1.0.1
+      vue:
+        specifier: ^2.7.16
+        version: 2.7.16
     devDependencies:
       typescript:
         specifier: ^5.0.0
