@@ -1,33 +1,22 @@
 // This is the backend that is injected into the page that a Vue app lives in
 // when the Vue Devtools panel is activated.
 import Vue from 'vue'
-import { getInstanceState, getInstanceName, processProps } from '@vue-devtools/shared-utils'
 import { highlight, unHighlight, getInstanceOrVnodeRect } from './highlighter'
 import { initVuexBackend } from './vuex'
 import { initEventsBackend } from './events'
 import { initRouterBackend } from './router'
 import { initPerfBackend } from './perf'
 import { initPiniaBackend } from './pinia'
-import { findRelatedComponent, debounce } from './utils'
+import { debounce, getInstanceState, processProps, stringify, setInstanceMap } from './utils'
+import { classify, parse, set, has, getComponentName, kebabize } from '@utils/util'
 import ComponentSelector from './component-selector'
-import {
-  stringify,
-  stringifyFlatted,
-  classify,
-  camelize,
-  set,
-  has,
-  parse,
-  getComponentName,
-  setInstanceMap,
-  kebabize,
-} from '@utils/util'
 import SharedData, { init as initSharedData } from '@utils/shared-data'
 import { whenDevtoolActive } from '@utils/devpage'
 import { isBrowser, target } from '@utils/env'
 import { bridge as exBridge, api } from './bridge'
 import { inspectInstance } from './op'
 import { initRightClick } from './contextmenu'
+import { engine } from './engine'
 
 Vue.config.devtools = false // 否则会干扰到页面中的Vue
 
@@ -305,7 +294,7 @@ function findQualifiedChildren(instance) {
  */
 
 function isQualified(instance) {
-  const name = classify(instance.name || getInstanceName(instance)).toLowerCase()
+  const name = classify(instance.name || engine.getInstanceName(instance)).toLowerCase()
   return name.indexOf(filter) > -1
 }
 

@@ -1,5 +1,5 @@
 // API vue2
-import { camelize, getComponentName, getCustomRefDetails } from '../util'
+import { camelize, getComponentName, getCustomRefDetails } from '@utils/util'
 
 function getInstanceName(instance) {
   const name = getComponentName(instance.$options || instance.fnOptions || {})

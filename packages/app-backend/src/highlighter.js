@@ -2,7 +2,7 @@ import { inDoc, getComponentName, getComponentDisplayName } from '@utils/util'
 import SharedData from '@utils/shared-data'
 import { checkVisibility } from '@utils/tools'
 import { isBrowser, target } from '@utils/env'
-import { getInstanceName } from '@vue-devtools/shared-utils'
+import { engine } from './engine'
 
 let overlay
 let overlayContent
@@ -46,7 +46,7 @@ export function highlight(instance) {
   init()
   if (rect) {
     const content = []
-    let name = instance.fnContext ? getComponentName(instance.fnOptions) : getInstanceName(instance)
+    let name = instance.fnContext ? getComponentName(instance.fnOptions) : engine.getInstanceName(instance)
     name = getComponentDisplayName(name, SharedData.componentNameStyle)
     if (name) {
       const pre = document.createElement('span')

@@ -1,6 +1,6 @@
 // API vue2
 import { ComponentPublicInstance } from 'vue'
-import { camelize, getCustomRefDetails } from '../util'
+import { camelize, getCustomRefDetails } from '@utils/util'
 
 function getInstanceName(instance) {
   const proxy: ComponentPublicInstance = instance.proxy || instance

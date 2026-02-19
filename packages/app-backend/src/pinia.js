@@ -1,7 +1,8 @@
 import { watch } from 'vue'
 import { bridge as exBridge, api } from './bridge'
 import sharedData from '@utils/shared-data'
-import { stringify, set, parse } from '@utils/util'
+import { stringify } from './utils'
+import { set, parse } from '@utils/util'
 import { debounce } from './utils'
 
 let currStoreKey = null

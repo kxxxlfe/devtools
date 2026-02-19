@@ -1,4 +1,4 @@
-import { stringify } from '@utils/util'
+import { stringify } from './utils'
 import { engine } from './engine'
 import { bridge as exBridge, api } from './bridge'
 import sharedData from '@utils/shared-data'
