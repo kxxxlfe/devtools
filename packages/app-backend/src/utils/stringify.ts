@@ -6,7 +6,6 @@ import { isRef } from 'vue'
 import * as CircularJSON from '@utils/transfer'
 import { getComponentName } from '@utils/util'
 import { getCustomInstanceDetails } from './process'
-import { getCustomRouterDetails, getCustomStoreDetails } from '@utils/details/custom'
 
 let instanceMap = new Map<number, any>()
 export function setInstanceMap(inst: Map<number, any>) {
@@ -254,4 +253,57 @@ export function cloneVueData(data: any): any {
     return result
   }
   return processReplace(data, undefined)
+}
+
+function getCustomRouterDetails(router) {
+  return {
+    _custom: {
+      type: 'router',
+      display: 'VueRouter',
+      value: {
+        options: router.options,
+        currentRoute: router.currentRoute,
+      },
+      fields: {
+        abstract: true,
+      },
+    },
+  }
+}
+
+export function getCatchedGetters(store) {
+  const getters = {}
+
+  const origGetters = store.getters || {}
+  const keys = Object.keys(origGetters)
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i]
+    Object.defineProperty(getters, key, {
+      enumerable: true,
+      get: () => {
+        try {
+          return origGetters[key]
+        } catch (e) {
+          return e
+        }
+      },
+    })
+  }
+
+  return getters
+}
+export function getCustomStoreDetails(store) {
+  return {
+    _custom: {
+      type: 'store',
+      display: 'Store',
+      value: {
+        state: store.state,
+        getters: getCatchedGetters(store),
+      },
+      fields: {
+        abstract: true,
+      },
+    },
+  }
 }
