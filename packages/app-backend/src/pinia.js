@@ -11,7 +11,7 @@ const putil = {
   get: key => pinia._s.get(key),
 }
 
-export function initPiniaBackend(Vue, rootInstances) {
+export function initPiniaBackend(rootInstances) {
   pinia = rootInstances[0]?.$pinia
   if (!pinia) {
     return

@@ -122,7 +122,7 @@ function connect(Vue) {
       scan()
 
       // pinia
-      initPiniaBackend(Vue, rootInstances)
+      initPiniaBackend(rootInstances)
 
       // perf
       initPerfBackend(Vue, instanceMap)
