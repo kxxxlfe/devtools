@@ -1,5 +1,5 @@
 import { stringify } from '@utils/util'
-import { engine } from '@vue-devtools/shared-utils'
+import { engine } from './engine'
 import { bridge as exBridge, api } from './bridge'
 import sharedData from '@utils/shared-data'
 

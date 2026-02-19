@@ -729,7 +729,7 @@ function escapeChar(a) {
 export function copyToClipboard(state) {
   if (typeof document === 'undefined') return
   const dummyTextArea = document.createElement('textarea')
-  dummyTextArea.textContent = stringify(state)
+  dummyTextArea.textContent = JSON.stringify(state)
   document.body.appendChild(dummyTextArea)
   dummyTextArea.select()
   document.execCommand('copy')
