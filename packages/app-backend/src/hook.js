@@ -91,11 +91,6 @@ export function installHook(target) {
 
   hook.once('init', Vue => {
     hook.Vue = Vue
-
-    Vue.prototype.$inspect = function () {
-      const fn = target.__VUE_DEVTOOLS_INSPECT__
-      fn && fn(this)
-    }
   })
 
   hook.once('vuex:init', store => {
