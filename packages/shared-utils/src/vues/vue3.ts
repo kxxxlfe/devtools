@@ -7,21 +7,14 @@ const detectVue = function (dom) {
   }
 
   const appContext = dom.__vue_app__
-  const devtoolsEnabled = dom.children?.[0]?.__vueParentComponent
 
-  return {
-    version: appContext.version,
-    verNum: getVerNum(appContext.version),
-    devtoolsEnabled,
-    // vue3数据
-    appContext,
-  }
+  return makeEnv(appContext)
 }
 
 // 生成标准环境数据
 const makeEnv = function (appContext) {
   const { version, _container } = appContext
-  const devtoolsEnabled = _container.children?.[0]?.__vueParentComponent
+  const devtoolsEnabled = !!_container.children?.[0]?.__vueParentComponent
   return {
     version,
     verNum: getVerNum(version),

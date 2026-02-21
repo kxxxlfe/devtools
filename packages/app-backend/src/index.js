@@ -104,7 +104,7 @@ function connect() {
     }
 
     // events
-    initEventsBackend(Vue)
+    Vue && initEventsBackend(Vue)
 
     // User project devtools config
     if (target.hasOwnProperty('VUE_DEVTOOLS_CONFIG')) {
@@ -125,7 +125,7 @@ function connect() {
       initPiniaBackend(rootInstances)
 
       // perf
-      initPerfBackend(Vue, instanceMap)
+      Vue && initPerfBackend(Vue, instanceMap)
 
       // router
       initRouterBackend(rootInstances)
