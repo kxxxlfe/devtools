@@ -1,6 +1,7 @@
 // This is the backend that is injected into the page that a Vue app lives in
 // when the Vue Devtools panel is activated.
 import Vue from 'vue'
+import { envs } from '@vue-devtools/shared-utils'
 import { highlight, unHighlight, getInstanceOrVnodeRect } from './highlighter'
 import { initVuexBackend } from './vuex'
 import { initEventsBackend } from './events'
@@ -28,7 +29,7 @@ const rootInstances = []
 hook.injectBackend = async function () {
   setTimeout(() => {
     // 再次inject时，直接初始化
-    connect(hook.Vue)
+    connect()
   }, 0)
 
   return true
@@ -43,7 +44,6 @@ let currentInspectedId
 let bridge
 let filter = ''
 let captureCount = 0
-let isLegacy = false
 let rootUID = 0
 let functionalIds = new Map()
 
@@ -54,11 +54,13 @@ const captureIds = new Map()
 export function initBackend(_bridge) {
   bridge = _bridge
 
-  if (hook.Vue) {
-    isLegacy = hook.Vue.version?.split('.')[0] === '1'
-    connect(hook.Vue)
+  if (hook.env) {
+    connect()
   } else {
-    hook.once('init', connect)
+    hook.once('init', Vue => {
+      hook.env = envs.vue2.makeEnv(Vue)
+      connect()
+    })
   }
 
   // 选中组件
@@ -67,7 +69,8 @@ export function initBackend(_bridge) {
   initRightClick()
 }
 
-function connect(Vue) {
+function connect() {
+  const { Vue, version } = hook.env
   initSharedData({
     exBridge,
   }).then(() => {
@@ -105,7 +108,7 @@ function connect(Vue) {
       }
     }
 
-    bridge.send('ready', Vue.version)
+    bridge.send('ready', version)
 
     setTimeout(() => {
       scan()
@@ -348,7 +351,7 @@ function capture(instance, index, list) {
     return {
       id: functionalId,
       functional: true,
-      name: getInstanceName(instance),
+      name: engine.getInstanceName(instance),
       renderKey: getRenderKey(instance.key),
       children: (instance.children
         ? instance.children.map(child =>
@@ -380,7 +383,7 @@ function capture(instance, index, list) {
   }
 
   mark(instance)
-  const name = getInstanceName(instance)
+  const name = engine.getInstanceName(instance)
 
   const ret = {
     uid: instance._uid,
@@ -478,7 +481,7 @@ function getInstanceDetails(id) {
   } else {
     const data = {
       id: id,
-      name: getInstanceName(instance),
+      name: engine.getInstanceName(instance),
       state: getInstanceState(instance),
     }
 
@@ -607,12 +610,27 @@ function setStateValue({ id, path, value, newKey, remove }) {
     if (value) {
       parsedValue = parse(value, true)
     }
-    const api = isLegacy
-      ? {
-          $set: hook.Vue.set,
-          $delete: hook.Vue.delete,
+    const { verNum } = hook.env
+    const api = {
+      1: () => {
+        const { Vue } = hook.env
+        return {
+          $set: Vue?.set,
+          $delete: Vue?.delete,
         }
-      : instance
+      },
+      2: () => instance,
+      3: () => {
+        return {
+          $set(obj, field, value) {
+            obj[field] = value
+          },
+          $delete(obj, field) {
+            Reflect.deleteProperty(obj, field)
+          },
+        }
+      },
+    }[verNum]()
 
     let data
     const paths = path.split('.')
@@ -659,7 +677,7 @@ exBridge.on(api.web.updateActiveTab, tab => {
 exBridge.on(api.web.log, ({ type } = {}) => {
   if (type === 'log-detected-vue') {
     console.log(
-      `%c vue-devtools %c Detected Vue v${hook.Vue?.version} %c`,
+      `%c vue-devtools %c Detected Vue v${hook.env?.version} %c`,
       'background:#35495e ; padding: 1px; border-radius: 3px 0 0 3px;  color: #fff',
       'background:#41b883 ; padding: 1px; border-radius: 0 3px 3px 0;  color: #fff',
       'background:transparent'

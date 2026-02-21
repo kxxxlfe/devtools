@@ -9,6 +9,8 @@
  * @param {Window|global} target
  */
 
+import { envs } from '@vue-devtools/shared-utils'
+
 export function installHook(target) {
   let listeners = {}
 
@@ -90,7 +92,7 @@ export function installHook(target) {
   })
 
   hook.once('init', Vue => {
-    hook.Vue = Vue
+    hook.env = envs.vue2.makeEnv(Vue)
   })
 
   hook.once('vuex:init', store => {

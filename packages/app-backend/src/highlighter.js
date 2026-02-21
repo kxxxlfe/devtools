@@ -194,5 +194,5 @@ function showOverlay({ width = 0, height = 0, top = 0, left = 0 }, content = [])
  */
 
 function util() {
-  return target.__VUE_DEVTOOLS_GLOBAL_HOOK__.Vue.util
+  return target.__VUE_DEVTOOLS_GLOBAL_HOOK__.env?.Vue.util
 }
