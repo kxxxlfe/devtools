@@ -57,10 +57,18 @@ export function initBackend(_bridge) {
   if (hook.env) {
     connect()
   } else {
+    // vue2
     hook.once('init', Vue => {
-      hook.env = envs.vue2.makeEnv(Vue)
+      hook.env = hook.env || envs.vue2.makeEnv(Vue)
       connect()
     })
+    // vue3
+    hook.once('app:init', (app, version, params) => {
+      hook.env = hook.env || envs.vue3.makeEnv(app)
+      connect()
+    })
+    // vue2 + 3
+    hook.once('horse:init', connect)
   }
 
   // 选中组件

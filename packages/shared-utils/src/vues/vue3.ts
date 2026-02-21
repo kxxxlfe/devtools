@@ -18,6 +18,20 @@ const detectVue = function (dom) {
   }
 }
 
+// 生成标准环境数据
+const makeEnv = function (appContext) {
+  const { version, _container } = appContext
+  const devtoolsEnabled = _container.children?.[0]?.__vueParentComponent
+  return {
+    version,
+    verNum: getVerNum(version),
+    devtoolsEnabled,
+    // vue2数据
+    appContext,
+  }
+}
+
 export default {
   detectVue,
+  makeEnv,
 }

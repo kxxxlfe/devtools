@@ -91,8 +91,12 @@ export function installHook(target) {
     },
   })
 
+  // vue2 + 3
   hook.once('init', Vue => {
-    hook.env = envs.vue2.makeEnv(Vue)
+    hook.env = hook.env || envs.vue2.makeEnv(Vue)
+  })
+  hook.once('app:init', (app, version, params) => {
+    hook.env = hook.env || envs.vue3.makeEnv(app)
   })
 
   hook.once('vuex:init', store => {
