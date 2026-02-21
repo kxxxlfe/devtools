@@ -17,7 +17,7 @@ import { isBrowser, target } from '@utils/env'
 import { bridge as exBridge, api } from './bridge'
 import { inspectInstance } from './op'
 import { initRightClick } from './contextmenu'
-import { engine } from './engine'
+import { engine, setEngine } from './engine'
 
 Vue.config.devtools = false // 否则会干扰到页面中的Vue
 
@@ -78,7 +78,8 @@ export function initBackend(_bridge) {
 }
 
 function connect() {
-  const { Vue, version } = hook.env
+  const { Vue, version, verNum } = hook.env
+  setEngine(verNum) // 根据版本设置不同engine
   initSharedData({
     exBridge,
   }).then(() => {
