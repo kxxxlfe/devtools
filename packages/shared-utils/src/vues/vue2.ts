@@ -13,13 +13,25 @@ const detectVue = function (dom) {
   }
 
   return {
-    version: Vue.version,
-    verNum: getVerNum(Vue.version),
-    devtoolsEnable: Vue.config.devtools,
-    env: { Vue, store: component.$store },
+    ...makeEnv(Vue),
+    // vue2数据
+    store: component.$store,
+  }
+}
+
+// 生成标准环境数据
+const makeEnv = function (Vue) {
+  const { version } = Vue
+  return {
+    version,
+    verNum: getVerNum(version),
+    devtoolsEnabled: Vue.config.devtools,
+    // vue2数据
+    Vue,
   }
 }
 
 export default {
   detectVue,
+  makeEnv,
 }

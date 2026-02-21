@@ -7,13 +7,14 @@ const detectVue = function (dom) {
   }
 
   const appContext = dom.__vue_app__
-  const devtoolsEnable = dom.children?.[0]?.__vueParentComponent
+  const devtoolsEnabled = dom.children?.[0]?.__vueParentComponent
 
   return {
     version: appContext.version,
     verNum: getVerNum(appContext.version),
-    devtoolsEnable,
-    env: { appContext },
+    devtoolsEnabled,
+    // vue3数据
+    appContext,
   }
 }
 
