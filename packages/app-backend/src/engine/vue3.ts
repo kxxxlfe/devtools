@@ -10,6 +10,12 @@ function getInstanceName(instance) {
   return proxy.$root === proxy ? 'Root' : 'Anonymous Component'
 }
 
+// 根据el获取component
+function findComponentByEl(el) {
+  return el?.__vueParentComponent
+}
+
 export default {
   getInstanceName,
+  findComponentByEl,
 }

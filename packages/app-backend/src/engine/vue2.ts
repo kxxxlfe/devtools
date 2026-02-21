@@ -7,6 +7,15 @@ function getInstanceName(instance) {
   return instance.$root === instance ? 'Root' : 'Anonymous Component'
 }
 
+// 根据el获取component
+function findComponentByEl(el) {
+  while (!el.__vue__ && el.parentElement) {
+    el = el.parentElement
+  }
+  return el?.__vue__
+}
+
 export default {
   getInstanceName,
+  findComponentByEl,
 }

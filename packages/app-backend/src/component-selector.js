@@ -1,8 +1,8 @@
 import { throttle, debounce } from 'lodash-es'
 import { highlight, unHighlight } from './highlighter'
-import { findRelatedComponent } from './utils'
 import { isBrowser } from '@utils/env'
 import { bridge as exBridge, api } from './bridge'
+import { engine } from './engine'
 
 const isTouch = 'ontouchstart' in window
 
@@ -60,7 +60,7 @@ export default class ComponentSelector {
 
     const el = e.target
     if (el) {
-      this.selectedInstance = findRelatedComponent(el)
+      this.selectedInstance = engine.findComponentByEl(el)
     }
 
     unHighlight()
