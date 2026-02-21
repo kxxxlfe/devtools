@@ -1,3 +1,5 @@
+import { getVerNum } from './common'
+
 // 检验dom元素是否支持vue2
 const detectVue = function (dom) {
   if (!dom.__vue__) {
@@ -12,6 +14,7 @@ const detectVue = function (dom) {
 
   return {
     version: Vue.version,
+    verNum: getVerNum(Vue.version),
     devtoolsEnable: Vue.config.devtools,
     env: { Vue, store: component.$store },
   }

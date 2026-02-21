@@ -1,3 +1,5 @@
+import { getVerNum } from './common'
+
 // 检验dom元素是否支持vue2
 const detectVue = function (dom) {
   if (!dom.__vue_app__) {
@@ -9,6 +11,7 @@ const detectVue = function (dom) {
 
   return {
     version: appContext.version,
+    verNum: getVerNum(appContext.version),
     devtoolsEnable,
     env: { appContext },
   }
