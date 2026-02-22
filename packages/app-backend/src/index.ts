@@ -149,19 +149,18 @@ export function findInstanceOrVnode(id) {
 
 function scan() {
   rootInstances.length = 0
-  let inFragment = false
-  let currentFragment = null
+  const scanInstMap = new Map()
 
   function processInstance(instance) {
     if (!instance) {
       return
     }
+    if (scanInstMap.get(instance)) {
+      return true
+    }
+    scanInstMap.set(instance, true)
     if (rootInstances.indexOf(instance.$root) === -1) {
       instance = instance.$root
-    }
-    if (instance._isFragment) {
-      inFragment = true
-      currentFragment = instance
     }
 
     // respect Vue.config.devtools option
@@ -179,14 +178,7 @@ function scan() {
 
   if (isBrowser) {
     walk(document, function (node) {
-      if (inFragment) {
-        if (node === currentFragment._fragmentEnd) {
-          inFragment = false
-          currentFragment = null
-        }
-        return true
-      }
-      let instance = node.__vue__
+      let instance = engine.findComponentByEl(node)
 
       return processInstance(instance)
     })
@@ -333,7 +325,7 @@ function captureChild(child) {
  * @return {Object}
  */
 
-function capture(instance, index, list) {
+function capture(instance) {
   if (process.env.NODE_ENV !== 'production') {
     captureCount++
   }
@@ -391,7 +383,7 @@ function capture(instance, index, list) {
   mark(instance)
   const name = engine.getInstanceName(instance)
 
-  const ret = {
+  const ret: any = {
     uid: engine.uid(instance),
     id: instance.__VUE_DEVTOOLS_UID__,
     name,
@@ -409,7 +401,7 @@ function capture(instance, index, list) {
   }
 
   // record screen position to ensure correct ordering
-  if ((!list || list.length > 1) && !instance._inactive) {
+  if (!instance._inactive) {
     const rect = engine.getInstanceOrVnodeRect(instance)
     ret.top = rect ? rect.top : Infinity
   } else {
@@ -485,7 +477,7 @@ function getInstanceDetails(id) {
 
     return data
   } else {
-    const data = {
+    const data: any = {
       id: id,
       name: engine.getInstanceName(instance),
       state: getInstanceState(instance),
@@ -523,7 +515,7 @@ function bindToConsole(instance) {
   for (let i = 0; i < 5; i++) {
     window['$vm' + i] = instanceMap.get(consoleBoundInstances[i])
   }
-  window.$vm = instance
+  window['$vm'] = instance
 }
 
 /**
@@ -680,7 +672,7 @@ exBridge.on(api.web.updateActiveTab, tab => {
   hook.currentTab = tab
 })
 // print vue info
-exBridge.on(api.web.log, ({ type } = {}) => {
+exBridge.on(api.web.log, ({ type }: any = {}) => {
   if (type === 'log-detected-vue') {
     console.log(
       `%c vue-devtools %c Detected Vue v${hook.env?.version} %c`,
