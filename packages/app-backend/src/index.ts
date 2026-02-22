@@ -397,7 +397,7 @@ function capture(instance) {
       .filter(Boolean),
   }
 
-  if (instance._vnode && instance._vnode.children) {
+  if (instance._vnode?.children) {
     ret.children = ret.children.concat(flatten(instance._vnode.children.map(captureChild)).filter(Boolean))
   }
 
@@ -412,14 +412,13 @@ function capture(instance) {
   const consoleId = consoleBoundInstances.indexOf(instance.__VUE_DEVTOOLS_UID__)
   ret.consoleId = consoleId > -1 ? '$vm' + consoleId : null
   // check router view
-  const isRouterView2 = instance.$vnode && instance.$vnode.data.routerView
+  const isRouterView2 = instance.$vnode?.data.routerView
   if (instance._routerView || isRouterView2) {
     ret.isRouterView = true
     if (!instance._inactive && instance.$route) {
       const matched = instance.$route.matched
       const depth = isRouterView2 ? instance.$vnode.data.routerViewDepth : instance._routerView.depth
-      ret.matchedRouteSegment =
-        matched && matched[depth] && (isRouterView2 ? matched[depth].path : matched[depth].handler.path)
+      ret.matchedRouteSegment = matched?.[depth] && (isRouterView2 ? matched[depth].path : matched[depth].handler.path)
     }
   }
   return ret
