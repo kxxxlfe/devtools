@@ -22,6 +22,8 @@ export function isFragment(instance) {
 export default {
   uid: instance => instance?.uid,
   root: instance => instance?.root,
+  children: instance => instance?.subTree.children.map(item => item.component).filter(item => !!item) || [],
+  isDestroyed: instance => instance?.isUnmounted,
   getInstanceName,
   findComponentByEl,
   isFragment,

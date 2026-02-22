@@ -262,8 +262,8 @@ const debounceFlush = debounce(() => {
  */
 
 function findQualifiedChildrenFromList(instances) {
-  instances = instances.filter(child => !child._isBeingDestroyed)
-  return !filter ? instances.map(capture) : Array.prototype.concat.apply([], instances.map(findQualifiedChildren))
+  instances = instances.filter(child => !engine.isDestroyed(child))
+  return !filter ? instances.map(capture) : [...instances.map(findQualifiedChildren)]
 }
 
 /**
@@ -279,7 +279,7 @@ function findQualifiedChildren(instance) {
   return isQualified(instance)
     ? capture(instance)
     : findQualifiedChildrenFromList(instance.$children).concat(
-        instance._vnode && instance._vnode.children
+        instance._vnode?.children
           ? // Find functional components in recursively in non-functional vnodes.
             flatten(instance._vnode.children.filter(child => !child.componentInstance).map(captureChild))
               // Filter qualified children.
@@ -297,7 +297,7 @@ function findQualifiedChildren(instance) {
 
 function isQualified(instance) {
   const name = classify(instance.name || engine.getInstanceName(instance)).toLowerCase()
-  return name.indexOf(filter) > -1
+  return name.includes(filter)
 }
 
 function flatten(items) {

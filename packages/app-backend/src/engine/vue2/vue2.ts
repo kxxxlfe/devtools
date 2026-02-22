@@ -22,6 +22,8 @@ export function isFragment(instance) {
 export default {
   uid: instance => instance?._uid,
   root: instance => instance?.$root,
+  children: instance => instance?.$children,
+  isDestroyed: instance => instance?._isBeingDestroyed,
   getInstanceName,
   findComponentByEl,
   isFragment,
