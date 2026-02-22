@@ -2,6 +2,7 @@
 import { isRef, isReadonly, isReactive } from 'vue'
 import { camelize, getComponentName, getCustomRefDetails } from '@utils/util'
 import SharedData from '@utils/shared-data'
+import { engine } from '../engine'
 
 // 判断数据是否响应式
 const checkReact = function ({ key, val, host }: { key: string; val: unknown; host: Record<string, unknown> }) {
@@ -39,7 +40,7 @@ export function getCustomInstanceDetails(instance: any) {
     _custom: {
       type: 'component',
       id: instance.__VUE_DEVTOOLS_UID__,
-      display: getInstanceName(instance),
+      display: engine.getInstanceName(instance),
       tooltip: 'Component instance',
       value: reduceStateList(state),
       fields: {
@@ -59,15 +60,6 @@ function reduceStateList(list: any[]) {
     obj[item.key] = item.value
     return map
   }, {})
-}
-
-/**
- * Get the appropriate display name for the instance.
- */
-export function getInstanceName(instance: any): string {
-  const name = getComponentName(instance.$options || instance.fnOptions || {})
-  if (name) return name
-  return instance.$root === instance ? 'Root' : 'Anonymous Component'
 }
 
 let isLegacy = false

@@ -21,6 +21,7 @@ export function isFragment(instance) {
 
 export default {
   uid: instance => instance?.uid,
+  root: instance => instance?.root,
   getInstanceName,
   findComponentByEl,
   isFragment,

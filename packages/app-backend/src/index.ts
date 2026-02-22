@@ -159,8 +159,9 @@ function scan() {
       return true
     }
     scanInstMap.set(instance, true)
-    if (rootInstances.indexOf(instance.$root) === -1) {
-      instance = instance.$root
+    const rootInst = engine.root(instance)
+    if (rootInstances.indexOf(rootInst) === -1) {
+      instance = rootInst
     }
 
     // respect Vue.config.devtools option
@@ -523,7 +524,7 @@ function bindToConsole(instance) {
  * @param {Vue} instance
  */
 function getUniqueId(instance) {
-  const rootVueId = instance.$root.__VUE_DEVTOOLS_ROOT_UID__
+  const rootVueId = engine.root(instance).__VUE_DEVTOOLS_ROOT_UID__
   return `${rootVueId}:${engine.uid(instance)}`
 }
 
