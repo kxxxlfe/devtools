@@ -15,7 +15,12 @@ function findComponentByEl(el) {
   return el?.__vue__
 }
 
+export function isFragment(instance) {
+  return instance?._isFragment
+}
+
 export default {
   getInstanceName,
   findComponentByEl,
+  isFragment,
 }

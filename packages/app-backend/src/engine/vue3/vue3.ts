@@ -15,7 +15,12 @@ function findComponentByEl(el) {
   return el?.__vueParentComponent
 }
 
+export function isFragment(instance) {
+  return instance.subTree?.type === Symbol.for('v-fgt')
+}
+
 export default {
   getInstanceName,
   findComponentByEl,
+  isFragment,
 }
