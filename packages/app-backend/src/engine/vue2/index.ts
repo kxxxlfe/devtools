@@ -1,4 +1,4 @@
-import * as v from './vue2'
+import v from './vue2'
 import { getInstanceOrVnodeRect } from './rect'
 
 export default {

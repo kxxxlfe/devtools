@@ -2,7 +2,7 @@
 // when the Vue Devtools panel is activated.
 import Vue from 'vue'
 import { envs } from '@vue-devtools/shared-utils'
-import { highlight, unHighlight, getInstanceOrVnodeRect } from './highlighter'
+import { highlight, unHighlight } from './highlighter'
 import { initVuexBackend } from './vuex'
 import { initEventsBackend } from './events'
 import { initRouterBackend } from './router'
@@ -414,7 +414,7 @@ function capture(instance, index, list) {
 
   // record screen position to ensure correct ordering
   if ((!list || list.length > 1) && !instance._inactive) {
-    const rect = getInstanceOrVnodeRect(instance)
+    const rect = engine.getInstanceOrVnodeRect(instance)
     ret.top = rect ? rect.top : Infinity
   } else {
     ret.top = Infinity
@@ -595,7 +595,7 @@ exBridge.on(api.web.refresh, scan)
  */
 
 function scrollIntoView(instance) {
-  const rect = getInstanceOrVnodeRect(instance)
+  const rect = engine.getInstanceOrVnodeRect(instance)
   if (rect) {
     // TODO: Handle this for non-browser environments.
     window.scrollBy(0, rect.top + (rect.height - window.innerHeight) / 2)
