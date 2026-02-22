@@ -284,10 +284,10 @@ function findQualifiedChildren(instance) {
 
   let functionalChildren = []
   if (instance._vnode?.children) {
-    const vnodes = instance._vnode.children.filter(child => !child.componentInstance).map(captureChild)
+    const funcNodes = instance._vnode.children.filter(child => !child.componentInstance).map(capture)
     functionalChildren =
       // Find functional components in recursively in non-functional vnodes.
-      flatten(vnodes)
+      flatten(funcNodes)
         // Filter qualified children.
         .filter(instance => isQualified(instance))
   }
