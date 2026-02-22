@@ -153,31 +153,32 @@ function scan() {
   let currentFragment = null
 
   function processInstance(instance) {
-    if (instance) {
-      if (rootInstances.indexOf(instance.$root) === -1) {
-        instance = instance.$root
-      }
-      if (instance._isFragment) {
-        inFragment = true
-        currentFragment = instance
-      }
-
-      // respect Vue.config.devtools option
-      let baseVue = instance.constructor
-      while (baseVue.super) {
-        baseVue = baseVue.super
-      }
-      if (baseVue.config?.devtools) {
-        // give a unique id to root instance so we can
-        // 'namespace' its children
-        if (typeof instance.__VUE_DEVTOOLS_ROOT_UID__ === 'undefined') {
-          instance.__VUE_DEVTOOLS_ROOT_UID__ = ++rootUID
-        }
-        rootInstances.push(instance)
-      }
-
-      return true
+    if (!instance) {
+      return
     }
+    if (rootInstances.indexOf(instance.$root) === -1) {
+      instance = instance.$root
+    }
+    if (instance._isFragment) {
+      inFragment = true
+      currentFragment = instance
+    }
+
+    // respect Vue.config.devtools option
+    let baseVue = instance.constructor
+    while (baseVue.super) {
+      baseVue = baseVue.super
+    }
+    if (baseVue.config?.devtools) {
+      // give a unique id to root instance so we can
+      // 'namespace' its children
+      if (typeof instance.__VUE_DEVTOOLS_ROOT_UID__ === 'undefined') {
+        instance.__VUE_DEVTOOLS_ROOT_UID__ = ++rootUID
+      }
+      rootInstances.push(instance)
+    }
+
+    return true
   }
 
   if (isBrowser) {

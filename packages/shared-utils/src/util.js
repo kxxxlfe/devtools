@@ -54,7 +54,7 @@ export function inDoc(node) {
   if (!node) return false
   const doc = node.ownerDocument.documentElement
   const parent = node.parentNode
-  return doc === node || doc === parent || !!(parent && parent.nodeType === 1 && doc.contains(parent))
+  return doc === node || doc === parent || !!(parent?.nodeType === 1 && doc.contains(parent))
 }
 
 // Token constants used by searchDeepInObject and parse (frontend); stringify lives in app-backend
