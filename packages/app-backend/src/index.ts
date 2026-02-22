@@ -276,16 +276,23 @@ function findQualifiedChildrenFromList(instances) {
  */
 
 function findQualifiedChildren(instance) {
-  return isQualified(instance)
-    ? capture(instance)
-    : findQualifiedChildrenFromList(instance.$children).concat(
-        instance._vnode?.children
-          ? // Find functional components in recursively in non-functional vnodes.
-            flatten(instance._vnode.children.filter(child => !child.componentInstance).map(captureChild))
-              // Filter qualified children.
-              .filter(instance => isQualified(instance))
-          : []
-      )
+  if (isQualified(instance)) {
+    return capture(instance)
+  }
+
+  const children = engine.children(instance)
+
+  let functionalChildren = []
+  if (instance._vnode?.children) {
+    const vnodes = instance._vnode.children.filter(child => !child.componentInstance).map(captureChild)
+    functionalChildren =
+      // Find functional components in recursively in non-functional vnodes.
+      flatten(vnodes)
+        // Filter qualified children.
+        .filter(instance => isQualified(instance))
+  }
+
+  return [...findQualifiedChildrenFromList(children), ...functionalChildren]
 }
 
 /**
