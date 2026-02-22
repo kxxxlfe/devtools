@@ -165,11 +165,7 @@ function scan() {
     }
 
     // respect Vue.config.devtools option
-    let baseVue = instance.constructor
-    while (baseVue.super) {
-      baseVue = baseVue.super
-    }
-    if (baseVue.config?.devtools) {
+    if (hook.env?.devtoolsEnabled) {
       // give a unique id to root instance so we can
       // 'namespace' its children
       if (typeof instance.__VUE_DEVTOOLS_ROOT_UID__ === 'undefined') {
@@ -396,7 +392,7 @@ function capture(instance, index, list) {
   const name = engine.getInstanceName(instance)
 
   const ret = {
-    uid: instance._uid,
+    uid: engine.uid(instance),
     id: instance.__VUE_DEVTOOLS_UID__,
     name,
     renderKey: getRenderKey(instance.$vnode ? instance.$vnode['key'] : null),
@@ -536,7 +532,7 @@ function bindToConsole(instance) {
  */
 function getUniqueId(instance) {
   const rootVueId = instance.$root.__VUE_DEVTOOLS_ROOT_UID__
-  return `${rootVueId}:${instance._uid}`
+  return `${rootVueId}:${engine.uid(instance)}`
 }
 
 function getRenderKey(value) {

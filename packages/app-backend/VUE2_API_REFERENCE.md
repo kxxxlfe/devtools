@@ -49,7 +49,6 @@
 | `instance.$root`     | index.js:157-158, 537; process.js:74                                                                         | 根实例                                     |
 | `instance.$parent`   | index.js:291; utils.js:11                                                                                    | 父实例                                     |
 | `instance.$children` | index.js:291, 404-405                                                                                        | 子实例数组                                 |
-| `instance.$el`       | highlighter.js:92                                                                                            | 根 DOM 元素                                |
 | `instance.$refs`     | process.js:186-188, 206, 247                                                                                 | 模板 refs                                  |
 | `instance.$options`  | process.js:72, 108, 167-168, 238, 283, 342; index.js:344, 483; vuex.js:191; perf.js:85-86, 102, 109, 120-126 | 组件选项对象                               |
 | `instance.$vnode`    | index.js:401, 425-430, 498                                                                                   | 当前实例在父树中的 vnode                   |

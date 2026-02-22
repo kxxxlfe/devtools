@@ -20,7 +20,7 @@ export function initEventsBackend(Vue) {
           eventName,
           type,
           payload,
-          instanceId: vm._uid,
+          instanceId: engine.uid(vm),
           instanceName: engine.getInstanceName(vm._self || vm),
           timestamp: Date.now(),
         })
