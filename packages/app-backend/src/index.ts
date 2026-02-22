@@ -398,7 +398,7 @@ function capture(instance) {
   }
 
   if (instance._vnode?.children) {
-    ret.children = ret.children.concat(flatten(instance._vnode.children.map(captureChild)).filter(Boolean))
+    ret.children = [...ret.children, ...flatten(instance._vnode.children.map(captureChild)).filter(Boolean)]
   }
 
   // record screen position to ensure correct ordering
