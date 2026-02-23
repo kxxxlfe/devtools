@@ -9,6 +9,17 @@ import { initRouterBackend } from './router'
 import { initPerfBackend } from './perf'
 import { initPiniaBackend } from './pinia'
 import { debounce, getInstanceState, processProps, stringify, setInstanceMap } from './utils'
+import {
+  instanceMap,
+  functionalVnodeMap,
+  consoleBoundInstances,
+  getNextRootUID,
+  clearFlushState,
+  findQualifiedChildrenFromList,
+  captureCount,
+} from './utils/flush'
+
+export { instanceMap, functionalVnodeMap }
 import { classify, parse, set, has, getComponentName, kebabize } from '@utils/util'
 import ComponentSelector from './component-selector'
 import SharedData, { init as initSharedData } from '@utils/shared-data'
@@ -35,21 +46,11 @@ hook.injectBackend = async function () {
   return true
 }
 
-export const instanceMap = (target.__VUE_DEVTOOLS_INSTANCE_MAP__ = new Map())
 setInstanceMap(instanceMap)
-export const functionalVnodeMap = (target.__VUE_DEVTOOLS_FUNCTIONAL_VNODE_MAP__ = new Map())
 
-const consoleBoundInstances = Array(5)
 let currentInspectedId
 let bridge
 let filter = ''
-let captureCount = 0
-let rootUID = 0
-let functionalIds = new Map()
-
-// Dedupe instances
-// Some instances may be both on a component and on a child abstract/functional component
-const captureIds = new Map()
 
 export function initBackend(_bridge) {
   bridge = _bridge
@@ -169,7 +170,7 @@ function scan() {
       // give a unique id to root instance so we can
       // 'namespace' its children
       if (typeof instance.__VUE_DEVTOOLS_ROOT_UID__ === 'undefined') {
-        instance.__VUE_DEVTOOLS_ROOT_UID__ = ++rootUID
+        instance.__VUE_DEVTOOLS_ROOT_UID__ = getNextRootUID()
       }
       rootInstances.push(instance)
     }
@@ -193,6 +194,37 @@ function scan() {
 }
 
 /**
+ * Called on every Vue.js batcher flush cycle.
+ * Capture current component tree structure and the state
+ * of the current inspected instance (if present) and
+ * send it to the devtools.
+ */
+function flush() {
+  let start
+  clearFlushState()
+  if (process.env.NODE_ENV !== 'production') {
+    start = isBrowser ? window.performance.now() : 0
+  }
+  const payload = stringify({
+    instances: findQualifiedChildrenFromList(rootInstances, filter).filter(item => !!item),
+  })
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(
+      `[flush] serialized ${captureCount} instances${isBrowser ? `, took ${window.performance.now() - start}ms.` : ''}.`
+    )
+  }
+  exBridge.send(api.devtool.updateInstance, {
+    id: currentInspectedId,
+    instance: stringify(getInstanceDetails(currentInspectedId)),
+  })
+  exBridge.send(api.devtool.flush, payload, { chunk: { size: 1024 * 10 } })
+}
+
+const debounceFlush = debounce(() => {
+  whenDevtoolActive(flush)
+}, 200)
+
+/**
  * DOM walk helper
  *
  * @param {NodeList} nodes
@@ -214,248 +246,6 @@ function walk(node, fn) {
   if (node.shadowRoot) {
     walk(node.shadowRoot, fn)
   }
-}
-
-/**
- * Called on every Vue.js batcher flush cycle.
- * Capture current component tree structure and the state
- * of the current inspected instance (if present) and
- * send it to the devtools.
- */
-
-function flush() {
-  let start
-  functionalIds.clear()
-  captureIds.clear()
-  if (process.env.NODE_ENV !== 'production') {
-    captureCount = 0
-    start = isBrowser ? window.performance.now() : 0
-  }
-  const payload = stringify({
-    instances: findQualifiedChildrenFromList(rootInstances).filter(item => !!item),
-  })
-  if (process.env.NODE_ENV !== 'production') {
-    console.log(
-      `[flush] serialized ${captureCount} instances${isBrowser ? `, took ${window.performance.now() - start}ms.` : ''}.`
-    )
-  }
-
-  exBridge.send(api.devtool.updateInstance, {
-    id: currentInspectedId,
-    instance: stringify(getInstanceDetails(currentInspectedId)),
-  })
-  exBridge.send(api.devtool.flush, payload, { chunk: { size: 1024 * 10 } })
-}
-
-const debounceFlush = debounce(() => {
-  whenDevtoolActive(flush)
-}, 200)
-
-/**
- * Iterate through an array of instances and flatten it into
- * an array of qualified instances. This is a depth-first
- * traversal - e.g. if an instance is not matched, we will
- * recursively go deeper until a qualified child is found.
- *
- * @param {Array} instances
- * @return {Array}
- */
-
-function findQualifiedChildrenFromList(instances) {
-  instances = instances.filter(child => !engine.isDestroyed(child))
-  return !filter ? instances.map(capture) : [...instances.map(findQualifiedChildren)]
-}
-
-/**
- * Find qualified children from a single instance.
- * If the instance itself is qualified, just return itself.
- * This is ok because [].concat works in both cases.
- *
- * @param {Vue|Vnode} instance
- * @return {Vue|Array}
- */
-
-function findQualifiedChildren(instance) {
-  if (isQualified(instance)) {
-    return capture(instance)
-  }
-
-  const children = engine.children(instance)
-
-  let functionalChildren = []
-  if (instance._vnode?.children) {
-    const funcNodes = instance._vnode.children.filter(child => !child.componentInstance).map(capture)
-    functionalChildren =
-      // Find functional components in recursively in non-functional vnodes.
-      flatten(funcNodes)
-        // Filter qualified children.
-        .filter(instance => isQualified(instance))
-  }
-
-  return [...findQualifiedChildrenFromList(children), ...functionalChildren]
-}
-
-/**
- * Check if an instance is qualified.
- *
- * @param {Vue|Vnode} instance
- * @return {Boolean}
- */
-
-function isQualified(instance) {
-  const name = classify(instance.name || engine.getInstanceName(instance)).toLowerCase()
-  return name.includes(filter)
-}
-
-function flatten(items) {
-  return items.reduce((acc, item) => {
-    if (item instanceof Array) acc.push(...flatten(item))
-    else if (item) acc.push(item)
-
-    return acc
-  }, [])
-}
-
-function captureChild(child) {
-  if (child.fnContext && !child.componentInstance) {
-    return capture(child)
-  } else if (child.componentInstance) {
-    if (!child.componentInstance._isBeingDestroyed) return capture(child.componentInstance)
-  } else if (child.children) {
-    return flatten(child.children.map(captureChild))
-  }
-}
-
-/**
- * Capture the meta information of an instance. (recursive)
- *
- * @param {Vue} instance
- * @return {Object}
- */
-
-function capture(instance) {
-  if (process.env.NODE_ENV !== 'production') {
-    captureCount++
-  }
-
-  if (instance.$options?.abstract && instance._vnode?.componentInstance) {
-    instance = instance._vnode.componentInstance
-  }
-
-  // Functional component.
-  if (instance.fnContext && !instance.componentInstance) {
-    const contextUid = instance.fnContext.__VUE_DEVTOOLS_UID__
-    let id = functionalIds.get(contextUid)
-    if (id == null) {
-      id = 0
-    } else {
-      id++
-    }
-    functionalIds.set(contextUid, id)
-    const functionalId = contextUid + ':functional:' + id
-    markFunctional(functionalId, instance)
-    return {
-      id: functionalId,
-      functional: true,
-      name: engine.getInstanceName(instance),
-      renderKey: getRenderKey(instance.key),
-      children: (instance.children
-        ? instance.children.map(child =>
-            child.fnContext
-              ? captureChild(child)
-              : child.componentInstance
-              ? capture(child.componentInstance)
-              : undefined
-          )
-        : // router-view has both fnContext and componentInstance on vnode.
-        instance.componentInstance
-        ? [capture(instance.componentInstance)]
-        : []
-      ).filter(Boolean),
-      inactive: false,
-      isFragment: false, // TODO: Check what is it for.
-    }
-  }
-  // instance._uid is not reliable in devtools as there
-  // may be 2 roots with same _uid which causes unexpected
-  // behaviour
-  instance.__VUE_DEVTOOLS_UID__ = getUniqueId(instance)
-
-  // Dedupe
-  if (captureIds.has(instance.__VUE_DEVTOOLS_UID__)) {
-    return
-  } else {
-    captureIds.set(instance.__VUE_DEVTOOLS_UID__, undefined)
-  }
-
-  mark(instance)
-  const name = engine.getInstanceName(instance)
-
-  const ret: any = {
-    uid: engine.uid(instance),
-    id: instance.__VUE_DEVTOOLS_UID__,
-    name,
-    renderKey: getRenderKey(instance.$vnode ? instance.$vnode['key'] : null),
-    inactive: !!instance._inactive,
-    isFragment: !!instance._isFragment,
-    children: instance.$children
-      .filter(child => !child._isBeingDestroyed)
-      .map(capture)
-      .filter(Boolean),
-  }
-
-  if (instance._vnode?.children) {
-    ret.children = [...ret.children, ...flatten(instance._vnode.children.map(captureChild)).filter(Boolean)]
-  }
-
-  // record screen position to ensure correct ordering
-  if (!instance._inactive) {
-    const rect = engine.getInstanceOrVnodeRect(instance)
-    ret.top = rect ? rect.top : Infinity
-  } else {
-    ret.top = Infinity
-  }
-  // check if instance is available in console
-  const consoleId = consoleBoundInstances.indexOf(instance.__VUE_DEVTOOLS_UID__)
-  ret.consoleId = consoleId > -1 ? '$vm' + consoleId : null
-  // check router view
-  const isRouterView2 = instance.$vnode?.data.routerView
-  if (instance._routerView || isRouterView2) {
-    ret.isRouterView = true
-    if (!instance._inactive && instance.$route) {
-      const matched = instance.$route.matched
-      const depth = isRouterView2 ? instance.$vnode.data.routerViewDepth : instance._routerView.depth
-      ret.matchedRouteSegment = matched?.[depth] && (isRouterView2 ? matched[depth].path : matched[depth].handler.path)
-    }
-  }
-  return ret
-}
-
-/**
- * Mark an instance as captured and store it in the instance map.
- *
- * @param {Vue} instance
- */
-
-function mark(instance) {
-  if (!instanceMap.has(instance.__VUE_DEVTOOLS_UID__)) {
-    instanceMap.set(instance.__VUE_DEVTOOLS_UID__, instance)
-    instance.$on('hook:beforeDestroy', function () {
-      instanceMap.delete(instance.__VUE_DEVTOOLS_UID__)
-    })
-  }
-}
-
-function markFunctional(id, vnode) {
-  const refId = vnode.fnContext.__VUE_DEVTOOLS_UID__
-  if (!functionalVnodeMap.has(refId)) {
-    functionalVnodeMap.set(refId, {})
-    vnode.fnContext.$on('hook:beforeDestroy', function () {
-      functionalVnodeMap.delete(refId)
-    })
-  }
-
-  functionalVnodeMap.get(refId)[id] = vnode
 }
 
 /**
@@ -523,29 +313,6 @@ function bindToConsole(instance) {
     window['$vm' + i] = instanceMap.get(consoleBoundInstances[i])
   }
   window['$vm'] = instance
-}
-
-/**
- * Returns a devtools unique id for instance.
- * @param {Vue} instance
- */
-function getUniqueId(instance) {
-  const rootVueId = engine.root(instance).__VUE_DEVTOOLS_ROOT_UID__
-  return `${rootVueId}:${engine.uid(instance)}`
-}
-
-function getRenderKey(value) {
-  if (value == null) return
-  const type = typeof value
-  if (type === 'number') {
-    return value
-  } else if (type === 'string') {
-    return `'${value}'`
-  } else if (Array.isArray(value)) {
-    return 'Array'
-  } else {
-    return 'Object'
-  }
 }
 
 /**
