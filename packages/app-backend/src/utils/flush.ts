@@ -19,7 +19,7 @@ export function getNextRootUID() {
 
 // --- 仅本模块使用的过程变量 ---
 export let captureCount = 0 // 本次 flush 中已 capture 的实例数量（用于 dev 日志）
-const captureIds = new Map()
+export const captureIds = new Map()
 
 // --- 工具函数（保留原有实现）---
 export function getRenderKey(value) {
@@ -44,18 +44,9 @@ export function flatten(items) {
   }, [])
 }
 
-function getUniqueId(instance) {
+export function getUniqueId(instance) {
   const rootVueId = engine.root(instance).__VUE_DEVTOOLS_ROOT_UID__
   return `${rootVueId}:${engine.uid(instance)}`
-}
-
-function mark(instance) {
-  if (!instanceMap.has(instance.__VUE_DEVTOOLS_UID__)) {
-    instanceMap.set(instance.__VUE_DEVTOOLS_UID__, instance)
-    instance.$on('hook:beforeDestroy', function () {
-      instanceMap.delete(instance.__VUE_DEVTOOLS_UID__)
-    })
-  }
 }
 
 function isQualified(instance) {
@@ -63,73 +54,12 @@ function isQualified(instance) {
   return name.includes(filter)
 }
 
-export function captureChild(child) {
-  if (child.fnContext && !child.componentInstance) {
-    return capture(child)
-  } else if (child.componentInstance) {
-    if (!child.componentInstance._isBeingDestroyed) return capture(child.componentInstance)
-  } else if (child.children) {
-    return flatten(child.children.map(c => captureChild(c)))
-  }
-}
-
 export function capture(instance) {
   if (process.env.NODE_ENV !== 'production') {
     captureCount++
   }
 
-  if (instance.$options?.abstract && instance._vnode?.componentInstance) {
-    instance = instance._vnode.componentInstance
-  }
-
-  const functionalInst = engine.functional?.capture(instance)
-  if (functionalInst) {
-    return functionalInst
-  }
-
-  instance.__VUE_DEVTOOLS_UID__ = getUniqueId(instance)
-  if (captureIds.has(instance.__VUE_DEVTOOLS_UID__)) {
-    return
-  }
-  captureIds.set(instance.__VUE_DEVTOOLS_UID__, undefined)
-  mark(instance)
-  const name = engine.getInstanceName(instance)
-
-  const ret: any = {
-    uid: engine.uid(instance),
-    id: instance.__VUE_DEVTOOLS_UID__,
-    name,
-    renderKey: getRenderKey(instance.$vnode ? instance.$vnode['key'] : null),
-    inactive: !!instance._inactive,
-    isFragment: !!instance._isFragment,
-    children: instance.$children
-      .filter(child => !child._isBeingDestroyed)
-      .map(c => capture(c))
-      .filter(Boolean),
-  }
-
-  if (instance._vnode?.children) {
-    ret.children = [...ret.children, ...flatten(instance._vnode.children.map(c => captureChild(c))).filter(Boolean)]
-  }
-
-  if (!instance._inactive) {
-    const rect = engine.getInstanceOrVnodeRect(instance)
-    ret.top = rect ? rect.top : Infinity
-  } else {
-    ret.top = Infinity
-  }
-  const consoleId = consoleBoundInstances.indexOf(instance.__VUE_DEVTOOLS_UID__)
-  ret.consoleId = consoleId > -1 ? '$vm' + consoleId : null
-  const isRouterView2 = instance.$vnode?.data.routerView
-  if (instance._routerView || isRouterView2) {
-    ret.isRouterView = true
-    if (!instance._inactive && instance.$route) {
-      const matched = instance.$route.matched
-      const depth = isRouterView2 ? instance.$vnode.data.routerViewDepth : instance._routerView.depth
-      ret.matchedRouteSegment = matched?.[depth] && (isRouterView2 ? matched[depth].path : matched[depth].handler.path)
-    }
-  }
-  return ret
+  return engine.capture(instance)
 }
 
 function findQualifiedChildren(instance) {

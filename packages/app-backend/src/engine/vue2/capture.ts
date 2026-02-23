@@ -1,9 +1,84 @@
 import { target } from '@utils/env'
 import engine from './vue2'
-import { getRenderKey, flatten, capture, captureChild } from '../../utils'
+import { getInstanceOrVnodeRect } from './rect'
+import { getRenderKey, flatten, instanceMap, getUniqueId, captureIds, consoleBoundInstances } from '../../utils'
 
 const functionalVnodeMap = (target.__VUE_DEVTOOLS_FUNCTIONAL_VNODE_MAP__ = new Map())
 let functionalIds = new Map()
+
+function mark(instance) {
+  if (!instanceMap.has(instance.__VUE_DEVTOOLS_UID__)) {
+    instanceMap.set(instance.__VUE_DEVTOOLS_UID__, instance)
+    instance.$on('hook:beforeDestroy', function () {
+      instanceMap.delete(instance.__VUE_DEVTOOLS_UID__)
+    })
+  }
+}
+
+export function captureChild(child) {
+  if (child.fnContext && !child.componentInstance) {
+    return capture(child)
+  } else if (child.componentInstance) {
+    if (!child.componentInstance._isBeingDestroyed) return capture(child.componentInstance)
+  } else if (child.children) {
+    return flatten(child.children.map(c => captureChild(c)))
+  }
+}
+
+export function capture(instance) {
+  if (instance.$options?.abstract && instance._vnode?.componentInstance) {
+    instance = instance._vnode.componentInstance
+  }
+
+  const functionalInst = captureFunctional(instance)
+  if (functionalInst) {
+    return functionalInst
+  }
+
+  instance.__VUE_DEVTOOLS_UID__ = getUniqueId(instance)
+  if (captureIds.has(instance.__VUE_DEVTOOLS_UID__)) {
+    return
+  }
+  captureIds.set(instance.__VUE_DEVTOOLS_UID__, undefined)
+  mark(instance)
+  const name = engine.getInstanceName(instance)
+
+  const ret: any = {
+    uid: engine.uid(instance),
+    id: instance.__VUE_DEVTOOLS_UID__,
+    name,
+    renderKey: getRenderKey(instance.$vnode ? instance.$vnode['key'] : null),
+    inactive: !!instance._inactive,
+    isFragment: !!instance._isFragment,
+    children: instance.$children
+      .filter(child => !child._isBeingDestroyed)
+      .map(c => capture(c))
+      .filter(Boolean),
+  }
+
+  if (instance._vnode?.children) {
+    ret.children = [...ret.children, ...flatten(instance._vnode.children.map(c => captureChild(c))).filter(Boolean)]
+  }
+
+  if (!ret.inactive) {
+    const rect = getInstanceOrVnodeRect(instance)
+    ret.top = rect ? rect.top : Infinity
+  } else {
+    ret.top = Infinity
+  }
+  const consoleId = consoleBoundInstances.indexOf(instance.__VUE_DEVTOOLS_UID__)
+  ret.consoleId = consoleId > -1 ? '$vm' + consoleId : null
+  const isRouterView2 = instance.$vnode?.data.routerView
+  if (instance._routerView || isRouterView2) {
+    ret.isRouterView = true
+    if (!instance._inactive && instance.$route) {
+      const matched = instance.$route.matched
+      const depth = isRouterView2 ? instance.$vnode.data.routerViewDepth : instance._routerView.depth
+      ret.matchedRouteSegment = matched?.[depth] && (isRouterView2 ? matched[depth].path : matched[depth].handler.path)
+    }
+  }
+  return ret
+}
 
 function captureFunctional(instance) {
   // Functional component.
@@ -73,7 +148,6 @@ export function findInstanceOrVnode(id) {
 }
 
 export const functional = {
-  capture: captureFunctional,
   captureSubVNodes,
   findInstanceOrVnode,
   functionalIds,

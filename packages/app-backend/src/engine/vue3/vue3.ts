@@ -27,4 +27,5 @@ export default {
   getInstanceName,
   findComponentByEl,
   isFragment,
+  capture: () => {},
 }
