@@ -5,6 +5,7 @@
 import { target } from '@utils/env'
 import { classify } from '@utils/util'
 import { engine } from '../engine'
+import { filter } from './global'
 
 // --- 在 flush 中定义，供 index 及其他模块 import ---
 export const instanceMap = (target.__VUE_DEVTOOLS_INSTANCE_MAP__ = new Map())
@@ -69,22 +70,22 @@ function markFunctional(id, vnode) {
   functionalVnodeMap.get(refId)[id] = vnode
 }
 
-function isQualified(instance, filter) {
+function isQualified(instance) {
   const name = classify(instance.name || engine.getInstanceName(instance)).toLowerCase()
   return name.includes(filter)
 }
 
-function captureChild(child, filter) {
+function captureChild(child) {
   if (child.fnContext && !child.componentInstance) {
-    return capture(child, filter)
+    return capture(child)
   } else if (child.componentInstance) {
-    if (!child.componentInstance._isBeingDestroyed) return capture(child.componentInstance, filter)
+    if (!child.componentInstance._isBeingDestroyed) return capture(child.componentInstance)
   } else if (child.children) {
-    return flatten(child.children.map(c => captureChild(c, filter)))
+    return flatten(child.children.map(c => captureChild(c)))
   }
 }
 
-function capture(instance, filter) {
+function capture(instance) {
   if (process.env.NODE_ENV !== 'production') {
     captureCount++
   }
@@ -112,13 +113,13 @@ function capture(instance, filter) {
       children: (instance.children
         ? instance.children.map(child =>
             child.fnContext
-              ? captureChild(child, filter)
+              ? captureChild(child)
               : child.componentInstance
-              ? capture(child.componentInstance, filter)
+              ? capture(child.componentInstance)
               : undefined
           )
         : instance.componentInstance
-        ? [capture(instance.componentInstance, filter)]
+        ? [capture(instance.componentInstance)]
         : []
       ).filter(Boolean),
       inactive: false,
@@ -143,15 +144,12 @@ function capture(instance, filter) {
     isFragment: !!instance._isFragment,
     children: instance.$children
       .filter(child => !child._isBeingDestroyed)
-      .map(c => capture(c, filter))
+      .map(c => capture(c))
       .filter(Boolean),
   }
 
   if (instance._vnode?.children) {
-    ret.children = [
-      ...ret.children,
-      ...flatten(instance._vnode.children.map(c => captureChild(c, filter))).filter(Boolean),
-    ]
+    ret.children = [...ret.children, ...flatten(instance._vnode.children.map(c => captureChild(c))).filter(Boolean)]
   }
 
   if (!instance._inactive) {
@@ -174,24 +172,22 @@ function capture(instance, filter) {
   return ret
 }
 
-function findQualifiedChildren(instance, filter) {
-  if (isQualified(instance, filter)) {
-    return capture(instance, filter)
+function findQualifiedChildren(instance) {
+  if (isQualified(instance)) {
+    return capture(instance)
   }
   const children = engine.children(instance)
   let functionalChildren = []
   if (instance._vnode?.children) {
-    const funcNodes = instance._vnode.children.filter(child => !child.componentInstance).map(c => capture(c, filter))
-    functionalChildren = flatten(funcNodes).filter(inst => isQualified(inst, filter))
+    const funcNodes = instance._vnode.children.filter(child => !child.componentInstance).map(c => capture(c))
+    functionalChildren = flatten(funcNodes).filter(inst => isQualified(inst))
   }
-  return [...findQualifiedChildrenFromList(children, filter), ...functionalChildren]
+  return [...findQualifiedChildrenFromList(children), ...functionalChildren]
 }
 
-export function findQualifiedChildrenFromList(instances, filter) {
+export function findQualifiedChildrenFromList(instances) {
   instances = instances.filter(child => !engine.isDestroyed(child))
-  return !filter
-    ? instances.map(inst => capture(inst, filter))
-    : flatten(instances.map(inst => findQualifiedChildren(inst, filter)))
+  return !filter ? instances.map(inst => capture(inst)) : flatten(instances.map(inst => findQualifiedChildren(inst)))
 }
 
 /** 在 index 的 flush 调用前清空本次 capture 的状态 */

@@ -8,7 +8,7 @@ import { initEventsBackend } from './events'
 import { initRouterBackend } from './router'
 import { initPerfBackend } from './perf'
 import { initPiniaBackend } from './pinia'
-import { debounce, getInstanceState, processProps, stringify, setInstanceMap } from './utils'
+import { debounce, getInstanceState, processProps, stringify, setInstanceMap, setFilter } from './utils'
 import {
   instanceMap,
   functionalVnodeMap,
@@ -50,7 +50,6 @@ setInstanceMap(instanceMap)
 
 let currentInspectedId
 let bridge
-let filter = ''
 
 export function initBackend(_bridge) {
   bridge = _bridge
@@ -206,7 +205,7 @@ function flush() {
     start = isBrowser ? window.performance.now() : 0
   }
   const payload = stringify({
-    instances: findQualifiedChildrenFromList(rootInstances, filter).filter(item => !!item),
+    instances: findQualifiedChildrenFromList(rootInstances).filter(item => !!item),
   })
   if (process.env.NODE_ENV !== 'production') {
     console.log(
@@ -438,7 +437,7 @@ exBridge.on(api.web.setInstanceData, args => {
   debounceFlush()
 })
 exBridge.on(api.web.filterInstance, _filter => {
-  filter = _filter.toLowerCase()
+  setFilter(_filter.toLowerCase())
   debounceFlush()
 })
 // 更新当前devtools正在使用的功能
