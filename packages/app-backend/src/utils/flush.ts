@@ -1,16 +1,16 @@
 /**
- * Flush/capture 相关状态与逻辑：instanceMap、functionalVnodeMap、根 UID、
  * 组件树 capture，由 index 通过 import 使用。flush 方法在 index 中调用。
  */
 import { target } from '@utils/env'
-import { classify } from '@utils/util'
+import { classify, setInstanceMap } from '@utils/util'
 import { engine } from '../engine'
 import { filter } from './global'
 
 // --- 在 flush 中定义，供 index 及其他模块 import ---
 export const instanceMap = (target.__VUE_DEVTOOLS_INSTANCE_MAP__ = new Map())
-export const functionalVnodeMap = (target.__VUE_DEVTOOLS_FUNCTIONAL_VNODE_MAP__ = new Map())
 export const consoleBoundInstances = Array(5)
+
+setInstanceMap(instanceMap)
 
 let rootUID = 0
 export function getNextRootUID() {
@@ -19,7 +19,6 @@ export function getNextRootUID() {
 
 // --- 仅本模块使用的过程变量 ---
 export let captureCount = 0 // 本次 flush 中已 capture 的实例数量（用于 dev 日志）
-const functionalIds = new Map()
 const captureIds = new Map()
 
 // --- 工具函数（保留原有实现）---
@@ -59,23 +58,12 @@ function mark(instance) {
   }
 }
 
-function markFunctional(id, vnode) {
-  const refId = vnode.fnContext.__VUE_DEVTOOLS_UID__
-  if (!functionalVnodeMap.has(refId)) {
-    functionalVnodeMap.set(refId, {})
-    vnode.fnContext.$on('hook:beforeDestroy', function () {
-      functionalVnodeMap.delete(refId)
-    })
-  }
-  functionalVnodeMap.get(refId)[id] = vnode
-}
-
 function isQualified(instance) {
   const name = classify(instance.name || engine.getInstanceName(instance)).toLowerCase()
   return name.includes(filter)
 }
 
-function captureChild(child) {
+export function captureChild(child) {
   if (child.fnContext && !child.componentInstance) {
     return capture(child)
   } else if (child.componentInstance) {
@@ -85,7 +73,7 @@ function captureChild(child) {
   }
 }
 
-function capture(instance) {
+export function capture(instance) {
   if (process.env.NODE_ENV !== 'production') {
     captureCount++
   }
@@ -94,37 +82,9 @@ function capture(instance) {
     instance = instance._vnode.componentInstance
   }
 
-  if (instance.fnContext && !instance.componentInstance) {
-    const contextUid = instance.fnContext.__VUE_DEVTOOLS_UID__
-    let id = functionalIds.get(contextUid)
-    if (id == null) {
-      id = 0
-    } else {
-      id++
-    }
-    functionalIds.set(contextUid, id)
-    const functionalId = contextUid + ':functional:' + id
-    markFunctional(functionalId, instance)
-    return {
-      id: functionalId,
-      functional: true,
-      name: engine.getInstanceName(instance),
-      renderKey: getRenderKey(instance.key),
-      children: (instance.children
-        ? instance.children.map(child =>
-            child.fnContext
-              ? captureChild(child)
-              : child.componentInstance
-              ? capture(child.componentInstance)
-              : undefined
-          )
-        : instance.componentInstance
-        ? [capture(instance.componentInstance)]
-        : []
-      ).filter(Boolean),
-      inactive: false,
-      isFragment: false,
-    }
+  const functionalInst = engine.functional?.capture(instance)
+  if (functionalInst) {
+    return functionalInst
   }
 
   instance.__VUE_DEVTOOLS_UID__ = getUniqueId(instance)
@@ -177,11 +137,8 @@ function findQualifiedChildren(instance) {
     return capture(instance)
   }
   const children = engine.children(instance)
-  let functionalChildren = []
-  if (instance._vnode?.children) {
-    const funcNodes = instance._vnode.children.filter(child => !child.componentInstance).map(c => capture(c))
-    functionalChildren = flatten(funcNodes).filter(inst => isQualified(inst))
-  }
+  const functionalChildren = engine.functional?.captureSubVNodes(instance) || []
+
   return [...findQualifiedChildrenFromList(children), ...functionalChildren]
 }
 
@@ -192,7 +149,7 @@ export function findQualifiedChildrenFromList(instances) {
 
 /** 在 index 的 flush 调用前清空本次 capture 的状态 */
 export function clearFlushState() {
-  functionalIds.clear()
+  engine.functional?.functionalIds.clear()
   captureIds.clear()
   captureCount = 0
 }

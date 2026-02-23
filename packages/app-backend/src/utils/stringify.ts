@@ -7,11 +7,6 @@ import * as CircularJSON from '@utils/transfer'
 import { getComponentName } from '@utils/util'
 import { getCustomInstanceDetails } from './process'
 
-let instanceMap = new Map<number, any>()
-export function setInstanceMap(inst: Map<number, any>) {
-  instanceMap = inst
-}
-
 export const UNDEFINED = '__vue_devtool_undefined__'
 export const INFINITY = '__vue_devtool_infinity__'
 export const NEGATIVE_INFINITY = '__vue_devtool_negative_infinity__'

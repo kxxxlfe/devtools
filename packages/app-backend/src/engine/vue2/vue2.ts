@@ -1,5 +1,6 @@
 // API vue2
 import { camelize, getComponentName, getCustomRefDetails } from '@utils/util'
+import { functional } from './capture'
 
 function getInstanceName(instance) {
   const name = getComponentName(instance.$options || instance.fnOptions || {})
@@ -27,4 +28,5 @@ export default {
   getInstanceName,
   findComponentByEl,
   isFragment,
+  functional,
 }

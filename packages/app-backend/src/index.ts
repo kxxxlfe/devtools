@@ -8,10 +8,9 @@ import { initEventsBackend } from './events'
 import { initRouterBackend } from './router'
 import { initPerfBackend } from './perf'
 import { initPiniaBackend } from './pinia'
-import { debounce, getInstanceState, processProps, stringify, setInstanceMap, setFilter } from './utils'
+import { debounce, getInstanceState, processProps, stringify, setFilter } from './utils'
 import {
   instanceMap,
-  functionalVnodeMap,
   consoleBoundInstances,
   getNextRootUID,
   clearFlushState,
@@ -19,8 +18,7 @@ import {
   captureCount,
 } from './utils/flush'
 
-export { instanceMap, functionalVnodeMap }
-import { classify, parse, set, has, getComponentName, kebabize } from '@utils/util'
+import { classify, parse, set, has, getComponentName } from '@utils/util'
 import ComponentSelector from './component-selector'
 import SharedData, { init as initSharedData } from '@utils/shared-data'
 import { whenDevtoolActive } from '@utils/devpage'
@@ -46,8 +44,6 @@ hook.injectBackend = async function () {
   return true
 }
 
-setInstanceMap(instanceMap)
-
 let currentInspectedId
 let bridge
 
@@ -72,7 +68,7 @@ export function initBackend(_bridge) {
   }
 
   // 选中组件
-  new ComponentSelector(instanceMap)
+  new ComponentSelector()
 
   initRightClick()
 }
@@ -126,7 +122,7 @@ function connect() {
       initPiniaBackend(rootInstances)
 
       // perf
-      Vue && initPerfBackend(Vue, instanceMap)
+      Vue && initPerfBackend(Vue)
 
       // router
       initRouterBackend(rootInstances)
@@ -135,10 +131,9 @@ function connect() {
 }
 
 export function findInstanceOrVnode(id) {
-  if (/:functional:/.test(id)) {
-    const [refId] = id.split(':functional:')
-    const map = functionalVnodeMap.get(refId)
-    return map && map[id]
+  const functionalInst = engine.functional?.findInstanceOrVnode(id)
+  if (functionalInst) {
+    return functionalInst
   }
   return instanceMap.get(id)
 }

@@ -2,6 +2,7 @@ import { watch } from 'vue'
 import SharedData from '@utils/shared-data'
 import { getComponentName } from '@utils/util'
 import { bridge as exBridge, api } from './bridge'
+import { instanceMap } from './utils'
 
 const COMPONENT_HOOKS = [
   'beforeCreate',
@@ -27,7 +28,7 @@ let secondsTimer
 
 let componentMetrics
 
-export function initPerfBackend(Vue, instanceMap) {
+export function initPerfBackend(Vue) {
   // Global mixin
   Vue.mixin({
     beforeCreate() {

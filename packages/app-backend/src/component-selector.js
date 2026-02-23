@@ -7,9 +7,8 @@ import { engine } from './engine'
 const isTouch = 'ontouchstart' in window
 
 export default class ComponentSelector {
-  constructor(instanceMap) {
+  constructor() {
     const self = this
-    self.instanceMap = instanceMap
     self.bindMethods()
 
     exBridge.on(api.web.startComponentSelector, self.startSelecting)
