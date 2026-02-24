@@ -112,6 +112,25 @@ export function processProps(instance: any) {
       })
     }
     return propsData
+  } else if (verNum === 3) {
+    // Vue 3: instance.props 为已解析的 props，instance.type?.props 为定义
+    const propsData = instance.props
+    const propsOptions = instance.type?.props
+    return Object.keys(propsData || {}).map(key => {
+      const prop = propsOptions?.[key]
+      return {
+        type: 'props',
+        key,
+        value: propsData[key],
+        meta: prop
+          ? {
+              type: prop.type ? getPropType(prop.type) : 'any',
+              required: !!prop.required,
+            }
+          : { type: 'any' },
+        editable: SharedData.editableProps,
+      }
+    })
   } else {
     return []
   }
