@@ -71,7 +71,9 @@ const propModes = ['default', 'sync', 'once']
 
 export function processProps(instance: any) {
   let props: Record<string, any> | undefined
-  if (isLegacy() && (props = instance._props)) {
+  const verNum = getHook().env?.verNum
+  if (verNum === 1) {
+    props = instance._props
     return Object.keys(props).map(key => {
       const prop = props![key]
       const options = prop.options
@@ -88,7 +90,8 @@ export function processProps(instance: any) {
           : {},
       }
     })
-  } else if ((props = instance.$options?.props)) {
+  } else if (verNum === 2) {
+    props = instance.$options?.props
     const propsData: any[] = []
     for (const key in props) {
       const prop = props[key]
