@@ -24,6 +24,7 @@ export default {
   uid: instance => instance?._uid,
   root: instance => instance?.$root,
   children: instance => instance?.$children,
+  file: instance => instance?.$vnode?.componentOptions?.Ctor?.options?.__file || null,
   isDestroyed: instance => instance?._isBeingDestroyed,
   isFragment,
   isActive: instance => !instance?._inactive,

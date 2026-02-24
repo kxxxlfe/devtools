@@ -261,7 +261,7 @@ function getInstanceDetails(id) {
       file: vnode.fnOptions.__file || null,
       state: processProps({
         $options: vnode.fnOptions,
-        ...(vnode.devtoolsMeta && vnode.devtoolsMeta.renderContext.props),
+        ...(vnode.devtoolsMeta?.renderContext.props || {}),
       }),
       functional: true,
     }
@@ -274,10 +274,7 @@ function getInstanceDetails(id) {
       state: getInstanceState(instance),
     }
 
-    let i
-    if ((i = instance.$vnode) && (i = i.componentOptions) && (i = i.Ctor) && (i = i.options)) {
-      data.file = i.__file || null
-    }
+    data.file = engine.file(instance)
 
     return data
   }

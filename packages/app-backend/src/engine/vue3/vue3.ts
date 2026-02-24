@@ -3,8 +3,12 @@ import { ComponentPublicInstance } from 'vue'
 import { camelize, getCustomRefDetails } from '@utils/util'
 import { capture } from './capture'
 
+function getType(instance) {
+  return instance.type || instance.proxy?.$options
+}
+
 function getInstanceName(instance) {
-  const type = instance.type || instance.proxy?.$options
+  const type = getType(instance)
   const name = type?.name || type?.displayName || type?.__name
   if (name) return name
 
@@ -62,6 +66,7 @@ const engine = {
 
     return list
   },
+  file: instance => getType(instance)?.__file || null,
   isDestroyed: instance => instance?.isUnmounted,
   isFragment,
   isActive: instance => !instance?.isDeactivated,
