@@ -60,6 +60,6 @@ export function capture(instance: any) {
 }
 
 const hook = target.__VUE_DEVTOOLS_GLOBAL_HOOK__
-hook.on('component:removed', function (app, uid, puid, instance) {
+hook?.on('component:removed', function (app, uid, puid, instance) {
   instanceMap.delete(instance.__VUE_DEVTOOLS_UID__)
 })
