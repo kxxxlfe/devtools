@@ -3,13 +3,6 @@ import { getInstanceOrVnodeRect } from './rect'
 import { getRenderKey, instanceMap, getUniqueId, captureIds, consoleBoundInstances } from '../../utils'
 import engine from './vue3'
 
-function mark(instance: any) {
-  if (!instanceMap.has(instance.__VUE_DEVTOOLS_UID__)) {
-    instanceMap.set(instance.__VUE_DEVTOOLS_UID__, instance)
-    // Vue 3 has no $on('hook:beforeDestroy'); cleanup relies on flush / other mechanisms
-  }
-}
-
 export function capture(instance: any) {
   if (!instance?.subTree) return
 
