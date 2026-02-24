@@ -1,6 +1,7 @@
-// API vue2
+// API vue3
 import { ComponentPublicInstance } from 'vue'
 import { camelize, getCustomRefDetails } from '@utils/util'
+import { capture } from './capture'
 
 function getInstanceName(instance) {
   const proxy: ComponentPublicInstance = instance.proxy || instance
@@ -19,13 +20,17 @@ export function isFragment(instance) {
   return instance.subTree?.type === Symbol.for('v-fgt')
 }
 
-export default {
+const engine = {
   uid: instance => instance?.uid,
   root: instance => instance?.root,
-  children: instance => instance?.subTree.children.map(item => item.component).filter(item => !!item) || [],
+  children: instance =>
+    instance?.subTree?.children?.map((item: any) => item.component).filter((item: any) => !!item) || [],
   isDestroyed: instance => instance?.isUnmounted,
+  isFragment,
+  isActive: instance => !instance?.isDeactivated,
   getInstanceName,
   findComponentByEl,
-  isFragment,
-  capture: () => {},
+  capture,
 }
+
+export default engine

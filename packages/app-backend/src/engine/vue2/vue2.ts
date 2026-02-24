@@ -25,9 +25,10 @@ export default {
   root: instance => instance?.$root,
   children: instance => instance?.$children,
   isDestroyed: instance => instance?._isBeingDestroyed,
+  isFragment,
+  isActive: instance => !instance?._inactive,
   getInstanceName,
   findComponentByEl,
-  isFragment,
   functional,
   capture,
 }
