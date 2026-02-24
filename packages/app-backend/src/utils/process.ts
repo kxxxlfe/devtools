@@ -3,6 +3,10 @@ import { isRef, isReadonly, isReactive } from 'vue'
 import { camelize, getComponentName, getCustomRefDetails } from '@utils/util'
 import SharedData from '@utils/shared-data'
 import { engine } from '../engine'
+import { getHook } from './utils'
+
+const hook = getHook()
+const isLegacy = () => getHook()?.env?.verNum === 1
 
 // 判断数据是否响应式
 const checkReact = function ({ key, val, host }: { key: string; val: unknown; host: Record<string, unknown> }) {
@@ -62,12 +66,11 @@ function reduceStateList(list: any[]) {
   }, {})
 }
 
-let isLegacy = false
 const propModes = ['default', 'sync', 'once']
 
 export function processProps(instance: any) {
   let props: Record<string, any> | undefined
-  if (isLegacy && (props = instance._props)) {
+  if (isLegacy() && (props = instance._props)) {
     return Object.keys(props).map(key => {
       const prop = props![key]
       const options = prop.options
@@ -125,8 +128,8 @@ function getPropType(type: any): string {
 }
 
 function processState(instance: any) {
-  const props = isLegacy ? instance._props : instance.$options?.props
-  const getters = instance.$options?.vuex && instance.$options.vuex.getters
+  const props = isLegacy() ? instance._props : instance.$options?.props
+  const getters = instance.$options?.vuex?.getters
   return Object.keys(instance._data)
     .filter(key => !(props && key in props) && !(getters && key in getters))
     .map(key => ({

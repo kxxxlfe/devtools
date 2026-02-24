@@ -1,3 +1,5 @@
+import { isBrowser, target } from '@utils/env'
+
 // 找到带id的instance
 export function findRelatedInstance(instance) {
   while (instance && !instance.__VUE_DEVTOOLS_UID__) {
@@ -16,4 +18,9 @@ export const debounce = function (func, timer) {
     clearTimeout(debounceTimer)
     debounceTimer = setTimeout(() => func(...args), timer)
   }
+}
+
+export const getHook = function () {
+  const hook = target.__VUE_DEVTOOLS_GLOBAL_HOOK__ || {}
+  return hook
 }
