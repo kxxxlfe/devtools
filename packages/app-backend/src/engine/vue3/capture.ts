@@ -1,3 +1,4 @@
+import { target } from '@utils/env'
 import { getInstanceOrVnodeRect } from './rect'
 import { getRenderKey, instanceMap, getUniqueId, captureIds, consoleBoundInstances } from '../../utils'
 import engine from './vue3'
@@ -57,3 +58,8 @@ export function capture(instance: any) {
 
   return ret
 }
+
+const hook = target.__VUE_DEVTOOLS_GLOBAL_HOOK__
+hook.on('component:removed', function (app, uid, puid, instance) {
+  instanceMap.delete(instance.__VUE_DEVTOOLS_UID__)
+})
