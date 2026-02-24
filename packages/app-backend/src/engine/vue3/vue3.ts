@@ -23,6 +23,26 @@ function findComponentByEl(el) {
   return el?.__vueParentComponent
 }
 
+const tranverseVNodes = function (instance, callback: (vnode) => any) {
+  const vnode = instance.subTree
+
+  const tranverse = function (vnode) {
+    if (!vnode || typeof vnode !== 'object') {
+      return
+    }
+    if (callback(vnode) === false) {
+      return
+    }
+    if (Array.isArray(vnode.children)) {
+      vnode.children.forEach(item => {
+        tranverse(item)
+      })
+    }
+  }
+
+  tranverse(vnode)
+}
+
 export function isFragment(instance) {
   return instance.subTree?.type === Symbol.for('v-fgt')
 }
@@ -31,14 +51,16 @@ const engine = {
   uid: instance => instance?.uid,
   root: instance => instance?.root,
   children: instance => {
-    if (instance?.subTree?.children) {
-      return instance?.subTree?.children?.map(item => item.component).filter(item => !!item) || []
-    }
-    if (instance?.subTree?.component) {
-      return [instance?.subTree?.component]
-    }
+    const list = []
+    tranverseVNodes(instance, function (vnode) {
+      // 找到组件，停止向下遍历
+      if (vnode.component) {
+        list.push(vnode.component)
+        return false
+      }
+    })
 
-    return []
+    return list
   },
   isDestroyed: instance => instance?.isUnmounted,
   isFragment,
