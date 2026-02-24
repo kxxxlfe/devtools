@@ -13,22 +13,30 @@ function mark(instance: any) {
 export function capture(instance: any) {
   if (!instance?.subTree) return
 
-  instance.__VUE_DEVTOOLS_UID__ = getUniqueId(instance)
-  if (captureIds.has(instance.__VUE_DEVTOOLS_UID__)) {
+  const routerViewInfo = instance.__vrv_devtools
+  if (routerViewInfo) {
+    instance = instance.subTree.component
+  }
+
+  const duid = getUniqueId(instance)
+  instance.__VUE_DEVTOOLS_UID__ = duid
+  if (captureIds.has(duid)) {
     return
   }
-  captureIds.set(instance.__VUE_DEVTOOLS_UID__, undefined)
-  mark(instance)
+  captureIds.set(duid, undefined)
+  if (!instanceMap.has(duid)) {
+    instanceMap.set(duid, instance)
+  }
   const name = engine.getInstanceName(instance)
 
   const children = (engine.children(instance) || [])
-    .filter((child: any) => !engine.isDestroyed(child))
-    .map((c: any) => capture(c))
+    .filter(child => !engine.isDestroyed(child))
+    .map(c => capture(c))
     .filter(Boolean)
 
   const ret: any = {
     uid: engine.uid(instance),
-    id: instance.__VUE_DEVTOOLS_UID__,
+    id: duid,
     name,
     renderKey: getRenderKey(instance.subTree?.key ?? null),
     inactive: !engine.isActive(instance),
@@ -46,14 +54,9 @@ export function capture(instance: any) {
   const consoleId = consoleBoundInstances.indexOf(instance.__VUE_DEVTOOLS_UID__)
   ret.consoleId = consoleId > -1 ? '$vm' + consoleId : null
 
-  const proxy = instance.proxy
-  const route = proxy?.$route
-  if (route) {
+  if (routerViewInfo) {
     ret.isRouterView = true
-    const matched = route.matched
-    const depth = (proxy as any).__routerViewDepth ?? 0
-    const segment = matched?.[depth]
-    ret.matchedRouteSegment = segment?.path ?? (segment as any)?.handler?.path
+    ret.matchedRouteSegment = routerViewInfo.path
   }
 
   return ret
@@ -62,4 +65,7 @@ export function capture(instance: any) {
 const hook = target.__VUE_DEVTOOLS_GLOBAL_HOOK__
 hook?.on('component:removed', function (app, uid, puid, instance) {
   instanceMap.delete(instance.__VUE_DEVTOOLS_UID__)
+})
+hook?.on('component:added', function (app, uid, puid, instance) {
+  console.log(instance)
 })

@@ -4,11 +4,18 @@ import { camelize, getCustomRefDetails } from '@utils/util'
 import { capture } from './capture'
 
 function getInstanceName(instance) {
-  const proxy: ComponentPublicInstance = instance.proxy || instance
-  const type = proxy.$options?.__vccOpts || proxy.$options?.type
+  const type = instance.type || instance.proxy?.$options
   const name = type?.name || type?.displayName || type?.__name
   if (name) return name
-  return proxy.$root === proxy ? 'Root' : 'Anonymous Component'
+
+  // 使用文件名
+  const file = type?.__file
+  if (file) {
+    const filenames = file.split(/(\/|\\)/)
+    const filename = filenames[filenames.length - 1]
+    return filename.split('.')[0]
+  }
+  return instance.root === instance ? 'Root' : 'Anonymous Component'
 }
 
 // 根据el获取component
@@ -23,8 +30,16 @@ export function isFragment(instance) {
 const engine = {
   uid: instance => instance?.uid,
   root: instance => instance?.root,
-  children: instance =>
-    instance?.subTree?.children?.map((item: any) => item.component).filter((item: any) => !!item) || [],
+  children: instance => {
+    if (instance?.subTree?.children) {
+      return instance?.subTree?.children?.map(item => item.component).filter(item => !!item) || []
+    }
+    if (instance?.subTree?.component) {
+      return [instance?.subTree?.component]
+    }
+
+    return []
+  },
   isDestroyed: instance => instance?.isUnmounted,
   isFragment,
   isActive: instance => !instance?.isDeactivated,
