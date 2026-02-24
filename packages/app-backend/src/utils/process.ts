@@ -24,7 +24,8 @@ const checkReact = function ({ key, val, host }: { key: string; val: unknown; ho
 }
 
 export function getInstanceState(instance: any) {
-  return processProps(instance).concat(
+  return [
+    processProps(instance),
     processState(instance),
     processRefs(instance),
     ...processSetup(instance),
@@ -34,8 +35,8 @@ export function getInstanceState(instance: any) {
     processVuexGetters(instance),
     processFirebaseBindings(instance),
     processObservables(instance),
-    processAttrs(instance)
-  )
+    processAttrs(instance),
+  ].flat()
 }
 
 export function getCustomInstanceDetails(instance: any) {
