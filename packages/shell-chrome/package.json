@@ -11,7 +11,7 @@
     "@vue-devtools/app-backend": "workspace:*",
     "@vue-devtools/app-frontend": "workspace:*",
     "@vue-devtools/shared-utils": "workspace:*",
-    "@yuhufe/browser-bridge": "^0.1.5"
+    "@yuhufe/browser-bridge": "^0.1.9"
   },
   "devDependencies": {
     "@vitejs/plugin-vue2": "^2.3.1",

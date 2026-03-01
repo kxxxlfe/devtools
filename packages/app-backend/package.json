@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "dependencies": {
     "@vue-devtools/shared-utils": "workspace:*",
-    "@yuhufe/browser-bridge": "^0.1.5",
+    "@yuhufe/browser-bridge": "^0.1.9",
     "vue": "^2.7.16"
   },
   "devDependencies": {
