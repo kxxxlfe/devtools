@@ -4,5 +4,7 @@ import { VueEngine } from './types'
 
 export let engine: VueEngine = vue2Engine
 export const setEngine = function (verNum: number) {
-  engine = verNum <= 2 ? vue2Engine : vue3Engine
+  if (verNum > 2) {
+    engine = vue3Engine
+  }
 }

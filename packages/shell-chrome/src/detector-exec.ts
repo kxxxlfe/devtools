@@ -46,7 +46,7 @@ function detect(win) {
       const hook = globalThis.__VUE_DEVTOOLS_GLOBAL_HOOK__
       if (hook) {
         if (devtoolsEnabled || detectRes.devtoolsForceEnabled) {
-          if (!hook.env) {
+          if (!hook.env?.devtoolsEnabled) {
             enableDevtools()
           }
           if (!hook.store && env?.store) {
@@ -71,7 +71,7 @@ const enableDevtools = function () {
     VueRecord.Vue.config.devtools = true
   }
   const hook = globalThis.__VUE_DEVTOOLS_GLOBAL_HOOK__
-  if (!hook.env) {
+  if (!hook.env?.devtoolsEnabled) {
     hook.env = VueRecord
     hook.emit('horse:init')
   }

@@ -151,15 +151,12 @@ function getPropType(type: any): string {
 }
 
 function processState(instance: any) {
-  const props = isLegacy() ? instance._props : instance.$options?.props
-  const getters = instance.$options?.vuex?.getters
-  return Object.keys(instance._data)
-    .filter(key => !(props && key in props) && !(getters && key in getters))
-    .map(key => ({
-      key,
-      value: instance._data[key],
-      editable: true,
-    }))
+  const data = engine.getData(instance)
+  return Object.entries(data).map(([key, value]) => ({
+    key,
+    value,
+    editable: true,
+  }))
 }
 
 function processRefs(instance: any) {

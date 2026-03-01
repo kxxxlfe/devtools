@@ -1,6 +1,7 @@
 // API vue2
 import { camelize, getComponentName, getCustomRefDetails } from '@utils/util'
 import { functional, capture } from './capture'
+import { getHook } from '../../utils'
 
 function getInstanceName(instance) {
   const name = getComponentName(instance.$options || instance.fnOptions || {})
@@ -20,6 +21,18 @@ export function isFragment(instance) {
   return instance?._isFragment
 }
 
+// 获取属性
+const getData = function (instance) {
+  // 排除了同名的属性，剩下的就是data
+  const props = getHook().env.verNum === 1 ? instance._props : instance.$options?.props
+  const getters = instance.$options?.vuex?.getters
+  return Object.fromEntries(
+    Object.entries(instance._data).filter(([key, data]) => {
+      return !(props && key in props) && !(getters && key in getters)
+    })
+  )
+}
+
 export default {
   uid: instance => instance?._uid,
   root: instance => instance?.$root,
@@ -32,4 +45,5 @@ export default {
   findComponentByEl,
   functional,
   capture,
+  getData,
 }

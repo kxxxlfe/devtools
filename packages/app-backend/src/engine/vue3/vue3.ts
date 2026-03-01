@@ -73,6 +73,7 @@ const engine = {
   getInstanceName,
   findComponentByEl,
   capture,
+  getData: instance => instance?.data || {},
 }
 
 export default engine
