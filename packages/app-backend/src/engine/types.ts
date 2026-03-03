@@ -8,6 +8,7 @@ export type VueEngine = {
   _: {
     data: (instance: any) => any
     refs: (instance: any) => Record<string, any>
+    setupState: (instance: any) => Record<string, any>
   }
   functional?: any
   [key: string]: any

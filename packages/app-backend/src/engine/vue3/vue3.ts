@@ -51,6 +51,14 @@ export function isFragment(instance) {
   return instance.subTree?.type === Symbol.for('v-fgt')
 }
 
+function getSetupState(instance) {
+  return (
+    instance?.setupState ||
+    instance?.proxy?.setupState ||
+    {}
+  )
+}
+
 const engine = {
   uid: instance => instance?.uid,
   root: instance => instance?.root,
@@ -76,6 +84,7 @@ const engine = {
   _: {
     data: instance => instance?.data || {},
     refs: instance => instance?.refs || instance?.proxy?.$refs || {},
+    setupState: getSetupState,
   },
 }
 

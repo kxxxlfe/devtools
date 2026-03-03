@@ -33,6 +33,10 @@ const getData = function (instance) {
   )
 }
 
+function getSetupState(instance) {
+  return instance?._setupState || {}
+}
+
 export default {
   uid: instance => instance?._uid,
   root: instance => instance?.$root,
@@ -48,5 +52,6 @@ export default {
   _: {
     data: getData,
     refs: instance => instance?.$refs || {},
+    setupState: getSetupState,
   },
 }

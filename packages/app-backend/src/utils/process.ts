@@ -169,12 +169,15 @@ function processRefs(instance: any) {
 function processSetup(instance: any) {
   const states: any[] = []
   const computes: any[] = []
-  Object.entries(instance._setupState || {}).forEach(([key, value]: [string, any]) => {
+  const setupState = engine._.setupState(instance)
+  const refs = engine._.refs(instance)
+
+  Object.entries(setupState).forEach(([key, value]: [string, any]) => {
     if (typeof value === 'function') {
       return
     }
     const val = isRef(value) ? value.value : value
-    if (instance.$refs?.[key] && val === instance.$refs[key]) {
+    if (refs?.[key] && val === refs[key]) {
       return
     }
 
@@ -202,7 +205,7 @@ function processComputed(instance: any) {
   const defs = instance.$options?.computed || {}
   for (const key in defs) {
     const def = defs[key]
-    if (def.cache === false && !Reflect.hasOwnProperty(def, 'set')) {
+    if (def.cache === false && !Object.prototype.hasOwnProperty.call(def, 'set')) {
       if (Object.values(instance.$refs || {}).find((comp: any) => comp === instance[key])) {
         continue
       }
