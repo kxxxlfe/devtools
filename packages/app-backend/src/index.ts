@@ -398,8 +398,9 @@ function setStateValue({ id, path, value, newKey, remove }) {
     let data
     const paths = path.split('.')
     // 支持setup
-    if (instance._setupState?.[paths[0]]) {
-      data = instance._setupState[paths[0]]
+    data = engine._.setupState(instance)?.[paths[0]]
+    const props = engine._.props(instance)
+    if (data) {
       // 替换根元素
       if (paths.length === 1) {
         data.value = parsedValue
@@ -407,10 +408,10 @@ function setStateValue({ id, path, value, newKey, remove }) {
       }
       data = data.value
       path = paths.slice(1).join('.')
-    } else if (has(instance._props, path, newKey)) {
-      data = instance._props
+    } else if (has(props, path, newKey)) {
+      data = props
     } else {
-      data = instance._data
+      data = engine._.data(instance)
     }
     set(data, path, parsedValue, (obj, field, value) => {
       if (remove || newKey) {

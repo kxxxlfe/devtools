@@ -7,6 +7,8 @@ export type VueEngine = {
   isFragment: (instance: any) => boolean
   _: {
     data: (instance: any) => any
+    pureData: (instance: any) => any
+    props: (instance: any) => any
     refs: (instance: any) => Record<string, any>
     setupState: (instance: any) => Record<string, any>
   }

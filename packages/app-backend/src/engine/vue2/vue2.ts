@@ -22,9 +22,13 @@ export function isFragment(instance) {
 }
 
 // 获取属性
-const getData = function (instance) {
+const getProps = function (instance) {
+  return getHook().env.verNum === 1 ? instance._props : instance.$options?.props
+}
+const getData = instance => instance?._data || {}
+const pureData = function (instance) {
   // 排除了同名的属性，剩下的就是data
-  const props = getHook().env.verNum === 1 ? instance._props : instance.$options?.props
+  const props = getProps(instance)
   const getters = instance.$options?.vuex?.getters
   return Object.fromEntries(
     Object.entries(instance._data).filter(([key, data]) => {
@@ -51,7 +55,9 @@ export default {
   capture,
   _: {
     data: getData,
+    props: getProps,
     refs: instance => instance?.$refs || {},
     setupState: getSetupState,
+    pureData,
   },
 }

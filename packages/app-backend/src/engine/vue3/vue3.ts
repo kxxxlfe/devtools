@@ -52,11 +52,7 @@ export function isFragment(instance) {
 }
 
 function getSetupState(instance) {
-  return (
-    instance?.setupState ||
-    instance?.proxy?.setupState ||
-    {}
-  )
+  return instance?.setupState || instance?.proxy?.setupState || {}
 }
 
 const engine = {
@@ -83,8 +79,10 @@ const engine = {
   capture,
   _: {
     data: instance => instance?.data || {},
+    props: instance => instance.props,
     refs: instance => instance?.refs || instance?.proxy?.$refs || {},
-    setupState: getSetupState,
+    setupState: instance => instance?.setupState || instance?.proxy?.setupState || {},
+    pureData: instance => instance?.data || {},
   },
 }
 
