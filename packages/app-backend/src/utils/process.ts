@@ -160,9 +160,10 @@ function processState(instance: any) {
 }
 
 function processRefs(instance: any) {
-  return Object.keys(instance.$refs || {})
-    .filter(key => instance.$refs[key])
-    .map(key => getCustomRefDetails(instance, key, instance.$refs[key]))
+  const refs = engine._.refs(instance)
+  return Object.keys(refs)
+    .filter(key => refs[key])
+    .map(key => getCustomRefDetails(instance, key, refs[key]))
 }
 
 function processSetup(instance: any) {

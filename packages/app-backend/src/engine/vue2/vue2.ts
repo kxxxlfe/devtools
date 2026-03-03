@@ -47,5 +47,6 @@ export default {
   capture,
   _: {
     data: getData,
+    refs: instance => instance?.$refs || {},
   },
 }

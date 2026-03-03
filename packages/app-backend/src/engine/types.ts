@@ -7,6 +7,7 @@ export type VueEngine = {
   isFragment: (instance: any) => boolean
   _: {
     data: (instance: any) => any
+    refs: (instance: any) => Record<string, any>
   }
   functional?: any
   [key: string]: any

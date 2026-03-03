@@ -75,6 +75,7 @@ const engine = {
   capture,
   _: {
     data: instance => instance?.data || {},
+    refs: instance => instance?.refs || instance?.proxy?.$refs || {},
   },
 }
 
