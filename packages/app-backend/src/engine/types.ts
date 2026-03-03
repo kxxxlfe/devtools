@@ -5,7 +5,9 @@ export type VueEngine = {
   file: (instance: any) => string | null
   isDestroyed: (instance: any) => boolean
   isFragment: (instance: any) => boolean
-  getData: (instance: any) => any
+  _: {
+    data: (instance: any) => any
+  }
   functional?: any
   [key: string]: any
 }

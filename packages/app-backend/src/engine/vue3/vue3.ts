@@ -73,7 +73,9 @@ const engine = {
   getInstanceName,
   findComponentByEl,
   capture,
-  getData: instance => instance?.data || {},
+  _: {
+    data: instance => instance?.data || {},
+  },
 }
 
 export default engine

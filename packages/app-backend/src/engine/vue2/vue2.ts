@@ -45,5 +45,7 @@ export default {
   findComponentByEl,
   functional,
   capture,
-  getData,
+  _: {
+    data: getData,
+  },
 }

@@ -151,7 +151,7 @@ function getPropType(type: any): string {
 }
 
 function processState(instance: any) {
-  const data = engine.getData(instance)
+  const data = engine._.data(instance)
   return Object.entries(data).map(([key, value]) => ({
     key,
     value,
