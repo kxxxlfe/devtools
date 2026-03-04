@@ -167,7 +167,8 @@ export function getCustomRefDetails(instance, key, ref) {
     value = ref.map(r => getCustomRefDetails(instance, key, r)).map(data => data.value)
   } else {
     let name
-    if (ref._isVue) {
+    // ref为代理实例
+    if (ref._isVue || ref2.$?.vnode) {
       name = getComponentName(ref.$options)
     } else {
       name = ref.tagName.toLowerCase()
