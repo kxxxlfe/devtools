@@ -40,6 +40,13 @@ const pureData = function (instance) {
 function getSetupState(instance) {
   return instance?._setupState || {}
 }
+function getInject(instance) {
+  const injected = instance.$options?.inject
+  if (injected) {
+    return Object.fromEntries(Object.keys(injected).map(key => [key, instance?.[key]]))
+  }
+  return {}
+}
 
 export default {
   uid: instance => instance?._uid,
@@ -59,5 +66,6 @@ export default {
     refs: instance => instance?.$refs || {},
     setupState: getSetupState,
     pureData,
+    inject: getInject,
   },
 }

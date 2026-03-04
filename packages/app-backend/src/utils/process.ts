@@ -231,12 +231,12 @@ function processComputed(instance: any) {
 }
 
 function processInjected(instance: any) {
-  const injected = instance.$options?.inject
+  const injected = engine._.inject(instance)
   if (injected) {
-    return Object.keys(injected).map(key => ({
+    return Object.entries(injected).map(([key, val]) => ({
       key,
       type: 'injected',
-      value: instance[key],
+      value: val,
     }))
   }
   return []

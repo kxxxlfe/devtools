@@ -51,8 +51,14 @@ export function isFragment(instance) {
   return instance.subTree?.type === Symbol.for('v-fgt')
 }
 
-function getSetupState(instance) {
-  return instance?.setupState || instance?.proxy?.setupState || {}
+function getInject(instance) {
+  const injected = instance.type?.inject
+
+  if (injected) {
+    const keys = Array.isArray(injected) ? injected : Object.keys(injected)
+    return Object.fromEntries(keys.map(key => [key, instance?.ctx?.[key]]))
+  }
+  return {}
 }
 
 const engine = {
@@ -83,6 +89,7 @@ const engine = {
     refs: instance => instance?.refs || instance?.proxy?.$refs || {},
     setupState: instance => instance?.setupState || instance?.proxy?.setupState || {},
     pureData: instance => instance?.data || {},
+    inject: getInject,
   },
 }
 

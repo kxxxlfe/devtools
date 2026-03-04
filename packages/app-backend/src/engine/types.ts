@@ -11,6 +11,7 @@ export type VueEngine = {
     props: (instance: any) => any
     refs: (instance: any) => Record<string, any>
     setupState: (instance: any) => Record<string, any>
+    inject: (instance: any) => any
   }
   functional?: any
   [key: string]: any
