@@ -272,7 +272,7 @@ function processRouteContext(instance: any) {
 }
 
 function processVuexGetters(instance: any) {
-  const getters = instance.$options?.vuex && instance.$options.vuex.getters
+  const getters = instance.$options?.vuex?.getters
   if (getters) {
     return Object.keys(getters).map(key => ({
       type: 'vuex getters',
