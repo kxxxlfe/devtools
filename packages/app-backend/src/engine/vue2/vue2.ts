@@ -67,5 +67,6 @@ export default {
     setupState: getSetupState,
     pureData,
     inject: getInject,
+    route: instance => instance?.$route,
   },
 }

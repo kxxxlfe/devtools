@@ -244,7 +244,7 @@ function processInjected(instance: any) {
 
 function processRouteContext(instance: any) {
   try {
-    const route = instance.$route
+    const route = engine._.route(instance)
     if (route) {
       const { path, query, params } = route
       const value: any = { path, query, params }

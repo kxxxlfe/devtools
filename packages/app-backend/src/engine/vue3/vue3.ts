@@ -90,6 +90,7 @@ const engine = {
     setupState: instance => instance?.setupState || instance?.proxy?.setupState || {},
     pureData: instance => instance?.data || {},
     inject: getInject,
+    route: instance => instance?.appContext?.config.globalProperties.$route,
   },
 }
 
