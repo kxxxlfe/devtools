@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev:chrome": "cross-env NODE_ENV=development vite build --watch",
-    "build": "cross-env NODE_ENV=production vite build && npm run zip",
+    "build": "rm -rf ./build && cross-env NODE_ENV=production vite build && npm run zip",
     "zip": "cd build && zip -r ../shell-chrome.zip ."
   },
   "dependencies": {
