@@ -14,6 +14,7 @@ export type VueEngine = {
     setupState: (instance: any) => Record<string, any>
     inject: (instance: any) => any
     route: (instance: any) => any
+    pinia: (instance: any) => any
   }
   functional?: any
   [key: string]: any

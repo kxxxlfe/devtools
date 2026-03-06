@@ -92,6 +92,7 @@ const engine = {
     pureData: instance => instance?.data || {},
     inject: getInject,
     route: instance => instance?.appContext?.config.globalProperties.$route,
+    pinia: instance => instance?.appContext?.config.globalProperties.$pinia,
   },
 }
 

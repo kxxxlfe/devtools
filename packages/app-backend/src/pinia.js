@@ -4,6 +4,7 @@ import sharedData from '@utils/shared-data'
 import { stringify } from './utils'
 import { set, parse } from '@utils/util'
 import { debounce } from './utils'
+import { engine } from './engine'
 
 let currStoreKey = null
 let pinia
@@ -13,7 +14,7 @@ const putil = {
 }
 
 export function initPiniaBackend(rootInstances) {
-  pinia = rootInstances[0]?.$pinia
+  pinia = engine._.pinia(rootInstances[0])
   if (!pinia) {
     return
   }

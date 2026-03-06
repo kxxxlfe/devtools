@@ -69,5 +69,6 @@ export default {
     pureData,
     inject: getInject,
     route: instance => instance?.$route,
+    pinia: instance => instance?.$pinia,
   },
 }
