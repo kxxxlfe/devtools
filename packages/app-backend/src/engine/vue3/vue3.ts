@@ -86,6 +86,7 @@ const engine = {
   _: {
     data: instance => instance?.data || {},
     props: instance => instance.props,
+    attrs: instance => instance?.attrs || instance?.proxy?.$attrs,
     refs: instance => instance?.refs || instance?.proxy?.$refs || {},
     setupState: instance => instance?.setupState || instance?.proxy?.setupState || {},
     pureData: instance => instance?.data || {},

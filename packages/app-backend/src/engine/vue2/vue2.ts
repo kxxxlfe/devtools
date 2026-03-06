@@ -63,6 +63,7 @@ export default {
   _: {
     data: getData,
     props: getProps,
+    attrs: instance => instance?.$attrs,
     refs: instance => instance?.$refs || {},
     setupState: getSetupState,
     pureData,

@@ -9,6 +9,7 @@ export type VueEngine = {
     data: (instance: any) => any
     pureData: (instance: any) => any
     props: (instance: any) => any
+    attrs: (instance: any) => any
     refs: (instance: any) => Record<string, any>
     setupState: (instance: any) => Record<string, any>
     inject: (instance: any) => any
