@@ -21,7 +21,16 @@ function getOptionName(type) {
   return ''
 }
 
+// vue3有2种instance：vue3的instance；兼容vue2的proxy
+function getInstance(instance) {
+  if (instance?.$?.vnode) {
+    return instance?.$
+  }
+  return instance
+}
+
 function getInstanceName(instance) {
+  instance = getInstance(instance)
   const type = getType(instance)
   const name = getOptionName(type || {})
   if (name) return name
