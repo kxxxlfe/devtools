@@ -45,7 +45,7 @@ export function highlight(instance) {
   init()
   if (rect) {
     const content = []
-    let name = instance.fnContext ? getComponentName(instance.fnOptions) : engine.getInstanceName(instance)
+    let name = engine.getInstanceName(instance)
     name = getComponentDisplayName(name, SharedData.componentNameStyle)
     if (name) {
       const pre = document.createElement('span')

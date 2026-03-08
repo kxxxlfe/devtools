@@ -132,7 +132,7 @@ function applyHooks(vm) {
 
 function addComponentMetric(vm, type, start, end) {
   const duration = end - start
-  const name = engine._.getComponentName(vm)
+  const name = engine.getInstanceName(vm)
 
   const metric = (componentMetrics[name] = componentMetrics[name] || {
     id: name,
