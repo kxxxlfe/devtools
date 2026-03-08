@@ -7,6 +7,7 @@ export type VueEngine = {
   isDestroyed: (instance: any) => boolean
   isFragment: (instance: any) => boolean
   _: {
+    el: (instance: any) => Element
     data: (instance: any) => any
     pureData: (instance: any) => any
     props: (instance: any) => any

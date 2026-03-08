@@ -69,6 +69,7 @@ export default {
   functional,
   capture,
   _: {
+    el: instance => instance.$el || instance.elm,
     data: getData,
     props: getProps,
     attrs: instance => instance?.$attrs,

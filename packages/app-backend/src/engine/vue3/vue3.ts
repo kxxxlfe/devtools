@@ -101,6 +101,7 @@ const engine = {
   findComponentByEl,
   capture,
   _: {
+    el: instance => instance?.subTree?.el,
     data: instance => instance?.data || {},
     props: instance => instance.props,
     attrs: instance => instance?.attrs || instance?.proxy?.$attrs,
