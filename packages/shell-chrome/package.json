@@ -4,14 +4,14 @@
   "type": "module",
   "scripts": {
     "dev:chrome": "cross-env NODE_ENV=development vite build --watch",
-    "build": "cross-env NODE_ENV=production vite build && npm run zip",
+    "build": "rm -rf ./build && cross-env NODE_ENV=production vite build && npm run zip",
     "zip": "cd build && zip -r ../shell-chrome.zip ."
   },
   "dependencies": {
     "@vue-devtools/app-backend": "workspace:*",
     "@vue-devtools/app-frontend": "workspace:*",
     "@vue-devtools/shared-utils": "workspace:*",
-    "@yuhufe/browser-bridge": "^0.1.5"
+    "@yuhufe/browser-bridge": "^0.1.9"
   },
   "devDependencies": {
     "@vitejs/plugin-vue2": "^2.3.1",

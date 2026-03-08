@@ -1,8 +1,10 @@
 import { watch } from 'vue'
 import { bridge as exBridge, api } from './bridge'
 import sharedData from '@utils/shared-data'
-import { stringify, set, parse } from '@utils/util'
+import { stringify } from './utils'
+import { set, parse } from '@utils/util'
 import { debounce } from './utils'
+import { engine } from './engine'
 
 let currStoreKey = null
 let pinia
@@ -11,8 +13,8 @@ const putil = {
   get: key => pinia._s.get(key),
 }
 
-export function initPiniaBackend(Vue, rootInstances) {
-  pinia = rootInstances[0]?.$pinia
+export function initPiniaBackend(rootInstances) {
+  pinia = engine._.pinia(rootInstances[0])
   if (!pinia) {
     return
   }

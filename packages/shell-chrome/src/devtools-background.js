@@ -15,7 +15,7 @@ function createPanelIfHasVue() {
     clearInterval(checkVueInterval)
     return
   }
-  chrome.devtools.inspectedWindow.eval('!!(window.__VUE_DEVTOOLS_GLOBAL_HOOK__.Vue)', function (hasVue) {
+  chrome.devtools.inspectedWindow.eval('!!(window.__VUE_DEVTOOLS_GLOBAL_HOOK__.env)', function (hasVue) {
     if (!hasVue || created) {
       return
     }

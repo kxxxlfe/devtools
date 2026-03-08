@@ -1,3 +1,5 @@
+import { envs } from './vues'
+
 export function waitTime(time = 100) {
   return new Promise(r => setTimeout(r, time))
 }
@@ -42,30 +44,31 @@ export const detectVue = function ({ times = 1000 } = {}) {
   }
 
   let runCount = 0
-  let $el = null
+  let envData = null
   treeUtil.tranverse(globalThis.document.body, function (node) {
     runCount++
-    if (node.__vue__) {
-      $el = node
-      return false
-    }
     // 最多查找1000个节点
     if (runCount >= times) {
       return false
     }
+    // 已找到
+    if (envData) {
+      return false
+    }
+
+    const vue2Env = envs.vue2.detectVue(node)
+    if (vue2Env) {
+      envData = vue2Env
+      return
+    }
+    const vue3Env = envs.vue3.detectVue(node)
+    if (vue3Env) {
+      envData = vue3Env
+      return
+    }
   })
 
-  if (!$el) {
-    return null
-  }
-
-  const component = $el.__vue__
-  let Vue = Object.getPrototypeOf(component).constructor
-  while (Vue.super) {
-    Vue = Vue.super
-  }
-
-  return { Vue, store: component.$store }
+  return envData
 }
 
 // `checkVisibility` polyfill, not consider parent visibility

@@ -1,10 +1,9 @@
-import { inDoc, getComponentName, getComponentDisplayName } from '@utils/util'
+import { getComponentDisplayName } from '@utils/util'
 import SharedData from '@utils/shared-data'
-import { checkVisibility } from '@utils/tools'
 import { isBrowser, target } from '@utils/env'
-import { getInstanceName } from '@vue-devtools/shared-utils'
+import { engine } from './engine'
 
-let overlay
+let overlay: HTMLDivElement
 let overlayContent
 
 function init() {
@@ -36,7 +35,7 @@ function init() {
 
 export function highlight(instance) {
   if (!instance) return
-  const rect = getInstanceOrVnodeRect(instance)
+  const rect = engine.getInstanceOrVnodeRect(instance)
 
   if (!isBrowser) {
     // TODO: Highlight rect area.
@@ -46,7 +45,7 @@ export function highlight(instance) {
   init()
   if (rect) {
     const content = []
-    let name = instance.fnContext ? getComponentName(instance.fnOptions) : getInstanceName(instance)
+    let name = engine.getInstanceName(instance)
     name = getComponentDisplayName(name, SharedData.componentNameStyle)
     if (name) {
       const pre = document.createElement('span')
@@ -82,93 +81,6 @@ export function unHighlight(id) {
 }
 
 /**
- * Get the client rect for an instance.
- *
- * @param {Vue|Vnode} instance
- * @return {Object}
- */
-
-export function getInstanceOrVnodeRect(instance) {
-  let el = instance.$el || instance.elm
-  if (!isBrowser) {
-    // TODO: Find position from instance or a vnode (for functional components).
-
-    return
-  }
-  if (!inDoc(el)) {
-    return
-  }
-  if (instance._isFragment) {
-    return getFragmentRect(instance)
-  }
-
-  if (el.nodeType === 1) {
-    // such as `display: contents`
-    if (!checkVisibility(el)) {
-      el = Array.prototype.find.call(el.children, elm => elm.nodeType === 1)
-    }
-
-    return el?.getBoundingClientRect()
-  }
-}
-
-/**
- * Highlight a fragment instance.
- * Loop over its node range and determine its bounding box.
- *
- * @param {Vue} instance
- * @return {Object}
- */
-
-function getFragmentRect({ _fragmentStart, _fragmentEnd }) {
-  let top, bottom, left, right
-  util().mapNodeRange(_fragmentStart, _fragmentEnd, function (node) {
-    let rect
-    if (node.nodeType === 1 || node.getBoundingClientRect) {
-      rect = node.getBoundingClientRect()
-    } else if (node.nodeType === 3 && node.data.trim()) {
-      rect = getTextRect(node)
-    }
-    if (rect) {
-      if (!top || rect.top < top) {
-        top = rect.top
-      }
-      if (!bottom || rect.bottom > bottom) {
-        bottom = rect.bottom
-      }
-      if (!left || rect.left < left) {
-        left = rect.left
-      }
-      if (!right || rect.right > right) {
-        right = rect.right
-      }
-    }
-  })
-  return {
-    top,
-    left,
-    width: right - left,
-    height: bottom - top,
-  }
-}
-
-let range
-/**
- * Get the bounding rect for a text node using a Range.
- *
- * @param {Text} node
- * @return {Rect}
- */
-function getTextRect(node) {
-  if (!isBrowser) return
-  if (!range) range = document.createRange()
-
-  range.selectNode(node)
-
-  return range.getBoundingClientRect()
-}
-
-/**
  * Display the overlay with given rect.
  *
  * @param {Rect}
@@ -187,12 +99,4 @@ function showOverlay({ width = 0, height = 0, top = 0, left = 0 }, content = [])
 
   document.body.appendChild(overlay)
   // console.log('overlay', width, height, left, top)
-}
-
-/**
- * Get Vue's util
- */
-
-function util() {
-  return target.__VUE_DEVTOOLS_GLOBAL_HOOK__.Vue.util
 }

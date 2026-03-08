@@ -1,7 +1,7 @@
 import { isBrowser, target } from '@utils/env'
 import { bridge as exBridge, api } from './bridge'
-import { findRelatedComponent, findRelatedInstanceId } from './utils'
-import { inspectInstance } from './op'
+import { findRelatedInstanceId } from './utils'
+import { engine } from './engine'
 
 let ctxEl = null
 
@@ -12,7 +12,7 @@ exBridge.on(api.web.inspectCtxMenuInst, () => {
   }
 
   // Search for parent that "is" a component instance
-  const instance = findRelatedComponent(ctxEl)
+  const instance = engine.findComponentByEl(ctxEl)
   target.__VUE_DEVTOOLS_CONTEXT_MENU_TARGET__ = instance
   const relatedInstanceId = findRelatedInstanceId(instance)
   if (!relatedInstanceId) {

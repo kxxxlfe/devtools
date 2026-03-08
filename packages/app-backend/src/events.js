@@ -1,5 +1,5 @@
-import { stringify } from '@utils/util'
-import { getInstanceName } from '@vue-devtools/shared-utils'
+import { stringify } from './utils'
+import { engine } from './engine'
 import { bridge as exBridge, api } from './bridge'
 import sharedData from '@utils/shared-data'
 
@@ -20,8 +20,8 @@ export function initEventsBackend(Vue) {
           eventName,
           type,
           payload,
-          instanceId: vm._uid,
-          instanceName: getInstanceName(vm._self || vm),
+          instanceId: engine.uid(vm),
+          instanceName: engine.getInstanceName(vm._self || vm),
           timestamp: Date.now(),
         })
       )
