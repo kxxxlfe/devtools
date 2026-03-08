@@ -43,6 +43,11 @@ hook.injectBackend = async function () {
 
   return true
 }
+// 提供inspect需要的dom
+hook.getElById = function (id) {
+  const instance = findInstanceOrVnode(id)
+  return engine._.el(instance)
+}
 
 let currentInspectedId
 let bridge
