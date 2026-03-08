@@ -1,11 +1,18 @@
 // API vue2
-import { camelize, getComponentName, getCustomRefDetails } from '@utils/util'
-import { functional, capture } from './capture'
+import { getName } from '../common'
+import { functional, capture, getOptionName } from './capture'
 import { getHook } from '../../utils'
 
 function getInstanceName(instance) {
-  const name = getComponentName(instance.$options || instance.fnOptions || {})
-  if (name) return name
+  let options = instance.$options
+  if (instance.fnContext) {
+    options = instance.fnOptions
+  }
+  const instName = getOptionName(options)
+  if (instName) {
+    return instName
+  }
+
   return instance.$root === instance ? 'Root' : 'Anonymous Component'
 }
 
@@ -57,6 +64,7 @@ export default {
   isFragment,
   isActive: instance => !instance?._inactive,
   getInstanceName,
+  getOptionName,
   findComponentByEl,
   functional,
   capture,

@@ -144,54 +144,10 @@ export function parseFlatted(data, { revive = false } = {}) {
 
 // Use a custom basename functions instead of the shimed version
 // because it doesn't work on Windows
-function basename(filename, ext) {
+export function basename(filename, ext) {
   let fname = filename.split(/(\\|\/)/)
   fname = fname[fname.length - 1]
   return path.basename(filename.replace(/^[a-zA-Z]:/, '').replace(/\\/g, '/'), ext)
-}
-
-export function getComponentName(options) {
-  const name = options.name || options._componentTag
-  if (name) {
-    return name
-  }
-  const file = options.__file // injected by vue-loader
-  if (file) {
-    return classify(basename(file, '.vue'))
-  }
-}
-
-export function getCustomRefDetails(instance, key, ref) {
-  let value
-  if (Array.isArray(ref)) {
-    value = ref.map(r => getCustomRefDetails(instance, key, r)).map(data => data.value)
-  } else {
-    let name
-    // ref为代理实例
-    if (ref._isVue || ref.$?.vnode) {
-      name = getComponentName(ref.$options)
-    } else {
-      name = ref.tagName.toLowerCase()
-    }
-
-    value = {
-      _custom: {
-        display:
-          `&lt;${name}` +
-          (ref.id ? ` <span class="attr-title">id</span>="${ref.id}"` : '') +
-          (ref.className ? ` <span class="attr-title">class</span>="${ref.className}"` : '') +
-          '&gt;',
-        uid: instance.__VUE_DEVTOOLS_UID__,
-        type: 'reference',
-      },
-    }
-  }
-  return {
-    type: '$refs',
-    key: key,
-    value,
-    editable: false,
-  }
 }
 
 export function isPlainObject(obj) {

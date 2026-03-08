@@ -1,6 +1,6 @@
 // 循环引用了，这里放纯工具方法
 import { isRef, isReadonly, isReactive } from 'vue'
-import { camelize, getComponentName, getCustomRefDetails } from '@utils/util'
+import { camelize } from '@utils/util'
 import SharedData from '@utils/shared-data'
 import { engine } from '../engine'
 import { getHook } from './utils'
@@ -164,6 +164,39 @@ function processRefs(instance: any) {
   return Object.keys(refs)
     .filter(key => refs[key])
     .map(key => getCustomRefDetails(instance, key, refs[key]))
+}
+
+function getCustomRefDetails(instance, key, ref) {
+  let value
+  if (Array.isArray(ref)) {
+    value = ref.map(r => getCustomRefDetails(instance, key, r)).map(data => data.value)
+  } else {
+    let name
+    // ref为代理实例
+    if (ref._isVue || ref.$?.vnode) {
+      name = engine.getInstanceName(ref)
+    } else {
+      name = ref.tagName.toLowerCase()
+    }
+
+    value = {
+      _custom: {
+        display:
+          `&lt;${name}` +
+          (ref.id ? ` <span class="attr-title">id</span>="${ref.id}"` : '') +
+          (ref.className ? ` <span class="attr-title">class</span>="${ref.className}"` : '') +
+          '&gt;',
+        uid: instance.__VUE_DEVTOOLS_UID__,
+        type: 'reference',
+      },
+    }
+  }
+  return {
+    type: '$refs',
+    key: key,
+    value,
+    editable: false,
+  }
 }
 
 function processSetup(instance: any) {

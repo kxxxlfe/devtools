@@ -18,7 +18,7 @@ import {
   captureCount,
 } from './utils/flush'
 
-import { classify, parse, set, has, getComponentName } from '@utils/util'
+import { classify, parse, set, has } from '@utils/util'
 import ComponentSelector from './component-selector'
 import SharedData, { init as initSharedData } from '@utils/shared-data'
 import { whenDevtoolActive } from '@utils/devpage'
@@ -250,23 +250,9 @@ function walk(node, fn) {
 
 function getInstanceDetails(id) {
   const instance = instanceMap.get(id)
+  // vue2
   if (!instance) {
-    const vnode = findInstanceOrVnode(id)
-
-    if (!vnode) return {}
-
-    const data = {
-      id,
-      name: getComponentName(vnode.fnOptions),
-      file: vnode.fnOptions.__file || null,
-      state: processProps({
-        $options: vnode.fnOptions,
-        ...(vnode.devtoolsMeta?.renderContext.props || {}),
-      }),
-      functional: true,
-    }
-
-    return data
+    return engine.functional?.getTreeData(id)
   } else {
     const data: any = {
       id: id,

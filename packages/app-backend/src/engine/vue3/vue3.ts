@@ -1,24 +1,31 @@
 // API vue3
 import { ComponentPublicInstance } from 'vue'
-import { camelize, getCustomRefDetails } from '@utils/util'
+import { classify, basename } from '@utils/util'
 import { capture } from './capture'
 
 function getType(instance) {
   return instance.type || instance.proxy?.$options
 }
 
+function getOptionName(type) {
+  const { name, displayName, __name, __file } = type
+  const instName = name || displayName || __name
+  if (instName) {
+    return instName
+  }
+
+  if (__file) {
+    return classify(basename(__file, '.vue'))
+  }
+
+  return ''
+}
+
 function getInstanceName(instance) {
   const type = getType(instance)
-  const name = type?.name || type?.displayName || type?.__name
+  const name = getOptionName(type || {})
   if (name) return name
 
-  // 使用文件名
-  const file = type?.__file
-  if (file) {
-    const filenames = file.split(/(\/|\\)/)
-    const filename = filenames[filenames.length - 1]
-    return filename.split('.')[0]
-  }
   return instance.root === instance ? 'Root' : 'Anonymous Component'
 }
 
@@ -81,6 +88,7 @@ const engine = {
   isFragment,
   isActive: instance => !instance?.isDeactivated,
   getInstanceName,
+  getOptionName,
   findComponentByEl,
   capture,
   _: {

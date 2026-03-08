@@ -4,8 +4,8 @@
  */
 import { isRef } from 'vue'
 import * as CircularJSON from '@utils/transfer'
-import { getComponentName } from '@utils/util'
 import { getCustomInstanceDetails } from './process'
+import { engine } from '../engine'
 
 export const UNDEFINED = '__vue_devtool_undefined__'
 export const INFINITY = '__vue_devtool_infinity__'
@@ -124,7 +124,7 @@ export function getCustomSetDetails(val: Set<any>) {
 }
 
 export function getCustomComponentDefinitionDetails(def: any) {
-  let display = getComponentName(def)
+  let display = engine.getOptionName(def)
   if (display) {
     if (def.name && def.__file) {
       display += ` <span>(${def.__file})</span>`

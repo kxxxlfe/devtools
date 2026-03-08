@@ -1,7 +1,16 @@
 import { target } from '@utils/env'
+import { classify, basename } from '@utils/util'
 import engine from './vue2'
 import { getInstanceOrVnodeRect } from './rect'
-import { getRenderKey, flatten, instanceMap, getUniqueId, captureIds, consoleBoundInstances } from '../../utils'
+import {
+  getRenderKey,
+  flatten,
+  instanceMap,
+  getUniqueId,
+  captureIds,
+  consoleBoundInstances,
+  processProps,
+} from '../../utils'
 
 const functionalVnodeMap = (target.__VUE_DEVTOOLS_FUNCTIONAL_VNODE_MAP__ = new Map())
 let functionalIds = new Map()
@@ -147,8 +156,39 @@ export function findInstanceOrVnode(id) {
   }
 }
 
+export function getOptionName(options) {
+  const name = options.name || options._componentTag
+  if (name) {
+    return name
+  }
+  const file = options.__file // injected by vue-loader
+  if (file) {
+    return classify(basename(file, '.vue'))
+  }
+}
+
+const getFunctionalTreeData = function (id) {
+  const vnode = findInstanceOrVnode(id)
+
+  if (!vnode) return {}
+
+  const data = {
+    id,
+    name: getOptionName(vnode.fnOptions),
+    file: vnode.fnOptions.__file || null,
+    state: processProps({
+      $options: vnode.fnOptions,
+      ...(vnode.devtoolsMeta?.renderContext.props || {}),
+    }),
+    functional: true,
+  }
+
+  return data
+}
+
 export const functional = {
   captureSubVNodes,
   findInstanceOrVnode,
   functionalIds,
+  getTreeData: getFunctionalTreeData,
 }
