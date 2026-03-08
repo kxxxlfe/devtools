@@ -1,9 +1,4 @@
-export function findRelatedComponent(el) {
-  while (!el.__vue__ && el.parentElement) {
-    el = el.parentElement
-  }
-  return el?.__vue__
-}
+import { isBrowser, target } from '@utils/env'
 
 // 找到带id的instance
 export function findRelatedInstance(instance) {
@@ -23,4 +18,9 @@ export const debounce = function (func, timer) {
     clearTimeout(debounceTimer)
     debounceTimer = setTimeout(() => func(...args), timer)
   }
+}
+
+export const getHook = function () {
+  const hook = target.__VUE_DEVTOOLS_GLOBAL_HOOK__ || {}
+  return hook
 }

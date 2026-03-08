@@ -32,8 +32,9 @@ const enableEl = enableWrapper.querySelector('#forceEnabled')
 enableEl.addEventListener('change', () => {
   bridge.send(api.web.changeDevtoolsEnable, enableEl.checked)
 })
-const initEnable = function ({ vueDetected, nuxtDetected, devtoolsEnabled, devtoolsForceEnabled }) {
-  const showForceEnable = vueDetected && !devtoolsEnabled
+const initEnable = function ({ vueDetected, vueVersion, nuxtDetected, devtoolsEnabled, devtoolsForceEnabled }) {
+  // vue3编译期决定是否支持调试
+  const showForceEnable = +vueVersion < 3 && vueDetected && !devtoolsEnabled
   enableWrapper.style.display = showForceEnable ? 'inline-flex' : 'none'
   enableEl.checked = !!devtoolsForceEnabled
 }

@@ -1,3 +1,4 @@
 export * from './api'
-export { getCatchedGetters } from './details/custom'
-export * from './details/process'
+export * from './tools'
+export { getVerNum } from './vues/common'
+export * from './vues'

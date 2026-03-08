@@ -100,7 +100,6 @@ function initApp(shell) {
 
     initSharedData({
       exBridge,
-      Vue,
       persist: true,
     }).then(() => {
       if (SharedData.logDetected) {

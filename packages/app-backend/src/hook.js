@@ -9,6 +9,8 @@
  * @param {Window|global} target
  */
 
+import { envs } from '@vue-devtools/shared-utils'
+
 export function installHook(target) {
   let listeners = {}
 
@@ -89,13 +91,12 @@ export function installHook(target) {
     },
   })
 
+  // vue2 + 3
   hook.once('init', Vue => {
-    hook.Vue = Vue
-
-    Vue.prototype.$inspect = function () {
-      const fn = target.__VUE_DEVTOOLS_INSPECT__
-      fn && fn(this)
-    }
+    hook.env = hook.env || envs.vue2.makeEnv(Vue)
+  })
+  hook.once('app:init', (app, version, params) => {
+    hook.env = hook.env || envs.vue3.makeEnv(app)
   })
 
   hook.once('vuex:init', store => {

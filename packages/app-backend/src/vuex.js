@@ -1,10 +1,10 @@
 import Vue, { watch, nextTick } from 'vue'
 import { cloneDeep } from 'lodash-es'
-import { stringify, parse, set, get, cloneVueData } from '@utils/util'
+import { stringify, cloneVueData } from './utils'
+import { set, get, parse } from '@utils/util'
 import SharedData from '@utils/shared-data'
-import { getCatchedGetters } from '@vue-devtools/shared-utils'
 import clone from './clone'
-import { debounce } from './utils'
+import { debounce, getCatchedGetters } from './utils'
 import { bridge as exBridge, api } from './bridge'
 
 const isProd = process.env.NODE_ENV === 'production'

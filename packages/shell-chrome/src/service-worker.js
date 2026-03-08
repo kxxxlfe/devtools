@@ -83,14 +83,14 @@ function doublePipe(id, one, two) {
   updateContextMenuItem()
 }
 
-backBridge.on(api.back.vueDetectResult, function ({ vueDetected, nuxtDetected, sender }) {
+backBridge.on(api.back.vueDetectResult, function ({ vueDetected, nuxtDetected }, req) {
   if (!vueDetected) {
     return
   }
 
   const suffix = nuxtDetected ? '.nuxt' : ''
   chrome.action.setIcon({
-    tabId: sender.tab.id,
+    tabId: req?.tabId,
     path: {
       16: `../icons/16${suffix}.png`,
       48: `../icons/48${suffix}.png`,

@@ -1,9 +1,8 @@
-import { ref } from 'vue'
+import { ref, UnwrapRef } from 'vue'
 import * as storage from './storage'
 import { debug } from './util'
 import { api, PLATFORM } from './api'
-
-Promise.withResolvers =
+;(Promise as any).withResolvers =
   Promise.withResolvers ||
   function () {
     let resolve, reject
@@ -62,12 +61,12 @@ let persist = false
 
 // api has 'self' and 'other'
 const sapi = {
-  self: {},
-  other: {},
+  self: {} as any,
+  other: {} as any,
 }
 
 export async function init(params) {
-  const { promise, resolve } = Promise.withResolvers()
+  const { promise, resolve } = Promise.withResolvers<void>()
 
   // Mandatory params
   exBridge = params.exBridge
@@ -137,7 +136,7 @@ export const useSharedData = function () {
   return { sharedData: internalSharedData, updateSharedData }
 }
 
-const proxy = new Proxy(internalSharedData, {
+const proxy: UnwrapRef<typeof internalSharedData> = new Proxy(internalSharedData, {
   get(target, prop, receiver) {
     return internalSharedData.value[prop]
   },
@@ -146,6 +145,6 @@ const proxy = new Proxy(internalSharedData, {
     setValue(prop, value)
     return true
   },
-})
+}) as any
 
 export default proxy
