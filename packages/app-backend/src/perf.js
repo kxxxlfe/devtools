@@ -3,6 +3,7 @@ import SharedData from '@utils/shared-data'
 import { getComponentName } from '@utils/util'
 import { bridge as exBridge, api } from './bridge'
 import { instanceMap } from './utils'
+import { engine } from './engine'
 
 const COMPONENT_HOOKS = [
   'beforeCreate',
@@ -100,14 +101,14 @@ function applyHooks(vm) {
           const metric = renderMetrics[renderHook.before]
           if (metric) {
             metric.end = time
-            addComponentMetric(vm.$options, renderHook.before, metric.start, metric.end)
+            addComponentMetric(vm, renderHook.before, metric.start, metric.end)
           }
         }
 
         // After
         this.$once(`hook:${hook}`, () => {
           const newTime = performance.now()
-          addComponentMetric(vm.$options, hook, time, newTime)
+          addComponentMetric(vm, hook, time, newTime)
           if (renderHook && renderHook.after) {
             // Render hook starts after one hook
             renderMetrics[renderHook.after] = {
@@ -129,9 +130,9 @@ function applyHooks(vm) {
   })
 }
 
-function addComponentMetric(options, type, start, end) {
+function addComponentMetric(vm, type, start, end) {
   const duration = end - start
-  const name = getComponentName(options)
+  const name = engine._.getComponentName(vm)
 
   const metric = (componentMetrics[name] = componentMetrics[name] || {
     id: name,

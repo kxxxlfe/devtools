@@ -60,5 +60,5 @@ hook?.on('component:removed', function (app, uid, puid, instance) {
   instanceMap.delete(instance.__VUE_DEVTOOLS_UID__)
 })
 hook?.on('component:added', function (app, uid, puid, instance) {
-  console.log(instance)
+  // console.log(instance)
 })
