@@ -1,4 +1,4 @@
-<p align="center"><img width="720px" src="https://raw.githubusercontent.com/kxxxlfe/devtools/refs/heads/feature/5.5.1/media/screenshot-shadow2.png" alt="screenshot"></p>
+<p align="center"><img width="720px" src="https://raw.githubusercontent.com/kxxxlfe/devtools/refs/heads/feature/5.5.1/media/screenshot2.png" alt="screenshot"></p>
 
 # 特性
 - 支持`vue@3`, `vue@2.7`的`setup`
