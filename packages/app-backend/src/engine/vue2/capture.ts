@@ -140,9 +140,9 @@ function markFunctional(id, vnode) {
 
 // Find functional components in recursively in non-functional vnodes.
 export const captureSubVNodes = function (instance) {
-  const funcVNodes = instance._vnode?.children
+  const funcVNodes = instance._vnode?.children?.filter(child => !child.componentInstance)
   if (funcVNodes) {
-    const funcInsts = funcVNodes.filter(child => !child.componentInstance).map(capture)
+    const funcInsts = funcVNodes.map(captureChild)
     return flatten(funcInsts)
   }
 

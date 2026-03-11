@@ -74,7 +74,7 @@ function findQualifiedChildren(instance) {
 
 export function findQualifiedChildrenFromList(instances) {
   instances = instances.filter(child => !engine.isDestroyed(child))
-  return !filter ? instances.map(inst => capture(inst)) : flatten(instances.map(inst => findQualifiedChildren(inst)))
+  return !filter ? instances.map(capture) : Array.prototype.concat.apply([], instances.map(findQualifiedChildren))
 }
 
 /** 在 index 的 flush 调用前清空本次 capture 的状态 */
