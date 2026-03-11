@@ -67,7 +67,9 @@ function findQualifiedChildren(instance) {
     return capture(instance)
   }
   const children = engine.children(instance)
-  const functionalChildren = engine.functional?.captureSubVNodes(instance) || []
+  const functionalChildren = (engine.functional?.captureSubVNodes(instance) || []).filter(instance =>
+    isQualified(instance)
+  )
 
   return [...findQualifiedChildrenFromList(children), ...functionalChildren]
 }
