@@ -1,6 +1,7 @@
 const toastMessages = {
   'open-devtools': { message: 'Open Vue devtools to see component details', type: 'normal' },
   'component-not-found': { message: 'No Vue component was found', type: 'warn' },
+  'copied': { message: 'Component name copied to clipboard', type: 'normal' },
 }
 
 export function toast(id) {
