@@ -96,6 +96,13 @@ const engine = {
   isDestroyed: instance => instance?.isUnmounted,
   isFragment,
   isActive: instance => !instance?.isDeactivated,
+  isComponentInstance: instance => instance?.emit && instance?.vnode,
+  isVNode: instance => {
+    if (!instance) {
+      return false
+    }
+    return ['el', 'component', '__v_isVNode'].every(k => Reflect.has(instance, k))
+  },
   getInstanceName,
   getOptionName,
   findComponentByEl,

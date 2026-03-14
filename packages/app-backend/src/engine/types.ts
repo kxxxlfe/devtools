@@ -1,11 +1,15 @@
+type BoolFunc = (instance: any) => boolean
+
 export type VueEngine = {
   uid: (instance: any) => any
   getInstanceName: (instance: any) => string
   getOptionName: (instance: any) => string
   children: (instance: any) => any[]
   file: (instance: any) => string | null
-  isDestroyed: (instance: any) => boolean
-  isFragment: (instance: any) => boolean
+  isDestroyed: BoolFunc
+  isFragment: BoolFunc
+  isComponentInstance: BoolFunc
+  isVNode: BoolFunc
   _: {
     el: (instance: any) => Element
     data: (instance: any) => any

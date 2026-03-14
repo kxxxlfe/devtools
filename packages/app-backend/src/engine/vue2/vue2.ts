@@ -63,6 +63,16 @@ export default {
   isDestroyed: instance => instance?._isBeingDestroyed,
   isFragment,
   isActive: instance => !instance?._inactive,
+  isComponentInstance: instance => instance?._isVue || instance?.vnode,
+  isVNode: instance => {
+    if (!instance) {
+      return false
+    }
+    return (
+      instance.constructor?.name?.startsWith('VNode') ||
+      ['tag', 'elm', 'componentInstance', 'asyncFactory'].every(k => Reflect.has(instance, k))
+    )
+  },
   getInstanceName,
   getOptionName,
   findComponentByEl,

@@ -201,12 +201,9 @@ function replacer(key: string, val: any): any {
     if (proto === '[object Error]') return `[native Error ${(val as Error).message}]`
     if (val.state && val._vm) return encodeCache.cache(val, () => getCustomStoreDetails(val))
     if (val.constructor?.name === 'VueRouter') return encodeCache.cache(val, () => getCustomRouterDetails(val))
-    if (val._isVue || val.vnode) return encodeCache.cache(val, () => getCustomInstanceDetails(val))
+    if (engine.isComponentInstance(val)) return encodeCache.cache(val, () => getCustomInstanceDetails(val))
     if (typeof val.render === 'function') return encodeCache.cache(val, () => getCustomComponentDefinitionDetails(val))
-    if (
-      val.constructor?.name?.startsWith('VNode') ||
-      ['tag', 'elm', 'componentInstance', 'asyncFactory'].every(k => Reflect.has(val, k))
-    ) {
+    if (engine.isVNode(val)) {
       return `[native VNode <${val.tag}>]`
     }
     if (isRef(val)) return val.value
