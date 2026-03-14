@@ -90,4 +90,17 @@ export default {
     route: instance => instance?.$route,
     pinia: instance => instance?.$pinia,
   },
+  getMuteAPI(instance) {
+    const hook = getHook()
+    const { Vue, verNum } = hook.env
+    if (verNum === 1) {
+      return {
+        $set: Vue?.set,
+        $delete: Vue?.delete,
+      }
+    }
+
+    // vue2
+    return instance
+  }
 }

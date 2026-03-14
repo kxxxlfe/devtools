@@ -120,6 +120,16 @@ const engine = {
     route: instance => instance?.appContext?.config.globalProperties.$route,
     pinia: instance => instance?.appContext?.config.globalProperties.$pinia,
   },
+  getMuteAPI(instance) {
+    return {
+      $set(obj, field, value) {
+        obj[field] = value
+      },
+      $delete(obj, field) {
+        Reflect.deleteProperty(obj, field)
+      },
+    }
+  }
 }
 
 export default engine

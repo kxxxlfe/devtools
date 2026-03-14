@@ -22,6 +22,12 @@ export type VueEngine = {
     route: (instance: any) => any
     pinia: (instance: any) => any
   }
+  getMuteAPI: (instance) => {
+    $set: any
+    $delete: any
+  }
+
+  // vue2
   functional?: any
 
   // vue3

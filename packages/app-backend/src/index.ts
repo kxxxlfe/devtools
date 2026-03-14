@@ -364,27 +364,7 @@ function setStateValue({ id, path, value, newKey, remove }) {
     if (value) {
       parsedValue = parse(value, true)
     }
-    const { verNum } = hook.env
-    const api = {
-      1: () => {
-        const { Vue } = hook.env
-        return {
-          $set: Vue?.set,
-          $delete: Vue?.delete,
-        }
-      },
-      2: () => instance,
-      3: () => {
-        return {
-          $set(obj, field, value) {
-            obj[field] = value
-          },
-          $delete(obj, field) {
-            Reflect.deleteProperty(obj, field)
-          },
-        }
-      },
-    }[verNum]()
+    const api = engine.getMuteAPI(instance)
 
     let data
     const paths = path.split('.')
