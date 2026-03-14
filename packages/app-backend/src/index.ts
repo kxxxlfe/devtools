@@ -1,6 +1,5 @@
 // This is the backend that is injected into the page that a Vue app lives in
 // when the Vue Devtools panel is activated.
-import Vue from 'vue'
 import { envs } from '@vue-devtools/shared-utils'
 import { highlight, unHighlight } from './highlighter'
 import { initVuexBackend } from './vuex'
@@ -8,7 +7,7 @@ import { initEventsBackend } from './events'
 import { initRouterBackend } from './router'
 import { initPerfBackend } from './perf'
 import { initPiniaBackend } from './pinia'
-import { debounce, getInstanceState, processProps, stringify, setFilter } from './utils'
+import { debounce, getInstanceState, getHook, stringify, setFilter } from './utils'
 import {
   instanceMap,
   consoleBoundInstances,
@@ -28,10 +27,8 @@ import { inspectInstance } from './op'
 import { initRightClick } from './contextmenu'
 import { engine, setEngine } from './engine'
 
-Vue.config.devtools = false // 否则会干扰到页面中的Vue
-
 // hook should have been injected before this executes.
-const hook = target.__VUE_DEVTOOLS_GLOBAL_HOOK__
+const hook = getHook()
 const rootInstances = []
 
 // 插入backend脚本，防止多次插入

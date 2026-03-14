@@ -1,6 +1,6 @@
 // 循环引用了，这里放纯工具方法
 import { isRef, isReadonly, isReactive } from 'vue'
-import { camelize, getCustomRefDetails } from '@utils/util'
+import { camelize } from '@utils/util'
 import SharedData from '@utils/shared-data'
 import { engine } from '../engine'
 import { getHook } from './utils'
