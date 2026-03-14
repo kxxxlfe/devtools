@@ -97,6 +97,7 @@ const engine = {
   isFragment,
   isActive: instance => !instance?.isDeactivated,
   isComponentInstance: instance => instance?.emit && instance?.vnode,
+  isProxyCompInstance: instance => engine.isComponentInstance(instance?.$),
   isVNode: instance => {
     if (!instance) {
       return false

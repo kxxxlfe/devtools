@@ -173,7 +173,7 @@ function getCustomRefDetails(instance, key, ref) {
   } else {
     let name
     // ref为代理实例
-    if (ref._isVue || ref.$?.vnode) {
+    if (engine.isComponentInstance(ref) || engine.isProxyCompInstance?.(ref)) {
       name = engine.getInstanceName(ref)
     } else {
       name = ref.tagName.toLowerCase()

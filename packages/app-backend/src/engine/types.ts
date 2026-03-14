@@ -23,5 +23,8 @@ export type VueEngine = {
     pinia: (instance: any) => any
   }
   functional?: any
+
+  // vue3
+  isProxyCompInstance?: BoolFunc
   [key: string]: any
 }
