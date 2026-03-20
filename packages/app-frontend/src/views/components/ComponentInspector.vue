@@ -1,7 +1,11 @@
 <template>
   <scroll-pane>
     <action-header v-show="hasTarget" slot="header">
-      <span class="title">
+      <span
+        v-tooltip="'Click to copy component name'"
+        class="title"
+        @click="copyName"
+      >
         <span class="title-bracket">&lt;</span>
         <span>{{ targetName }}</span>
         <span class="title-bracket">&gt;</span>
@@ -48,6 +52,7 @@ import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 import StateInspector from '@front/components/StateInspector.vue'
 import { searchDeepInObject, sortByKey, openInEditor, getComponentDisplayName } from '@utils/util'
+import { toast } from '@front/utils'
 import { useComponent } from './useComponent'
 import { onBeforeMount } from 'vue'
 
@@ -129,6 +134,17 @@ export default {
       const file = this.target.file
       openInEditor(file)
     },
+
+    copyName() {
+      if (!this.targetName) return
+      const el = document.createElement('textarea')
+      el.value = this.targetName
+      document.body.appendChild(el)
+      el.select()
+      document.execCommand('copy')
+      document.body.removeChild(el)
+      toast('copied')
+    },
   },
 }
 </script>
@@ -138,5 +154,11 @@ export default {
   white-space: nowrap;
   position: relative;
   top: -1px;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 </style>
+
