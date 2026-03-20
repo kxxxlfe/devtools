@@ -1,11 +1,7 @@
 <template>
   <scroll-pane>
     <action-header v-show="hasTarget" slot="header">
-      <span
-        v-tooltip="'Click to copy component name'"
-        class="title"
-        @click="copyName"
-      >
+      <span v-tooltip="'Click to copy component name'" class="title" @click="copyName">
         <span class="title-bracket">&lt;</span>
         <span>{{ targetName }}</span>
         <span class="title-bracket">&gt;</span>
@@ -43,7 +39,7 @@
   </scroll-pane>
 </template>
 
-<script>
+<script lang="ts">
 import { ref, computed } from 'vue'
 import { debounce, groupBy } from 'lodash-es'
 import { bridge as exBridge, api } from '@front/bridge'
@@ -51,10 +47,9 @@ import { bridge as exBridge, api } from '@front/bridge'
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 import StateInspector from '@front/components/StateInspector.vue'
-import { searchDeepInObject, sortByKey, openInEditor, getComponentDisplayName } from '@utils/util'
+import { searchDeepInObject, sortByKey, openInEditor, getComponentDisplayName, copyToClipboard } from '@utils/util'
 import { toast } from '@front/utils'
 import { useComponent } from './useComponent'
-import { onBeforeMount } from 'vue'
 
 export default {
   components: {
@@ -137,12 +132,7 @@ export default {
 
     copyName() {
       if (!this.targetName) return
-      const el = document.createElement('textarea')
-      el.value = this.targetName
-      document.body.appendChild(el)
-      el.select()
-      document.execCommand('copy')
-      document.body.removeChild(el)
+      copyToClipboard(this.targetName)
       toast('copied')
     },
   },
@@ -161,4 +151,3 @@ export default {
   }
 }
 </style>
-
