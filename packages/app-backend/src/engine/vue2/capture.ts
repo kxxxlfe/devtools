@@ -186,7 +186,28 @@ const getFunctionalTreeData = function (id) {
   return data
 }
 
+const BreakSymbol = Symbol('break')
+const tranverseFunctionalNode = function (vnode, callback) {
+  const res = callback(vnode)
+  if (res === BreakSymbol) {
+    return
+  }
+
+  const children = vnode?.children || []
+  children.forEach(child => tranverseFunctionalNode(child, callback))
+}
+
 export const functional = {
+  children(instance) {
+    const result = []
+    tranverseFunctionalNode(instance._vnode, function (vnode) {
+      if (vnode.fnContext && !vnode.componentInstance) {
+        result.push(vnode)
+        return BreakSymbol
+      }
+    })
+    return result
+  },
   captureSubVNodes,
   findInstanceOrVnode,
   functionalIds,
