@@ -138,17 +138,6 @@ function markFunctional(id, vnode) {
   functionalVnodeMap.get(refId)[id] = vnode
 }
 
-// Find functional components in recursively in non-functional vnodes.
-export const captureSubVNodes = function (instance) {
-  const funcVNodes = instance._vnode?.children?.filter(child => !child.componentInstance)
-  if (funcVNodes) {
-    const funcInsts = funcVNodes.map(captureChild)
-    return flatten(funcInsts)
-  }
-
-  return []
-}
-
 export function findInstanceOrVnode(id) {
   if (/:functional:/.test(id)) {
     const [refId] = id.split(':functional:')
@@ -197,18 +186,19 @@ const tranverseFunctionalNode = function (vnode, callback) {
   children.forEach(child => tranverseFunctionalNode(child, callback))
 }
 
+const getFuncChildren = function (instance) {
+  const result = []
+  tranverseFunctionalNode(instance._vnode, function (vnode) {
+    if (vnode.fnContext && !vnode.componentInstance) {
+      result.push(vnode)
+      return BreakSymbol
+    }
+  })
+  return result
+}
+
 export const functional = {
-  children(instance) {
-    const result = []
-    tranverseFunctionalNode(instance._vnode, function (vnode) {
-      if (vnode.fnContext && !vnode.componentInstance) {
-        result.push(vnode)
-        return BreakSymbol
-      }
-    })
-    return result
-  },
-  captureSubVNodes,
+  children: getFuncChildren,
   findInstanceOrVnode,
   functionalIds,
   getTreeData: getFunctionalTreeData,

@@ -77,19 +77,6 @@ const traverseInstance = function (instance, callback) {
   fchildren.forEach(child => traverseInstance(child, callback))
 }
 
-function findQualifiedChildren(instance) {
-  if (isQualified(instance)) {
-    return capture(instance)
-  }
-
-  const functionalChildren = (engine.functional?.captureSubVNodes(instance) || []).map(findQualifiedChildren)
-
-  const children = engine.children(instance)
-  const qchildren = findQualifiedChildrenFromList(children)
-
-  return [...qchildren, ...functionalChildren].filter(instance => isQualified(instance))
-}
-
 export function findQualifiedChildrenFromList(instances) {
   instances = instances.filter(child => !engine.isDestroyed(child))
   if (!filter) {
