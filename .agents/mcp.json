@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "lark-project-dev-docs-mcp": {
+      "type": "http",
+      "url": "https://project.feishu.cn/mcp_server/knowledge?userKey=7260744332754386948"
+    }
+  }
+}

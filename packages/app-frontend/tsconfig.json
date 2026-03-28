@@ -4,7 +4,11 @@
     "isolatedModules": true,
     "moduleResolution": "bundler",
     "baseUrl": ".",
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@utils/*": ["../shared-utils/src/*"],
+      "@front/*": ["./src/*"]
+    }
   },
   "include": ["src/**/*", "*.d.ts"],
   "exclude": ["node_modules"]

@@ -24,7 +24,7 @@ importers:
         specifier: ^6.2.0
         version: 6.5.2
       semver:
-        specifier: ^5.5.1
+        specifier: ^5.5.2
         version: 5.7.1
       start-server-and-test:
         specifier: ^1.7.1

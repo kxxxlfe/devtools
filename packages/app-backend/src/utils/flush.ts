@@ -62,21 +62,41 @@ export function capture(instance) {
   return engine.capture(instance)
 }
 
-function findQualifiedChildren(instance) {
-  if (isQualified(instance)) {
-    return capture(instance)
+// 遍历组件树，支持中断
+const BreakSymbol = Symbol('break')
+const traverseInstance = function (instance, callback) {
+  const res = callback(instance)
+  if (res === BreakSymbol) {
+    return
   }
-  const children = engine.children(instance)
-  const functionalChildren = (engine.functional?.captureSubVNodes(instance) || []).filter(instance =>
-    isQualified(instance)
-  )
 
-  return [...findQualifiedChildrenFromList(children), ...functionalChildren]
+  const children = engine.children(instance) || []
+  children.forEach(child => traverseInstance(child, callback))
+
+  const fchildren = engine.functional?.children(instance) || []
+  fchildren.forEach(child => traverseInstance(child, callback))
 }
 
 export function findQualifiedChildrenFromList(instances) {
   instances = instances.filter(child => !engine.isDestroyed(child))
-  return !filter ? instances.map(capture) : Array.prototype.concat.apply([], instances.map(findQualifiedChildren))
+  if (!filter) {
+    return instances.map(capture)
+  }
+
+  // 寻找符合条件的所有节点
+  const filteredChildren = []
+  instances.forEach(instance => {
+    traverseInstance(instance, function (curr) {
+      // 符合条件直接中断
+      if (isQualified(curr)) {
+        const node = capture(curr)
+        filteredChildren.push(node)
+        return BreakSymbol
+      }
+    })
+  })
+
+  return filteredChildren
 }
 
 /** 在 index 的 flush 调用前清空本次 capture 的状态 */

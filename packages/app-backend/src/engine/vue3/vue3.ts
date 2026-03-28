@@ -96,6 +96,14 @@ const engine = {
   isDestroyed: instance => instance?.isUnmounted,
   isFragment,
   isActive: instance => !instance?.isDeactivated,
+  isComponentInstance: instance => instance?.emit && instance?.vnode,
+  isProxyCompInstance: instance => engine.isComponentInstance(instance?.$),
+  isVNode: instance => {
+    if (!instance) {
+      return false
+    }
+    return ['el', 'component', '__v_isVNode'].every(k => Reflect.has(instance, k))
+  },
   getInstanceName,
   getOptionName,
   findComponentByEl,
@@ -112,6 +120,16 @@ const engine = {
     route: instance => instance?.appContext?.config.globalProperties.$route,
     pinia: instance => instance?.appContext?.config.globalProperties.$pinia,
   },
+  getMuteAPI(instance) {
+    return {
+      $set(obj, field, value) {
+        obj[field] = value
+      },
+      $delete(obj, field) {
+        Reflect.deleteProperty(obj, field)
+      },
+    }
+  }
 }
 
 export default engine
