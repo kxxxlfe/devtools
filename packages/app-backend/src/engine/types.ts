@@ -32,5 +32,7 @@ export type VueEngine = {
 
   // vue3
   isProxyCompInstance?: BoolFunc
+
+  initHook: (hook, { debounceFlush }) => any
   [key: string]: any
 }

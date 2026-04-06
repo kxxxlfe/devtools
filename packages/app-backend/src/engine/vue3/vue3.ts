@@ -129,7 +129,15 @@ const engine = {
         Reflect.deleteProperty(obj, field)
       },
     }
-  }
+  },
+  initHook(hook, { debounceFlush }) {
+    hook.off('component:updated')
+    hook.on('component:updated', () => {
+      if (hook.currentTab === 'components') {
+        debounceFlush()
+      }
+    })
+  },
 }
 
 export default engine

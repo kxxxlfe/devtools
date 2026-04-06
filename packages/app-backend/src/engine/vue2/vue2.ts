@@ -102,5 +102,13 @@ export default {
 
     // vue2
     return instance
-  }
+  },
+  initHook(hook, { debounceFlush }) {
+    hook.off('flush')
+    hook.on('flush', () => {
+      if (hook.currentTab === 'components') {
+        debounceFlush()
+      }
+    })
+  },
 }
