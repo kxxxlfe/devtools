@@ -86,12 +86,7 @@ function connect() {
     // the backend may get injected to the same page multiple times
     // if the user closes and reopens the devtools.
     // make sure there's only one flush listener.
-    hook.off('flush')
-    hook.on('flush', () => {
-      if (hook.currentTab === 'components') {
-        debounceFlush()
-      }
-    })
+    engine.initHook(hook, { debounceFlush })
 
     // vuex
     if (hook.store) {
