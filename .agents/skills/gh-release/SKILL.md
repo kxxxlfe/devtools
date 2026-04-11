@@ -1,6 +1,6 @@
 ---
 name: gh-release
-description: 发布 vue-devtools GitHub Release。当用户说"发release"、"发布release"、"发版"、"发一个release"时触发。格式："发release {版本号}"，例如"发release 5.5.3"。
+description: 发布 vue-devtools GitHub Release。当用户说"发release"、"发布release"、"发版"、"发一个release"时触发。格式："发release {版本号}"，例如"发release 5.5.3"，"发布 5.5.3"。
 ---
 
 # vue-devtools GitHub Release 发布
@@ -9,12 +9,12 @@ description: 发布 vue-devtools GitHub Release。当用户说"发release"、"�
 
 ## 触发条件
 
-- 用户说"发release {版本号}"，例如"发release 5.5.3"
-- 用户说"发布release"、"发版"并带有版本号
+- 用户说"发 release {版本号}"，例如"发 release 5.5.3"
+- 用户说"发布 release"、"发版"并带有版本号
 
 ## 参数提取
 
-从用户消息中提取版本号，例如"发release 5.5.3" → 版本号为 `5.5.3`。
+从用户消息中提取版本号，例如"发 release 5.5.3" → 版本号为 `5.5.3`。
 
 如果用户没有提供版本号，从 `package.json` 的 `version` 字段读取当前版本号，并询问用户确认。
 
@@ -65,8 +65,11 @@ gh pr create \
   --base base/5.3.4 \
   --head {currentBranch} \
   --title "Release v{ver}" \
-  --body "Release v{ver}"
+  --body "Release v{ver}" \
+  --repo kxxxlfe/devtools
 ```
+
+> **注意**：必须加 `--repo kxxxlfe/devtools`，否则 `gh` 可能因 repo 解析失败而报误导性错误（如 "No commits between"）。
 
 PR URL 示例格式参考：`https://github.com/kxxxlfe/devtools/compare/base/5.3.4...kxxxlfe:devtools:feature/5.5.4?expand=1`
 
@@ -76,8 +79,11 @@ PR URL 示例格式参考：`https://github.com/kxxxlfe/devtools/compare/base/5.
 gh release create v{ver} \
   dist/vue-devtools@{ver}.zip \
   --title "v{ver}" \
-  --notes ""
+  --notes "" \
+  --repo kxxxlfe/devtools
 ```
+
+> **注意**：必须加 `--repo kxxxlfe/devtools`，否则 `gh` 可能因 repo 解析失败而报误导性错误（如 "workflow scope may be required"）。
 
 - tag 为 `v{ver}`
 - 上传 `dist/vue-devtools@{ver}.zip` 作为 release asset
@@ -86,6 +92,7 @@ gh release create v{ver} \
 ### Step 7: 输出结果
 
 完成后输出：
+
 - PR URL
 - Release URL
 - 上传的 zip 文件名
