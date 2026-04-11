@@ -20,6 +20,16 @@ description: 发布 vue-devtools GitHub Release。当用户说"发release"、"�
 
 ## 执行步骤
 
+### Step 0: 验证 gh CLI 登录状态
+
+1. 运行 `gh auth status` 检查登录状态
+2. 如果已登录（退出码 0）→ 继续执行 Step 1
+3. 如果未登录（退出码非 0）：
+   - 运行 `gh auth login` 启动交互式登录流程
+   - **等待用户在终端中完成登录操作**
+   - 登录完成后再次运行 `gh auth status` 确认登录成功
+   - 如果仍然未登录 → 停止，提示用户手动执行 `gh auth login` 后重试
+
 ### Step 1: 确认版本号与当前分支
 
 1. 读取 `package.json` 中的 `version` 字段作为 `curVer`
