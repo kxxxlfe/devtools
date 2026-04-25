@@ -119,7 +119,7 @@ function connect() {
       initPiniaBackend(rootInstances)
 
       // perf
-      Vue && initPerfBackend(Vue)
+      initPerfBackend()
 
       // router
       initRouterBackend(rootInstances)
