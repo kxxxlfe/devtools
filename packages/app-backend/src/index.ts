@@ -123,7 +123,7 @@ function connect() {
 
       // router
       initRouterBackend(rootInstances)
-    }, 0)
+    }, 600)
   })
 }
 
