@@ -1,17 +1,8 @@
 import { watch } from 'vue'
 import SharedData from '@utils/shared-data'
-import { bridge as exBridge, api } from './bridge'
-import { getHook } from './utils'
-import { engine } from './engine'
-
-const PERF_TYPE_DISPLAY: Record<string, string> = {
-  init: 'init',
-  mount: 'mount',
-  render: 'render',
-  patch: 'patch',
-  hydrate: 'hydrate',
-  compile: 'compile',
-}
+import { bridge as exBridge, api } from '../bridge'
+import { getHook } from '../utils'
+import { engine } from '../engine'
 
 let frames = 0
 let frameTime: number
@@ -92,7 +83,6 @@ function frameInterval() {
 function addComponentMetric(component: any, type: string, start: number, end: number) {
   const duration = end - start
   const name = engine.getInstanceName(component)
-  const hookLabel = PERF_TYPE_DISPLAY[type] ?? type
 
   const metric = (componentMetrics[name] = componentMetrics[name] || {
     id: name,
@@ -100,7 +90,7 @@ function addComponentMetric(component: any, type: string, start: number, end: nu
     totalTime: 0,
   })
 
-  const hookEntry = (metric.hooks[hookLabel] = metric.hooks[hookLabel] || {
+  const hookEntry = (metric.hooks[type] = metric.hooks[type] || {
     count: 0,
     totalTime: 0,
   })
