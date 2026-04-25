@@ -1,6 +1,6 @@
 import { getHook } from '../utils'
 import { initPerfVue3Backend } from './perf-vue3'
-import { initPerfBackend as initPerfVue2Backend } from './perf'
+import { initPerfVue2Backend } from './perf-vue2'
 
 export const initPerfBackend = function () {
   const Vue = getHook()?.Vue
