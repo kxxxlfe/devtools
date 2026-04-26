@@ -1,8 +1,7 @@
 import { watch } from 'vue'
 import SharedData from '@utils/shared-data'
-import { bridge as exBridge, api } from './bridge'
-import { instanceMap } from './utils'
-import { engine } from './engine'
+import { instanceMap } from '../utils'
+import { addComponentMetric, startRecording, stopRecording } from './perf-shared'
 
 const COMPONENT_HOOKS = [
   'beforeCreate',
@@ -13,22 +12,18 @@ const COMPONENT_HOOKS = [
   'updated',
   'beforeDestroyed',
   'destroyed',
-]
+] as const
 
-const RENDER_HOOKS = {
+type ComponentHook = (typeof COMPONENT_HOOKS)[number]
+
+const RENDER_HOOKS: Partial<Record<ComponentHook, { before?: string; after?: string }>> = {
   beforeMount: { after: 'mountRender' },
   mounted: { before: 'mountRender' },
   beforeUpdate: { after: 'updateRender' },
   updated: { before: 'updateRender' },
 }
 
-let frames = 0
-let frameTime
-let secondsTimer
-
-let componentMetrics
-
-export function initPerfBackend(Vue) {
+export function initPerfVue2Backend(Vue: any) {
   // Global mixin
   Vue.mixin({
     beforeCreate() {
@@ -51,47 +46,16 @@ export function initPerfBackend(Vue) {
   )
 }
 
-function startRecording() {
-  frames = 0
-  frameTime = performance.now()
-  secondsTimer = setInterval(frameInterval, 500)
-  componentMetrics = {}
-  requestAnimationFrame(frame)
-}
-
-function stopRecording() {
-  clearInterval(secondsTimer)
-}
-
-function frame() {
-  frames++
-  if (SharedData.recordPerf) {
-    requestAnimationFrame(frame)
-  }
-}
-
-function frameInterval() {
-  const metric = {
-    type: 'fps',
-    time: Date.now(),
-    start: frameTime,
-    end: (frameTime = performance.now()),
-  }
-  metric.value = Math.round((frames / (metric.end - metric.start)) * 1000)
-  frames = 0
-  exBridge.send(api.devtool.perf.addMetric, metric)
-}
-
-function applyHooks(vm) {
+function applyHooks(vm: any) {
   if (vm.$options.$_devtoolsPerfHooks) return
   vm.$options.$_devtoolsPerfHooks = true
 
-  const renderMetrics = {}
+  const renderMetrics: Record<string, { start: number; end: number }> = {}
 
   COMPONENT_HOOKS.forEach(hook => {
     const renderHook = RENDER_HOOKS[hook]
 
-    const handler = function () {
+    const handler = function (this: any) {
       if (SharedData.recordPerf) {
         // Before
         const time = performance.now()
@@ -118,6 +82,7 @@ function applyHooks(vm) {
         })
       }
     }
+
     const currentValue = vm.$options[hook]
     if (Array.isArray(currentValue)) {
       vm.$options[hook] = [handler, ...currentValue]
@@ -127,26 +92,4 @@ function applyHooks(vm) {
       vm.$options[hook] = [handler]
     }
   })
-}
-
-function addComponentMetric(vm, type, start, end) {
-  const duration = end - start
-  const name = engine.getInstanceName(vm)
-
-  const metric = (componentMetrics[name] = componentMetrics[name] || {
-    id: name,
-    hooks: {},
-    totalTime: 0,
-  })
-
-  const hook = (metric.hooks[type] = metric.hooks[type] || {
-    count: 0,
-    totalTime: 0,
-  })
-  hook.count++
-  hook.totalTime += duration
-
-  metric.totalTime += duration
-
-  exBridge.send(api.devtool.perf.upsertMetric, { type: 'componentRender', data: metric })
 }

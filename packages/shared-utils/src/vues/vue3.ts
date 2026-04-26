@@ -14,7 +14,9 @@ const detectVue = function (dom) {
 // 生成标准环境数据
 const makeEnv = function (appContext) {
   const { version, _container } = appContext
-  const devtoolsEnabled = !!_container.children?.[0]?.__vueParentComponent
+  // 先判断默认enabled
+  const devtoolsEnabled =
+    globalThis.__VUE_DEVTOOLS_GLOBAL_HOOK__?.enabled ?? !!_container.children?.[0]?.__vueParentComponent
   return {
     version,
     verNum: getVerNum(version),
