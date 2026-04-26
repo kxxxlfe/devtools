@@ -85,11 +85,13 @@ PR URL 示例格式参考：`https://github.com/kxxxlfe/devtools/compare/base/5.
 
 ### Step 6: 创建 GitHub Release
 
+根据当前分支和分支 `origin/base/5.3.4` 的代码改动，总结一段 {note}
+
 ```bash
 gh release create v{ver} \
   dist/vue-devtools@{ver}.zip \
   --title "v{ver}" \
-  --notes "" \
+  --notes "{note}" \
   --repo kxxxlfe/devtools
 ```
 
