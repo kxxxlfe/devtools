@@ -100,6 +100,9 @@ function connect() {
     // events
     initEventsBackend()
 
+    // perf
+    initPerfBackend()
+
     // User project devtools config
     if (target.hasOwnProperty('VUE_DEVTOOLS_CONFIG')) {
       const config = target.VUE_DEVTOOLS_CONFIG
@@ -117,9 +120,6 @@ function connect() {
 
       // pinia
       initPiniaBackend(rootInstances)
-
-      // perf
-      initPerfBackend()
 
       // router
       initRouterBackend(rootInstances)
