@@ -98,7 +98,7 @@ function connect() {
     }
 
     // events
-    Vue && initEventsBackend(Vue)
+    initEventsBackend()
 
     // User project devtools config
     if (target.hasOwnProperty('VUE_DEVTOOLS_CONFIG')) {
