@@ -9,6 +9,7 @@
  * @param {Window|global} target
  */
 
+import { debounce } from 'lodash-es'
 import { envs } from '@vue-devtools/shared-utils'
 
 export function installHook(target) {
@@ -35,13 +36,13 @@ export function installHook(target) {
       }
     },
 
-    _cleanBuffer() {
+    _cleanBuffer: debounce(function () {
       const now = Date.now()
       this._buffer = this._buffer.filter(entry => {
         // 有监听器的保留（等待 _replayBuffer 消费）；无监听器且超过 30s 的清除
         return listeners['$' + entry.args[0]] || now - entry.timestamp <= 30000
       })
-    },
+    }, 500),
 
     on(event, fn) {
       const $event = '$' + event
@@ -93,10 +94,10 @@ export function installHook(target) {
           cbs[i].apply(this, eventArgs)
         }
       } else {
-        this._cleanBuffer()
         const allArgs = [].slice.call(arguments)
         this._buffer.push({ args: allArgs, timestamp: Date.now() })
       }
+      this._cleanBuffer()
     },
   })
 
