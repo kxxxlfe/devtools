@@ -1,11 +1,12 @@
 import { stringify, getHook } from './utils'
-import { engine } from './engine'
+import { getEngine } from './engine'
 import { bridge as exBridge, api } from './bridge'
 import sharedData from '@utils/shared-data'
 
 const internalRE = /^(?:pre-)?hook:/
 
 function logEvent(vm, type, eventName, payload) {
+  const engine = getEngine(vm)
   // The string check is important for compat with 1.x where the first
   // argument may be an object instead of a string.
   // this also ensures the event is only logged for direct $emit (source)
