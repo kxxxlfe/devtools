@@ -64,6 +64,7 @@ function makeAPI() {
       pinia: {
         init: `${PLATFORM.devtool}/pinia/init`,
         updateState: `${PLATFORM.devtool}/pinia/updateState`,
+        getSelectedKey: `${PLATFORM.devtool}/pinia/getSelectedKey`,
       },
       shared: {
         init: `${PLATFORM.devtool}/shared-data:init`,

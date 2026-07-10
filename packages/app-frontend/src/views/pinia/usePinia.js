@@ -12,6 +12,9 @@ exBridge.on(api.devtool.pinia.updateState, function ({ key, state }) {
   currStoreKey.value = key
   inspectedState.value = parse(state) || {}
 })
+exBridge.on(api.devtool.pinia.getSelectedKey, function () {
+  return currStoreKey.value
+})
 
 export const usePinia = function () {
   const selectStore = async function (key) {

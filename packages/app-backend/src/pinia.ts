@@ -13,7 +13,7 @@ const putil = {
   get: key => pinia._s.get(key),
 }
 
-export function initPiniaBackend(rootInstances) {
+export async function initPiniaBackend(rootInstances) {
   pinia = engine._.pinia(rootInstances[0])
   if (!pinia) {
     return
@@ -30,7 +30,7 @@ export function initPiniaBackend(rootInstances) {
 
   exBridge.on(api.web.pinia.select, function ({ key }) {
     currStoreKey = key
-    mutationListen.sub(key)
+    mutationListen.sub()
     const state = makePiniaState(key)
 
     return {
@@ -47,6 +47,11 @@ export function initPiniaBackend(rootInstances) {
       state: stringify(state),
     }
   })
+
+  // 热更新，此时已经有监听的key了，得重新监听下
+  const storeKeyFromDevtool = await exBridge.request(api.devtool.pinia.getSelectedKey)
+  currStoreKey = storeKeyFromDevtool
+  mutationListen.sub()
 }
 
 // 制作某个store的state
@@ -106,12 +111,12 @@ const mutationListen = {
       state: stringify(state),
     })
   }, 300),
-  sub(key) {
-    if (!key) {
+  sub() {
+    if (!currStoreKey) {
       return
     }
     this.unsub()
-    const targetStore = putil.get(key)
+    const targetStore = putil.get(currStoreKey)
     this.unsubscribe = targetStore.$subscribe((mutation, state) => {
       this.onMutation()
     })
@@ -124,7 +129,7 @@ watch(
   () => sharedData.recordPinia,
   value => {
     if (value) {
-      mutationListen.sub(currStoreKey)
+      mutationListen.sub()
     } else {
       mutationListen.unsub()
     }
