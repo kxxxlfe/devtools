@@ -1,5 +1,5 @@
 import path from 'path-browserify'
-import { transform, cloneDeepWith, cloneDeep } from 'lodash-es'
+import { transform, cloneDeep } from 'lodash-es'
 import * as CircularJSON from './transfer'
 import SharedData from './shared-data'
 import { isChrome } from './env'
