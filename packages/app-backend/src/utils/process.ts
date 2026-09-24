@@ -137,7 +137,7 @@ export function processProps(instance: any) {
 }
 
 function processAttrs(instance: any) {
-  return Object.entries(instance.$attrs || {}).map(([key, value]) => ({
+  return entries(instance.$attrs || {}).map(([key, value]) => ({
     type: '$attrs',
     key,
     value,
@@ -152,7 +152,7 @@ function getPropType(type: any): string {
 
 function processState(instance: any) {
   const data = engine._.data(instance)
-  return Object.entries(data).map(([key, value]) => ({
+  return entries(data).map(([key, value]) => ({
     key,
     value,
     editable: true,
@@ -205,7 +205,7 @@ function processSetup(instance: any) {
   const setupState = engine._.setupState(instance)
   const refs = engine._.refs(instance)
 
-  Object.entries(setupState).forEach(([key, value]: [string, any]) => {
+  entries(setupState).forEach(([key, value]: [string, any]) => {
     if (typeof value === 'function') {
       return
     }
@@ -266,7 +266,7 @@ function processComputed(instance: any) {
 function processInjected(instance: any) {
   const injected = engine._.inject(instance)
   if (injected) {
-    return Object.entries(injected).map(([key, val]) => ({
+    return entries(injected).map(([key, val]) => ({
       key,
       type: 'injected',
       value: val,
@@ -338,4 +338,18 @@ function processObservables(instance: any) {
     }))
   }
   return []
+}
+
+// 需要对错误的computed兼容
+const entries = function <T>(obj: T) {
+  const results: [string, T[keyof T]][] = []
+  Object.keys(obj).forEach(key => {
+    let val = null
+    try {
+      val = obj[key]
+    } catch (e) {}
+    results.push([key, val])
+  })
+
+  return results
 }
