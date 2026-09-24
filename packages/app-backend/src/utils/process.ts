@@ -347,7 +347,9 @@ const entries = function <T>(obj: T) {
     let val = null
     try {
       val = obj[key]
-    } catch (e) {}
+    } catch (e) {
+      val = e
+    }
     results.push([key, val])
   })
 
