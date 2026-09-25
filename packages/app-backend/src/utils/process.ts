@@ -74,8 +74,7 @@ export function processProps(instance: any) {
   const verNum = getHook().env?.verNum
   if (verNum === 1) {
     props = instance._props
-    return Object.keys(props).map(key => {
-      const prop = props![key]
+    return entries(props).map(([key, prop]) => {
       const options = prop.options
       return {
         type: 'props',
