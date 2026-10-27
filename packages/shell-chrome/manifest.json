@@ -8,7 +8,7 @@
   "action": {
     "default_icon": { "16": "icons/16-gray.png", "48": "icons/48-gray.png", "128": "icons/128-gray.png" },
     "default_title": "Vue Devtools",
-    "default_popup": "popups/vue-popup.html"
+    "default_popup": "popups/popup.html"
   },
   "web_accessible_resources": [
     {
