@@ -58,12 +58,17 @@ export const treeUtil = {
 
 // 嗅探Vue
 export const detectVue = async function ({ times = 1000 } = {}) {
-  const innerDetect = function () {
+  let runCount = 0
+
+  const innerDetect = function (stopped) {
     if (!globalThis.document?.body) {
       return null
     }
 
-    let runCount = 0
+    if (runCount >= times) {
+      return stopped
+    }
+
     let envData = null
     treeUtil.tranverse(globalThis.document.body, function (node) {
       runCount++
