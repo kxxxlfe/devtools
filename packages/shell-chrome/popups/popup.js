@@ -34,7 +34,7 @@ enableEl.addEventListener('change', () => {
 })
 const initEnable = function ({ vueDetected, vueVersion, nuxtDetected, devtoolsEnabled, devtoolsForceEnabled }) {
   // vue3编译期决定是否支持调试
-  const showForceEnable = +vueVersion < 3 && vueDetected && !devtoolsEnabled
+  const showForceEnable = parseFloat(vueVersion) < 3 && vueDetected && !devtoolsEnabled
   enableWrapper.style.display = showForceEnable ? 'inline-flex' : 'none'
   enableEl.checked = !!devtoolsForceEnabled
 }
