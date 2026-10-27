@@ -72,6 +72,8 @@ const enableDevtools = function () {
   }
   const hook = globalThis.__VUE_DEVTOOLS_GLOBAL_HOOK__
   if (!hook.env?.devtoolsEnabled) {
+    // 同步检测时保存的状态，确保 backend 扫描时能够收集根组件。
+    VueRecord.devtoolsEnabled = true
     hook.env = VueRecord
     hook.emit('horse:init')
   }
