@@ -46,9 +46,7 @@ function detect(win) {
       const hook = globalThis.__VUE_DEVTOOLS_GLOBAL_HOOK__
       if (hook) {
         if (devtoolsEnabled || detectRes.devtoolsForceEnabled) {
-          if (!hook.env?.devtoolsEnabled) {
-            enableDevtools()
-          }
+          enableDevtools()
           if (!hook.store && env?.store) {
             hook.emit('vuex:init', env?.store)
           }
