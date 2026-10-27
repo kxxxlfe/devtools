@@ -15,7 +15,7 @@ const initDetectRes = function ({ version, devtoolsEnabled, ...others }: any) {
 }
 
 function detect(win) {
-  setTimeout(() => {
+  setTimeout(async () => {
     // Method 1: Check Nuxt.js
     const { __NUXT__, $nuxt } = window as any
 
@@ -37,7 +37,7 @@ function detect(win) {
     }
 
     // Method 2: Scan all elements inside document
-    const env = detectVue() || {}
+    const env = (await detectVue()) || {}
 
     if (env.version) {
       const { version, devtoolsEnabled } = env
