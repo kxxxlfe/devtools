@@ -99,7 +99,7 @@ export const detectVue = async function ({ times = 1000 } = {}) {
   let res
   try {
     // 找3次
-    res = await waitUntil({ trigger: innerDetect, timeout: 500, maxTimes: 3 })
+    res = await waitUntil({ trigger: innerDetect, timeout: 500, maxTimes: 10 })
     return res
   } catch (e) {
     return null
