@@ -53,6 +53,11 @@ const tranverseVNodes = function (instance, callback: (vnode) => any) {
     if (callback(vnode) === false) {
       return
     }
+    // Suspense slots are not an array of children; follow the rendered branch.
+    if (vnode.suspense) {
+      tranverse(vnode.suspense.activeBranch)
+      return
+    }
     if (Array.isArray(vnode.children)) {
       vnode.children.forEach(item => {
         tranverse(item)

@@ -193,6 +193,12 @@ function replacer(key: string, val: any): any {
     return `[native Symbol ${Symbol.prototype.toString.call(val)}]`
   }
   if (val !== null && type === 'object') {
+    // Vue 3 public proxies must be normalized before JSON enumerates their keys.
+    // Cache by internal instance so proxy/internal references share one result.
+    if (engine.isProxyCompInstance?.(val)) {
+      val = val.$
+    }
+    if (engine.isComponentInstance(val)) return encodeCache.cache(val, () => getCustomInstanceDetails(val))
     const proto = Object.prototype.toString.call(val)
     if (proto === '[object Map]') return encodeCache.cache(val, () => getCustomMapDetails(val))
     if (proto === '[object Set]') return encodeCache.cache(val, () => getCustomSetDetails(val))
@@ -201,7 +207,6 @@ function replacer(key: string, val: any): any {
     if (proto === '[object Error]') return `[native Error ${(val as Error).message}]`
     if (val.state && val._vm) return encodeCache.cache(val, () => getCustomStoreDetails(val))
     if (val.constructor?.name === 'VueRouter') return encodeCache.cache(val, () => getCustomRouterDetails(val))
-    if (engine.isComponentInstance(val)) return encodeCache.cache(val, () => getCustomInstanceDetails(val))
     if (typeof val.render === 'function') return encodeCache.cache(val, () => getCustomComponentDefinitionDetails(val))
     if (engine.isVNode(val)) {
       return `[native VNode <${val.tag}>]`

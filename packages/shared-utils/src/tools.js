@@ -3,6 +3,25 @@ import { envs } from './vues'
 export function waitTime(time = 100) {
   return new Promise(r => setTimeout(r, time))
 }
+export function waitUntil({ trigger, timeout = 0, maxTimes = 100 }) {
+  let tryCount = 0
+  const stopped = 'stopped'
+  return new Promise(async (resolve, reject) => {
+    while (tryCount < maxTimes) {
+      const result = trigger(stopped)
+      if (result === stopped) {
+        return reject('waitUntil 终止')
+      }
+      if (result) {
+        return resolve(result)
+      }
+      tryCount++
+      await waitTime(timeout)
+    }
+
+    reject('waitUntil 超过最大次数')
+  })
+}
 
 export const treeUtil = {
   // 遍历
@@ -38,37 +57,53 @@ export const treeUtil = {
 }
 
 // 嗅探Vue
-export const detectVue = function ({ times = 1000 } = {}) {
-  if (!globalThis.document?.body) {
-    return null
+export const detectVue = async function ({ times = 1000 } = {}) {
+  let runCount = 0
+
+  const innerDetect = function (stopped) {
+    if (!globalThis.document?.body) {
+      return null
+    }
+
+    if (runCount >= times) {
+      return stopped
+    }
+
+    let envData = null
+    treeUtil.tranverse(globalThis.document.body, function (node) {
+      runCount++
+      // 最多查找1000个节点
+      if (runCount >= times) {
+        return false
+      }
+      // 已找到
+      if (envData) {
+        return false
+      }
+
+      const vue2Env = envs.vue2.detectVue(node)
+      if (vue2Env) {
+        envData = vue2Env
+        return
+      }
+      const vue3Env = envs.vue3.detectVue(node)
+      if (vue3Env) {
+        envData = vue3Env
+        return
+      }
+    })
+
+    return envData
   }
 
-  let runCount = 0
-  let envData = null
-  treeUtil.tranverse(globalThis.document.body, function (node) {
-    runCount++
-    // 最多查找1000个节点
-    if (runCount >= times) {
-      return false
-    }
-    // 已找到
-    if (envData) {
-      return false
-    }
-
-    const vue2Env = envs.vue2.detectVue(node)
-    if (vue2Env) {
-      envData = vue2Env
-      return
-    }
-    const vue3Env = envs.vue3.detectVue(node)
-    if (vue3Env) {
-      envData = vue3Env
-      return
-    }
-  })
-
-  return envData
+  let res
+  try {
+    // 找3次
+    res = await waitUntil({ trigger: innerDetect, timeout: 500, maxTimes: 10 })
+    return res
+  } catch (e) {
+    return null
+  }
 }
 
 // `checkVisibility` polyfill, not consider parent visibility

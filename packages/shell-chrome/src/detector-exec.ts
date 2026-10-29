@@ -15,29 +15,21 @@ const initDetectRes = function ({ version, devtoolsEnabled, ...others }: any) {
 }
 
 function detect(win) {
-  setTimeout(() => {
+  setTimeout(async () => {
     // Method 1: Check Nuxt.js
-    const { __NUXT__, $nuxt } = window as any
+    let env
 
-    if (Boolean(__NUXT__ || $nuxt)) {
-      let Vue
-
-      if ($nuxt) {
-        Vue = $nuxt.$root.constructor
-        VueRecord = {
-          ...envs.vue2.makeEnv(Vue),
-          devtoolsEnabled: true,
-        }
+    const { __NUXT__, $nuxt } = win
+    const nuxtDetected = Boolean(__NUXT__ || $nuxt)
+    if (nuxtDetected) {
+      const Vue = $nuxt?.$root?.constructor
+      if (Vue?.version?.startsWith('2.')) {
+        env = envs.vue2.makeEnv(Vue)
       }
-
-      initDetectRes({ version: Vue?.version, nuxtDetected: true })
-      bridge.send(api.back.vueDetectResult, detectRes)
-
-      return
     }
 
-    // Method 2: Scan all elements inside document
-    const env = detectVue() || {}
+    // Nuxt payloads alone do not identify Vue. Nuxt 3+ also needs DOM detection.
+    env = env || (await detectVue()) || {}
 
     if (env.version) {
       const { version, devtoolsEnabled } = env
@@ -46,15 +38,13 @@ function detect(win) {
       const hook = globalThis.__VUE_DEVTOOLS_GLOBAL_HOOK__
       if (hook) {
         if (devtoolsEnabled || detectRes.devtoolsForceEnabled) {
-          if (!hook.env?.devtoolsEnabled) {
-            enableDevtools()
-          }
+          enableDevtools()
           if (!hook.store && env?.store) {
             hook.emit('vuex:init', env?.store)
           }
         }
       }
-      initDetectRes({ version, devtoolsEnabled })
+      initDetectRes({ version, devtoolsEnabled, nuxtDetected })
       bridge.send(api.back.vueDetectResult, detectRes)
     }
   }, 100)
@@ -72,6 +62,8 @@ const enableDevtools = function () {
   }
   const hook = globalThis.__VUE_DEVTOOLS_GLOBAL_HOOK__
   if (!hook.env?.devtoolsEnabled) {
+    // 同步检测时保存的状态，确保 backend 扫描时能够收集根组件。
+    VueRecord.devtoolsEnabled = true
     hook.env = VueRecord
     hook.emit('horse:init')
   }

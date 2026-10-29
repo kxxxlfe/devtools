@@ -7,7 +7,9 @@ export function capture(instance: any) {
   if (!instance?.subTree) return
 
   const routerViewInfo = instance.__vrv_devtools
-  if (routerViewInfo) {
+  // Preserve the flattened RouterView -> page presentation, but metadata alone
+  // does not identify a RouterView wrapper (e.g. with Nuxt / custom slots).
+  if (routerViewInfo && instance.subTree.component) {
     instance = instance.subTree.component
   }
 
