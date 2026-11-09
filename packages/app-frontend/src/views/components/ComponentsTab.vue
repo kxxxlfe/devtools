@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import Defer from '@front/mixins/defer'
+import { useDefer } from '@front/composables/useDefer'
 
 import SplitPane from '@front/components/SplitPane.vue'
 import ComponentTree from './ComponentTree.vue'
@@ -32,15 +32,14 @@ export default {
   },
 
   setup(props, { emit }) {
+    const { defer } = useDefer()
     const { inspectedInstance, inspected } = useComponent()
 
     const { instances } = useComponentTree()
 
-    return { instances, loading: inspected.loading, inspectedId: inspected.id, target: inspectedInstance }
+    return { defer, instances, loading: inspected.loading, inspectedId: inspected.id, target: inspectedInstance }
   },
 
   extends: superDef,
-
-  mixins: [Defer()],
 }
 </script>

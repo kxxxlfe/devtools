@@ -13,10 +13,13 @@
 </template>
 
 <script>
-import Defer from '@front/mixins/defer'
+import { useDefer } from '@front/composables/useDefer'
 
 export default {
-  mixins: [Defer()],
+  setup() {
+    const { defer } = useDefer()
+    return { defer }
+  },
 }
 </script>
 

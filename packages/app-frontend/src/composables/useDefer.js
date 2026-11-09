@@ -1,0 +1,28 @@
+import { onBeforeUnmount, onMounted, shallowRef } from 'vue'
+
+// 配合 v-if="defer(priority)" 分帧渲染组件，减轻首次渲染的卡顿。
+export function useDefer(count = 10) {
+  const displayPriority = shallowRef(0)
+  let frameId = null
+
+  const step = () => {
+    frameId = requestAnimationFrame(() => {
+      frameId = null
+      displayPriority.value++
+      if (displayPriority.value < count) {
+        step()
+      }
+    })
+  }
+
+  onMounted(step)
+  onBeforeUnmount(() => {
+    if (frameId !== null) {
+      cancelAnimationFrame(frameId)
+    }
+  })
+
+  const defer = priority => displayPriority.value >= priority
+
+  return { defer }
+}

@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import Defer from '@front/mixins/defer'
+import { useDefer } from '@front/composables/useDefer'
 
 import SplitPane from '@front/components/SplitPane.vue'
 import EventsHistory from './EventsHistory.vue'
@@ -22,11 +22,10 @@ export default {
     EventInspector,
   },
   setup(props, { emit }) {
+    const { defer } = useDefer()
     const {} = useEvents()
 
-    return {}
+    return { defer }
   },
-
-  mixins: [Defer()],
 }
 </script>

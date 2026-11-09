@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import Defer from '@front/mixins/defer'
+import { useDefer } from '@front/composables/useDefer'
 
 import SplitPane from '@front/components/SplitPane.vue'
 import VuexHistory from './VuexHistory.vue'
@@ -26,10 +26,9 @@ export default {
   },
 
   setup(props, { emit }) {
+    const { defer } = useDefer()
     const { hasVuex } = useVuex()
-    return { hasVuex }
+    return { defer, hasVuex }
   },
-
-  mixins: [Defer()],
 }
 </script>

@@ -29,7 +29,7 @@
 
 <script>
 import Vue, { provide } from 'vue'
-import Defer from '@front/mixins/defer'
+import { useDefer } from '@front/composables/useDefer'
 import StateFields from './StateFields.vue'
 
 const keyOrder = {
@@ -52,8 +52,6 @@ export default {
     StateFields,
   },
 
-  mixins: [Defer()],
-
   props: {
     state: {
       type: Object,
@@ -67,12 +65,14 @@ export default {
   },
 
   setup(props, { emit }) {
+    const { defer } = useDefer()
+
     provide('when', {
       onEdit(...args) {
         emit('edit', ...args)
       },
     })
-    return {}
+    return { defer }
   },
 
   data() {
