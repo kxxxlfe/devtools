@@ -38,6 +38,7 @@
       </a>
     </action-header>
     <RecycleScroller
+      ref="scroller"
       slot="scroll"
       :items="filter ? filteredHistory : [{ id: -1 }].concat(filteredHistory)"
       :item-size="highDensity ? 22 : 34"
@@ -134,12 +135,12 @@
 </template>
 
 <script>
-import { computed, getCurrentInstance } from 'vue'
+import { computed, ref } from 'vue'
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 
 import Keyboard, { UP, DOWN, DEL, BACKSPACE, ENTER } from '@front/mixins/keyboard'
-import EntryList from '@front/mixins/entry-list'
+import { useEntryList } from '@front/composables/useEntryList'
 import { useSharedData } from '@utils/shared-data'
 import { focusInput } from '@utils/util'
 import { useVuex } from './useVuex'
@@ -183,14 +184,24 @@ export default {
       },
     })
 
+    const scroller = ref(null)
+    const inspectedIndex = computed(() => vuexState.inspectedIndex)
+    useEntryList({
+      inspectedIndex,
+      highDensity,
+      scroller,
+      indexOffset: 1,
+    })
+
     return {
+      scroller,
       sharedData,
       highDensity,
       toggleRecording,
       // State
       history: computed(() => vuexState.history),
       lastCommit: computed(() => vuexState.lastCommit),
-      inspectedIndex: computed(() => vuexState.inspectedIndex),
+      inspectedIndex,
       activeIndex: computed(() => vuexState.activeIndex),
       filterRegex: computed(() => vuexState.filterRegex),
       filterRegexInvalid: computed(() => vuexState.filterRegexInvalid),
@@ -236,9 +247,6 @@ export default {
             }
         }
       },
-    }),
-    EntryList({
-      indexOffset: 1,
     }),
   ],
 

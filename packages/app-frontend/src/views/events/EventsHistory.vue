@@ -24,6 +24,7 @@
       </a>
     </action-header>
     <RecycleScroller
+      ref="scroller"
       slot="scroll"
       :items="filteredEvents"
       :item-size="highDensity ? 22 : 34"
@@ -62,11 +63,13 @@
 </template>
 
 <script>
+import { computed, ref } from 'vue'
 import ScrollPane from '@front/components/ScrollPane.vue'
 import ActionHeader from '@front/components/ActionHeader.vue'
 
 import Keyboard, { UP, DOWN, DEL, BACKSPACE } from '@front/mixins/keyboard'
-import EntryList from '@front/mixins/entry-list'
+import { useEntryList } from '@front/composables/useEntryList'
+import { useSharedData } from '@utils/shared-data'
 import { focusInput, getComponentDisplayName } from '@utils/util'
 import { useEvents } from './useEvents'
 
@@ -77,6 +80,7 @@ export default {
   },
 
   setup(props, { emit }) {
+    const { sharedData } = useSharedData()
     const {
       filter: eventsFilter,
       inspect,
@@ -89,7 +93,27 @@ export default {
       updateFilter,
     } = useEvents()
 
-    return { eventsFilter, inspect, toggle, reset, enabled, events, inspectedIndex, filteredEvents, updateFilter }
+    const scroller = ref(null)
+    const highDensity = computed(() => {
+      const pref = sharedData.value.displayDensity
+      return (pref === 'auto' && filteredEvents.value.length > 8) || pref === 'high'
+    })
+
+    useEntryList({ inspectedIndex, highDensity, scroller })
+
+    return {
+      scroller,
+      highDensity,
+      eventsFilter,
+      inspect,
+      toggle,
+      reset,
+      enabled,
+      events,
+      inspectedIndex,
+      filteredEvents,
+      updateFilter,
+    }
   },
 
   mixins: [
@@ -118,7 +142,6 @@ export default {
         }
       },
     }),
-    EntryList(),
   ],
 
   computed: {
@@ -130,11 +153,6 @@ export default {
         this.updateFilter(filter)
         this.inspect(filter ? -1 : this.events.length - 1)
       },
-    },
-
-    highDensity() {
-      const pref = this.$shared.displayDensity
-      return (pref === 'auto' && this.filteredEvents.length > 8) || pref === 'high'
     },
   },
 
